@@ -1,0 +1,5 @@
+
+quarks-ordinals.sqlite3
+
+create table _mapping_ (_quarkuuid_ text, _ordinal_ real);
+

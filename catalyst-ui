@@ -1,0 +1,87 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+Thread.new {
+    loop {
+        sleep 120
+        if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("f5f52127-c140-4c59-85a2-8242b546fe1f", 3600) then
+            system("#{File.dirname(__FILE__)}/../../vienna-import")
+        end
+    }
+}
+
+loop {
+
+    CatalystUtils::importFromLucilleInbox()
+    Calendar::dailyBriefingIfNotDoneToday()
+    Anniversaries::dailyBriefingIfNotDoneToday()
+
+    system("clear")
+
+    vspaceleft = CatalystUtils::screenHeight()-6
+
+    puts ""
+
+    if ![6, 0].include?(Time.new.wday) and !KeyValueStore::flagIsTrue(nil, "a2f220ce-e020-46d9-ba64-3938ca3b69d4:#{CatalystUtils::today()}") and Time.new.hour >= 9 and Time.new.hour < 17 then
+        puts "==> { work }".green
+        vspaceleft = vspaceleft - 1
+    end
+
+    items = UIServices::catalystNS16s()
+                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+
+    items.each_with_index{|item, indx|
+        announce = "(#{"%3d" % indx}) #{item["announce"]}"
+        vspaceleft = vspaceleft - CatalystUtils::verticalSize(announce)
+        next if vspaceleft < 0
+        puts announce
+    }
+
+    puts "Quarks cardinal: #{QuarksOrdinals::count()} ; Quarks Horizon: #{QuarksHorizon::getHorizonDateTimeOrNull()}".yellow
+
+    context = {"items" => items}
+    actions = [
+        ["..", ".. (access top)", lambda{|context, command|
+            system("clear")
+            items[0]["lambda"].call()
+        }],
+        ["++", "++ # Postpone top item by an hour", lambda{|context, command|
+            DoNotShowUntil::setUnixtime(context["items"][0]["uuid"], Time.new.to_i+3600)
+        }, !context["items"].empty?],
+        ["+ *", "+ <weekday> # Postpone top item", lambda{|context, command|
+            _, weekdayname = Interpreting::tokenizer(command)
+            unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{weekdayname}")
+            return if unixtime.nil?
+            item = context["items"][0]
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+        }],
+        ["+ * *", "+ <float> <datecode unit> # Postpone top item", lambda{|context, command|
+            _, amount, unit = Interpreting::tokenizer(command)
+            unixtime = CatalystUtils::codeToUnixtimeOrNull("+#{amount}#{unit}")
+            return if unixtime.nil?
+            item = context["items"][0]
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+        }],
+        ["select *", "select <n>", lambda{|context, command|
+            _, ordinal = Interpreting::tokenizer(command)
+            ordinal = ordinal.to_i
+            item = context["items"][ordinal]
+            return if item.nil?
+            item["lambda"].call()
+        }],
+        ["/", "/", lambda{|context, command|
+            UIServices::servicesFront()
+        }]
+    ]
+
+    returnvalue = Interpreting::interpreter(context, actions, {
+        "displayHelpInLineAtIntialization" => true
+    })
+
+}
+

@@ -1,0 +1,44 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+def diveNavigationPoints()
+    loop {
+        system("clear")
+        typex = NyxNavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
+        break if typex.nil?
+        loop {
+            system("clear")
+            classifiers = NyxNavigationPoints::getNavigationPoints()
+                            .select{|classifier| classifier["type"] == typex["type"] }
+                            .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"] }
+            classifier = CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(classifiers, lambda{|classifier| NyxNavigationPoints::toString(classifier) })
+            break if classifier.nil?
+            NyxNavigationPoints::landing(classifier)
+        }
+    }
+end
+
+loop {
+    system("clear")
+    puts "Nyx 🗺"
+    ops = ["Search", "Dive Navigation Points", "Architect Node"]
+    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
+    break if operation.nil?
+    if operation == "Search" then
+        Patricia::generalSearchLoop()
+    end
+    if operation == "Dive Navigation Points" then
+        diveNavigationPoints()
+    end
+    if operation == "Architect Node" then
+        node = Patricia::achitectureNodeOrNull()
+        next if node.nil?
+        Patricia::landing(node)
+    end
+
+}

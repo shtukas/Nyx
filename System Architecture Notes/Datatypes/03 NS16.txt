@@ -1,0 +1,5 @@
+NS16 {
+    "uuid"        : String # used by DoNotShowUntil
+    "announce"    : String
+    "lambda"      : Lambda
+}

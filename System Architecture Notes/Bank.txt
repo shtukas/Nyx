@@ -1,0 +1,11 @@
+
+
+CREATE TABLE _operations_ (_setuuid_ text, _operationuuid_ text, _unixtime_ real, _weight_ real);
+CREATE TABLE _operations2_ (_setuuid_ text, _operationuuid_ text, _unixtime_ real, _date_ text, _weight_ real);
+
+insert into _operations_ (_setuuid_, _operationuuid_ , _unixtime_, _weight_) values ('setuuid:24979259-3397-4ce0-9243-e5f2e6608157', 'op:1', 1605687706, 10);
+insert into _operations_ (_setuuid_, _operationuuid_ , _unixtime_, _weight_) values ('setuuid:24979259-3397-4ce0-9243-e5f2e6608157', 'op:2', 1605687707, 12);
+
+select sum(_weight_) as _sum_ from _operations_ where _setuuid_='setuuid:24979259-3397-4ce0-9243-e5f2e6608157';
+
+select sum(_weight_) as _sum_ from _operations_ where _setuuid_='setuuid:24979259-3397-4ce0-9243-e5f2e6608157' and _unixtime_ > 0;

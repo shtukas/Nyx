@@ -1,0 +1,7 @@
+
+Quark {
+    "uuid"       : String
+    "nyxNxSet"   : "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
+    "unixtime"   : Float # Unixtime with decimals
+    "nereiduuid" : String
+}
