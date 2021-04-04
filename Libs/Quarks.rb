@@ -236,9 +236,6 @@ class Quarks
                 Patricia::landing(item)
                 Quarks::destroyQuark(quark)
             }],
-            ["/", "/", lambda{|context, command|
-                UIServices::servicesFront()
-            }],
             ["landing", "landing", lambda{|context, command|
                 quark = context["quark"]
                 Quarks::landing(quark)
