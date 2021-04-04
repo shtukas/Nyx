@@ -131,8 +131,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 # ------------------------------------------------------------
 
-require_relative "Anniversaries.rb"
-
 require_relative "Bank.rb"
 =begin 
     Bank::put(uuid, weight)
