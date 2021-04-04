@@ -8,11 +8,6 @@ class Patricia
         !element["payload"].nil?
     end
 
-    # Patricia::isWave(object)
-    def self.isWave(object)
-        object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
-    end
-
     # Patricia::isNavigationPoint(item)
     def self.isNavigationPoint(item)
         item["identifier1"] == "103df1ac-2e73-4bf1-a786-afd4092161d4"
@@ -39,9 +34,6 @@ class Patricia
         if Patricia::isNavigationPoint(item) then
             return NyxNavigationPoints::toString(item)
         end
-        if Patricia::isWave(item) then
-            return Waves::toString(item)
-        end
         puts item
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
     end
@@ -55,10 +47,6 @@ class Patricia
         if Patricia::isNavigationPoint(item) then
             NyxNavigationPoints::landing(item)
             return
-        end
-        if Patricia::isWave(item) then
-            Waves::landing(item)
-            return 
         end
         puts item
         raise "[error: fb2fb533-c9e5-456e-a87f-0523219e91b7]"

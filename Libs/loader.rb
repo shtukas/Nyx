@@ -178,8 +178,6 @@ require_relative "Runner.rb"
 
 require_relative "SectionsType0141.rb"
 
-require_relative "Waves.rb"
-
 # ------------------------------------------------------------
 
 
