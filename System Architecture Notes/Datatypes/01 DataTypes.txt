@@ -9,10 +9,6 @@ NereidElement {
 
 ------------------------------------------------------------------------------
 
-Todo Types: CalendarItem, AnniversaryItem, Waves (TodoCoreData), Quark (TodoCoreData)
-
-------------------------------------------------------------------------------
-
 NyxNavigationPoint {
     "uuid"         : String
     "unixtime"     : Float
