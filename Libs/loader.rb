@@ -141,10 +141,6 @@ require_relative "BinaryBlobsService.rb"
 require_relative "CatalystUtils.rb"
 require_relative "Commons.rb"
 
-require_relative "DoNotShowUntil.rb"
-#    DoNotShowUntil::setUnixtime(uid, unixtime)
-#    DoNotShowUntil::isVisible(uid)
-
 require_relative "Interpreting.rb"
 
 require_relative "GalaxyFinder.rb"
@@ -173,10 +169,6 @@ require_relative "NyxNavigationPoints.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
-
-require_relative "Quarks.rb"
-require_relative "QuarksOrdinals.rb"
-require_relative "QuarksHorizon.rb"
 
 require_relative "Runner.rb"
 =begin 

@@ -120,7 +120,6 @@ class Waves
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
         TodoCoreData::put(wave)
         unixtime = Waves::scheduleToDoNotShowUnixtime(wave['schedule'])
-        DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
     end
 
     # Waves::issueWave(uuid, element, schedule)
@@ -167,24 +166,6 @@ class Waves
         "[wave] [#{Waves::scheduleToString(wave["schedule"])}] #{NereidInterface::toString(wave["nereiduuid"])} (#{ago})"
     end
 
-    # Waves::ns16s()
-    def self.ns16s()
-        Waves::waves()
-            .map{|wave|
-                {
-                    "uuid"     => wave["uuid"],
-                    "announce" => Waves::toString(wave),
-                    "lambda"   => lambda { 
-                        Waves::access(wave)
-                        if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
-                            Waves::performDone(wave)
-                        end
-                    }
-                }
-            }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-    end
-
     # Waves::access(wave)
     def self.access(wave)
         puts Waves::toString(wave)
@@ -214,11 +195,6 @@ class Waves
             puts Waves::toString(wave)
             puts "uuid: #{wave["uuid"]}"
             puts "last done: #{wave["lastDoneDateTime"]}"
-            if DoNotShowUntil::isVisible(wave["uuid"]) then
-                puts "active"
-            else
-                puts "hidden until: #{Time.at(DoNotShowUntil::getUnixtimeOrNull(wave["uuid"])).to_s}"
-            end
             puts "schedule: #{wave["schedule"]}"
 
             menuitems = LCoreMenuItemsNX1.new()

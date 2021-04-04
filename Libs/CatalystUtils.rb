@@ -86,44 +86,6 @@ class CatalystUtils
         safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
     end
 
-    # CatalystUtils::importFromLucilleInbox()
-    def self.importFromLucilleInbox()
-        getNextLocationAtTheInboxOrNull = lambda {
-            Dir.entries("/Users/pascal/Desktop/Todo-Inbox")
-                .reject{|filename| filename[0, 1] == '.' }
-                .map{|filename| "/Users/pascal/Desktop/Todo-Inbox/#{filename}" }
-                .first
-        }
-        while (location = getNextLocationAtTheInboxOrNull.call()) do
-            if File.basename(location).include?("'") then
-                basename2 = File.basename(location).gsub("'", "-")
-                location2 = "#{File.dirname(location)}/#{basename2}"
-                FileUtils.mv(location, location2)
-                next
-            end
-
-            nereiduuid = SecureRandom.hex
-            payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-            NereidInterface::insertElementComponents(nereiduuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
-
-            quark = {
-                "uuid"       => SecureRandom.hex,
-                "nyxNxSet"   => "d65674c7-c8c4-4ed4-9de9-7c600b43eaab",
-                "unixtime"   => Time.new.to_i,
-                "nereiduuid" => nereiduuid
-            }
-            TodoCoreData::put(quark)
-
-            puts JSON.pretty_generate(quark)
-
-            ordinal = Quarks::computeLowOrdinal()
-
-            QuarksOrdinals::setQuarkOrdinal(quark, ordinal)
-
-            LucilleCore::removeFileSystemLocation(location)
-        end
-    end
-
     # CatalystUtils::isDateTime_UTC_ISO8601(datetime)
     def self.isDateTime_UTC_ISO8601(datetime)
         DateTime.parse(datetime).to_time.utc.iso8601 == datetime

@@ -13,11 +13,6 @@ class Patricia
         object["nyxNxSet"] == "7deb0315-98b5-4e4d-9ad2-d83c2f62e6d4"
     end
 
-    # Patricia::isQuark(object)
-    def self.isQuark(object)
-        object["nyxNxSet"] == "d65674c7-c8c4-4ed4-9de9-7c600b43eaab"
-    end
-
     # Patricia::isNavigationPoint(item)
     def self.isNavigationPoint(item)
         item["identifier1"] == "103df1ac-2e73-4bf1-a786-afd4092161d4"
@@ -44,9 +39,6 @@ class Patricia
         if Patricia::isNavigationPoint(item) then
             return NyxNavigationPoints::toString(item)
         end
-        if Patricia::isQuark(item) then
-            return Quarks::toString(item)
-        end
         if Patricia::isWave(item) then
             return Waves::toString(item)
         end
@@ -62,10 +54,6 @@ class Patricia
         end
         if Patricia::isNavigationPoint(item) then
             NyxNavigationPoints::landing(item)
-            return
-        end
-        if Patricia::isQuark(item) then
-            Quarks::landing(item)
             return
         end
         if Patricia::isWave(item) then
