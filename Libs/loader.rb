@@ -168,14 +168,6 @@ require_relative "NyxNavigationPoints.rb"
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
 
-require_relative "Runner.rb"
-=begin 
-    Runner::isRunning?(uuid)
-    Runner::runTimeInSecondsOrNull(uuid) # null | Float
-    Runner::start(uuid)
-    Runner::stop(uuid) # null | Float
-=end
-
 require_relative "SectionsType0141.rb"
 
 # ------------------------------------------------------------
