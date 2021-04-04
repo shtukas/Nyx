@@ -1,0 +1,14 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# Anniversaries::getItems()
+# Calendar::getItems()
+# Waves::waves()
+# Quarks::quarks()
+
+NereidFsck::check()
+
+exit

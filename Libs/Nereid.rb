@@ -82,7 +82,7 @@ class NereidConfig
 
     # NereidConfig::pathToNereid()
     def self.pathToNereid()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Nereid"
+        "/Users/pascal/Galaxy/DataBank/Nyx/Nereid"
     end
 end
 
@@ -227,15 +227,9 @@ class NereidBinaryBlobsService
 
     # NereidBinaryBlobsService::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        [
-            "#{NereidBinaryBlobsService::repositoryFolderPath()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data",
-            "#{NereidConfig::pathToNereid()}/Datablobs@Catalyst/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data",
-            "#{NereidConfig::pathToNereid()}/Datablobs@Nyx/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        ].each{|filepath|
-            next if !File.exists?(filepath)
-            return IO.read(filepath)
-        }
-        nil
+        filepath = "#{NereidBinaryBlobsService::repositoryFolderPath()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        return nil if !File.exists?(filepath)
+        IO.read(filepath)
     end
 end
 
