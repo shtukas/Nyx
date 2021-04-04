@@ -15,8 +15,8 @@ class Patricia
 
     # -------------------------------------------------------
 
-    # Patricia::getNyxNetworkNodeByUUIDOrNull(uuid)
-    def self.getNyxNetworkNodeByUUIDOrNull(uuid)
+    # Patricia::getNodeByUUIDOrNull(uuid)
+    def self.getNodeByUUIDOrNull(uuid)
         item = NereidInterface::getElementOrNull(uuid)
         return item if item
 

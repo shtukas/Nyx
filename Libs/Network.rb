@@ -58,7 +58,7 @@ class Network
 
     # Network::getLinkedObjects(object)
     def self.getLinkedObjects(object)
-        Network::getLinkedUUIDs(object["uuid"]).map{|uuid| Patricia::getNyxNetworkNodeByUUIDOrNull(uuid) }.compact
+        Network::getLinkedUUIDs(object["uuid"]).map{|uuid| Patricia::getNodeByUUIDOrNull(uuid) }.compact
     end
 
     # Network::getLinkedObjectsInTimeOrder(object)
