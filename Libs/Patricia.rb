@@ -77,6 +77,11 @@ class Patricia
 
     # -------------------------------------------------------
 
+    # Patricia::networkNodesInOrder()
+    def self.networkNodesInOrder()
+        (NereidInterface::getElements() + NavigationPoints::getNavigationPoints()).sort{|n1, n2| n1["unixtime"]<=>n2["unixtime"] }
+    end
+
     # Patricia::nyxSearchItemsAll()
     def self.nyxSearchItemsAll()
         searchItems = [

@@ -27,11 +27,25 @@ loop {
     system("clear")
     puts "Nyx 🗺"
 
-    ops = ["Search", "Dive Navigation Points", "Make new Element (with ancestors paths)", "Architect Navigation Point (with ancestors paths)"]
+    ops = [
+        "Search",
+        "Network Listing",
+        "Dive Navigation Points",
+        "Make new Element (with ancestors paths)",
+        "Architect Navigation Point (with ancestors paths)"
+    ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
     break if operation.nil?
     if operation == "Search" then
         Patricia::generalSearchLoop()
+    end
+    if operation == "Network Listing" then
+        loop {
+            nodes = Patricia::networkNodesInOrder()
+            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| Patricia::toString(node) })
+            break if node.nil?
+            Patricia::landing(node)
+        }
     end
     if operation == "Dive Navigation Points" then
         diveNavigationPoints()
