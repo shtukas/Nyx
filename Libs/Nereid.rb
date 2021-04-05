@@ -323,7 +323,7 @@ class NereidInterface
         if type == "Text" then
             uuid = SecureRandom.uuid
             unixtime = Time.new.to_i
-            text = CatalystUtils::editTextSynchronously("")
+            text = Utils::editTextSynchronously("")
             payload = NereidBinaryBlobsService::putBlob(text)
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return nil if description == ""
@@ -662,7 +662,7 @@ class NereidInterface
         end
         if element["type"] == "Text" then
             text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
-            text = CatalystUtils::editTextSynchronously(text)
+            text = Utils::editTextSynchronously(text)
             element["payload"] = NereidBinaryBlobsService::putBlob(text)
 
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
@@ -744,7 +744,7 @@ class NereidInterface
         end
         if type == "Text" then
             element["type"] = "Text"
-            text = CatalystUtils::editTextSynchronously("")
+            text = Utils::editTextSynchronously("")
             element["payload"] = NereidBinaryBlobsService::putBlob(text)
 
             description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")

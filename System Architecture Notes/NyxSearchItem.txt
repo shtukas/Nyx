@@ -1,0 +1,5 @@
+
+NyxSearchItem {
+    "announce"     : String
+    "payload"      : NyxNetworkNode
+}

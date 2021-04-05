@@ -16,7 +16,7 @@ def diveNavigationPoints()
             classifiers = NavigationPoints::getNavigationPoints()
                             .select{|classifier| classifier["type"] == typex["type"] }
                             .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"] }
-            classifier = CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(classifiers, lambda{|classifier| NavigationPoints::toString(classifier) })
+            classifier = Utils::selectOneObjectOrNullUsingInteractiveInterface(classifiers, lambda{|classifier| NavigationPoints::toString(classifier) })
             break if classifier.nil?
             NavigationPoints::landing(classifier)
         }
@@ -26,7 +26,8 @@ end
 loop {
     system("clear")
     puts "Nyx 🗺"
-    ops = ["Search", "Dive Navigation Points", "Architect Node"]
+
+    ops = ["Search", "Dive Navigation Points", "Make new Element (with ancestors paths)", "Architect Navigation Point (with ancestors paths)"]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
     break if operation.nil?
     if operation == "Search" then
@@ -35,10 +36,16 @@ loop {
     if operation == "Dive Navigation Points" then
         diveNavigationPoints()
     end
-    if operation == "Architect Node" then
-        node = Patricia::achitectureNodeOrNull()
+    if operation == "Make new Element (with ancestors paths)" then
+        node = NereidInterface::interactivelyIssueNewElementOrNull()
         next if node.nil?
+        Network::architectAncestorsPathsToNode(node)
         Patricia::landing(node)
     end
-
+    if operation == "Architect Navigation Point (with ancestors paths)" then
+        node = NavigationPoints::architectureNavigationPointOrNull()
+        next if node.nil?
+        Network::architectAncestorsPathsToNode(node)
+        Patricia::landing(node)
+    end
 }

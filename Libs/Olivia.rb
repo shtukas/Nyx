@@ -1,39 +1,11 @@
 
 # encoding: UTF-8
 
-class NereidNyxExt
+class Olivia
 
-    # This class exists to allow Nereid Elements to be landed on as elements on the Nyx ecosystem, and not as native Nereid elements
+    # This class extends Nereid with a few functions it doesn't have
 
-    # -------------------------------------------------------
-
-    # NereidNyxExt::elementMatchesIdentifier(element, identifier)
-    def self.elementMatchesIdentifier(element, identifier)
-        return true if element["description"] == identifier
-    end
-
-    # NereidNyxExt::getElementsByIdentifier(identifier)
-    def self.getElementsByIdentifier(identifier)
-        NereidInterface::getElements()
-            .select{|element| NereidNyxExt::elementMatchesIdentifier(element, identifier) }
-    end
-
-    # NereidNyxExt::selectElementOrNull()
-    def self.selectElementOrNull()
-        CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(NereidInterface::getElements(), lambda{|element| NereidInterface::toString(element) })
-    end
-
-    # NereidNyxExt::selectExistingOrMakeNewElementOrNull()
-    def self.selectExistingOrMakeNewElementOrNull()
-        system("clear")
-        puts "NereidNyxExt::selectExistingOrMakeNewElementOrNull()"
-        LucilleCore::pressEnterToContinue()
-        element = NereidNyxExt::selectElementOrNull()
-        return element if element
-        NereidInterface::interactivelyIssueNewElementOrNull()
-    end
-
-    # NereidNyxExt::nyxSearchItems()
+    # Olivia::nyxSearchItems()
     def self.nyxSearchItems()
         NereidInterface::getElements()
             .map{|element|
@@ -45,7 +17,7 @@ class NereidNyxExt
             }
     end
 
-    # NereidNyxExt::landing(element)
+    # Olivia::landing(element)
     def self.landing(element)
 
         loop {
@@ -84,13 +56,17 @@ class NereidNyxExt
             mx.item("link to architectured node".yellow, lambda { 
                 node = Patricia::achitectureNodeOrNull()
                 return if node.nil?
-                Network::link(element, node)
+                Network::linkObjects(element, node)
             })
 
             mx.item("unlink".yellow, lambda {
-                node = Patricia::selectOneOfTheLinkedNodeOrNull(element)
+                node = Network::selectOneOfTheLinkedNodeOrNull(element)
                 return if node.nil?
-                Network::unlink(element, node)
+                Network::unlinkObjects(element, node)
+            })
+
+            mx.item("architect ancestors path".yellow, lambda {
+                Network::architectAncestorsPathsToNode(element)
             })
 
             mx.item("reshape: select connected items -> move to architectured navigation node".yellow, lambda {

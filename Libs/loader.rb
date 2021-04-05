@@ -38,7 +38,7 @@ require 'colorize'
 
 # -----------------------------------------------------------------------
 # require 'curses' # I commented that out, thereby disabling 
-# CatalystUtils::ncurseSelection1410(lambda1, lambda2) ,
+# Utils::ncurseSelection1410(lambda1, lambda2) ,
 # when I introduced pepin 
 
 require 'pepin'
@@ -131,14 +131,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 # ------------------------------------------------------------
 
-require_relative "Bank.rb"
-=begin 
-    Bank::put(uuid, weight)
-    Bank::value(uuid)
-=end
 require_relative "BinaryBlobsService.rb"
 
-require_relative "CatalystUtils.rb"
+require_relative "Utils.rb"
 
 require_relative "Nereid.rb"
 =begin
@@ -153,7 +148,7 @@ require_relative "Nereid.rb"
     NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
-require_relative "NereidNyxExt.rb"
+require_relative "Olivia.rb"
 require_relative "Network.rb"
 
 require_relative "NX141FilenameReaderWriter.rb"

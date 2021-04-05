@@ -3,21 +3,21 @@
 
 # -----------------------------------------------------------------------
 
-class CatalystUtils
+class Utils
 
-    # CatalystUtils::applyNextTransformationToFile(filepath)
+    # Utils::applyNextTransformationToFile(filepath)
     def self.applyNextTransformationToFile(filepath)
         text = IO.read(filepath).strip
         text = SectionsType0141::applyNextTransformationToText(text)
         File.open(filepath, "w"){|f| f.puts(text) }
     end
 
-    # CatalystUtils::catalystDataCenterFolderpath()
+    # Utils::catalystDataCenterFolderpath()
     def self.catalystDataCenterFolderpath()
         "/Users/pascal/Galaxy/DataBank/Catalyst"
     end
 
-    # CatalystUtils::codeToUnixtimeOrNull(code)
+    # Utils::codeToUnixtimeOrNull(code)
     def self.codeToUnixtimeOrNull(code)
 
         return nil if code.nil?
@@ -44,7 +44,7 @@ class CatalystUtils
         if weekdayNames.include?(code) then
             # We have a week day
             weekdayName = code
-            date = CatalystUtils::selectDateOfNextNonTodayWeekDay(weekdayName)
+            date = Utils::selectDateOfNextNonTodayWeekDay(weekdayName)
             datetime = "#{date} #{morningShowTime}"
             return DateTime.parse(datetime).to_time.to_i
         end
@@ -63,13 +63,13 @@ class CatalystUtils
 
         if code.include?('@') then
             p1, p2 = code.split('@') # 1 12:34
-            return DateTime.parse("#{CatalystUtils::nDaysInTheFuture(p1.to_i)[0, 10]} #{p2}:00 #{localsuffix}").to_time.to_i
+            return DateTime.parse("#{Utils::nDaysInTheFuture(p1.to_i)[0, 10]} #{p2}:00 #{localsuffix}").to_time.to_i
         end
 
         nil
     end
 
-    # CatalystUtils::editTextSynchronously(text)
+    # Utils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = SecureRandom.hex
         filepath = "/tmp/#{filename}"
@@ -80,72 +80,72 @@ class CatalystUtils
         IO.read(filepath)
     end
 
-    # CatalystUtils::fileByFilenameIsSafelyOpenable(filename)
+    # Utils::fileByFilenameIsSafelyOpenable(filename)
     def self.fileByFilenameIsSafelyOpenable(filename)
         safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
         safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
     end
 
-    # CatalystUtils::isDateTime_UTC_ISO8601(datetime)
+    # Utils::isDateTime_UTC_ISO8601(datetime)
     def self.isDateTime_UTC_ISO8601(datetime)
         DateTime.parse(datetime).to_time.utc.iso8601 == datetime
     end
 
-    # CatalystUtils::isInteger(str)
+    # Utils::isInteger(str)
     def self.isInteger(str)
         str == str.to_i.to_s
     end
 
-    # CatalystUtils::getNewValueEveryNSeconds(uuid, n)
+    # Utils::getNewValueEveryNSeconds(uuid, n)
     def self.getNewValueEveryNSeconds(uuid, n)
       Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
     end
 
-    # CatalystUtils::horizontalRule()
+    # Utils::horizontalRule()
     def self.horizontalRule()
-      puts "-" * (CatalystUtils::screenWidth()-1)
+      puts "-" * (Utils::screenWidth()-1)
     end
 
-    # CatalystUtils::l22()
+    # Utils::l22()
     def self.l22()
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # CatalystUtils::nDaysInTheFuture(n)
+    # Utils::nDaysInTheFuture(n)
     def self.nDaysInTheFuture(n)
         (Time.now+86400*n).utc.iso8601[0,10]
     end
 
-    # CatalystUtils::dateIsWeekEnd(date)
+    # Utils::dateIsWeekEnd(date)
     def self.dateIsWeekEnd(date)
         [6, 0].include?(Date.parse(date).to_time.wday)
     end
 
-    # CatalystUtils::stringDistance1(str1, str2)
+    # Utils::stringDistance1(str1, str2)
     def self.stringDistance1(str1, str2)
         # This metric takes values between 0 and 1
         return 1 if str1.size == 0
         return 1 if str2.size == 0
-        CatalystUtils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
+        Utils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
     end
 
-    # CatalystUtils::openFilepath(filepath)
+    # Utils::openFilepath(filepath)
     def self.openFilepath(filepath)
         system("open '#{filepath}'")
     end
 
-    # CatalystUtils::openFilepathWithInvite(filepath)
+    # Utils::openFilepathWithInvite(filepath)
     def self.openFilepathWithInvite(filepath)
         system("open '#{filepath}'")
         LucilleCore::pressEnterToContinue()
     end
 
-    # CatalystUtils::openUrl(url)
+    # Utils::openUrl(url)
     def self.openUrl(url)
         system("open -a Safari '#{url}'")
     end
 
-    # CatalystUtils::onScreenNotification(title, message)
+    # Utils::onScreenNotification(title, message)
     def self.onScreenNotification(title, message)
         title = title.gsub("'","")
         message = message.gsub("'","")
@@ -155,7 +155,7 @@ class CatalystUtils
         system(command)
     end
 
-    # CatalystUtils::selectDateOfNextNonTodayWeekDay(weekday) #2
+    # Utils::selectDateOfNextNonTodayWeekDay(weekday) #2
     def self.selectDateOfNextNonTodayWeekDay(weekday)
         weekDayIndexToStringRepresentation = lambda {|indx|
             weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
@@ -168,34 +168,34 @@ class CatalystUtils
         }
     end
 
-    # CatalystUtils::screenHeight()
+    # Utils::screenHeight()
     def self.screenHeight()
         `/usr/bin/env tput lines`.to_i
     end
 
-    # CatalystUtils::screenWidth()
+    # Utils::screenWidth()
     def self.screenWidth()
         `/usr/bin/env tput cols`.to_i
     end
 
-    # CatalystUtils::today()
+    # Utils::today()
     def self.today()
         Time.new.to_s[0, 10]
     end
 
-    # CatalystUtils::todayAsLowercaseEnglishWeekDayName()
+    # Utils::todayAsLowercaseEnglishWeekDayName()
     def self.todayAsLowercaseEnglishWeekDayName()
         ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][Time.new.wday]
     end
 
-    # CatalystUtils::verticalSize(displayStr)
+    # Utils::verticalSize(displayStr)
     def self.verticalSize(displayStr)
-        displayStr.lines.map{|line| line.size/CatalystUtils::screenWidth() + 1 }.inject(0, :+)
+        displayStr.lines.map{|line| line.size/Utils::screenWidth() + 1 }.inject(0, :+)
     end
 
     # ----------------------------------------------------
 
-    # CatalystUtils::pecoStyleSelectionOrNull(lines)
+    # Utils::pecoStyleSelectionOrNull(lines)
     def self.pecoStyleSelectionOrNull(lines)
         lines  = [""] + lines
         line = `echo '#{lines.join("\n")}' | /usr/local/bin/peco`.strip
@@ -203,7 +203,7 @@ class CatalystUtils
         nil
     end
 
-    # CatalystUtils::ncurseSelection1410(lambda1, lambda2)
+    # Utils::ncurseSelection1410(lambda1, lambda2)
     # lambda1: pattern: String -> Array[String]
     # lambda2: string:  String -> Object or null
     def self.ncurseSelection1410(lambda1, lambda2)
@@ -227,8 +227,8 @@ class CatalystUtils
         inputString_lastModificationUnixtime = nil
         currentLines = []
 
-        win1 = Curses::Window.new(1, CatalystUtils::screenWidth(), 0, 0)
-        win2 = Curses::Window.new(CatalystUtils::screenHeight()-1, CatalystUtils::screenWidth(), 1, 0)
+        win1 = Curses::Window.new(1, Utils::screenWidth(), 0, 0)
+        win2 = Curses::Window.new(Utils::screenHeight()-1, Utils::screenWidth(), 1, 0)
 
         win1.refresh
         win2.refresh
@@ -304,7 +304,7 @@ class CatalystUtils
 
     # ----------------------------------------------------
 
-    # CatalystUtils::levenshteinDistance(s, t)
+    # Utils::levenshteinDistance(s, t)
     def self.levenshteinDistance(s, t)
       # https://stackoverflow.com/questions/16323571/measure-the-distance-between-two-strings-with-ruby
       m = s.length
@@ -330,27 +330,27 @@ class CatalystUtils
       d[m][n]
     end
 
-    # CatalystUtils::stringDistance1(str1, str2)
+    # Utils::stringDistance1(str1, str2)
     def self.stringDistance1(str1, str2)
         # This metric takes values between 0 and 1
         return 1 if str1.size == 0
         return 1 if str2.size == 0
-        CatalystUtils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
+        Utils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
     end
 
-    # CatalystUtils::stringDistance2(str1, str2)
+    # Utils::stringDistance2(str1, str2)
     def self.stringDistance2(str1, str2)
         # We need the smallest string to come first
         if str1.size > str2.size then
             str1, str2 = str2, str1
         end
         diff = str2.size - str1.size
-        (0..diff).map{|i| CatalystUtils::levenshteinDistance(str1, str2[i, str1.size]) }.min
+        (0..diff).map{|i| Utils::levenshteinDistance(str1, str2[i, str1.size]) }.min
     end
 
     # ----------------------------------------------------
 
-    # CatalystUtils::selectLinesUsingInteractiveInterface(lines) : Array[String]
+    # Utils::selectLinesUsingInteractiveInterface(lines) : Array[String]
     def self.selectLinesUsingInteractiveInterface(lines)
         # Some lines break peco, so we need to be a bit clever here...
         linesX = lines.map{|line|
@@ -367,14 +367,14 @@ class CatalystUtils
         .compact
     end
 
-    # CatalystUtils::selectLineOrNullUsingInteractiveInterface(lines) : String
+    # Utils::selectLineOrNullUsingInteractiveInterface(lines) : String
     def self.selectLineOrNullUsingInteractiveInterface(lines)
 
-        # Temporary measure to remove stress on CatalystUtils::selectLinesUsingInteractiveInterface / peco after 
+        # Temporary measure to remove stress on Utils::selectLinesUsingInteractiveInterface / peco after 
         # we added the videos from video stream
         lines = lines.reject{|line| line.include?('.mkv') }
         
-        lines = CatalystUtils::selectLinesUsingInteractiveInterface(lines)
+        lines = Utils::selectLinesUsingInteractiveInterface(lines)
         if lines.size == 0 then
             return nil
         end
@@ -384,10 +384,10 @@ class CatalystUtils
         LucilleCore::selectEntityFromListOfEntitiesOrNull("select", lines)
     end
 
-    # CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(items, toString = lambda{|item| item })
+    # Utils::selectOneObjectOrNullUsingInteractiveInterface(items, toString = lambda{|item| item })
     def self.selectOneObjectOrNullUsingInteractiveInterface(items, toString = lambda{|item| item })
         lines = items.map{|item| toString.call(item) }
-        line = CatalystUtils::selectLineOrNullUsingInteractiveInterface(lines)
+        line = Utils::selectLineOrNullUsingInteractiveInterface(lines)
         return nil if line.nil?
         items
             .select{|item| toString.call(item) == line }

@@ -51,14 +51,19 @@ class Network
 
     # --------------------------------------------------
 
-    # Network::link(object1, object2)
-    def self.link(object1, object2)
+    # Network::linkObjects(object1, object2)
+    def self.linkObjects(object1, object2)
         Network::issueLink(object1["uuid"], object2["uuid"])
     end
 
-    # Network::unlink(object1, object2)
-    def self.unlink(object1, object2)
+    # Network::unlinkObjects(object1, object2)
+    def self.unlinkObjects(object1, object2)
         Network::deleteLink(object1["uuid"], object2["uuid"])
+    end
+
+    # Network::areLinkedObjects(object1, object2)
+    def self.areLinkedObjects(object1, object2)
+        Network::getLinkedUUIDs(object1["uuid"]).include?(object2["uuid"])
     end
 
     # Network::getLinkedObjects(object)
@@ -83,13 +88,45 @@ class Network
 
     # --------------------------------------------------
 
+    # Network::selectOneOfTheLinkedNodeOrNull(node)
+    def self.selectOneOfTheLinkedNodeOrNull(node)
+        related = Network::getLinkedObjectsInTimeOrder(node)
+        return if related.empty?
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("related", related, lambda{|node| Patricia::toString(node) })
+    end
+
     # Network::reshape(node1, nodes, node2)
     def self.reshape(node1, nodes, node2)
         # This function takes a node1 and some nodes and a node2 and detach all the nodes from 
         # node1 and attach them to node2
         nodes.each{|n|
-            Network::link(node2, n)
-            Network::unlink(node1, n)
+            Network::linkObjects(node2, n)
+            Network::unlinkObjects(node1, n)
+        }
+    end
+
+    # Network::architectAncestorsPathsToNode(node)
+    def self.architectAncestorsPathsToNode(node)
+        # This function takes a node and proposes the user to present paths and ensure that the paths exist
+        # While resolving the navigation nodes names we use 
+        puts "node: #{Patricia::toString(node)}"
+
+        loop {
+            input = LucilleCore::askQuestionAnswerAsString("ancestors path (use '>' as separator) (empty to close): ")
+            break if input == ""
+            descriptions = input.split(">").map{|d| d.strip }.select{|d| d.size > 0 }
+            pairs = descriptions.zip(descriptions[1, descriptions.size])
+            pairs.each{|pair|
+                description1 = pair[0]
+                description2 = pair[1] ? pair[1] : "node"
+                puts "Making the link from #{description1} to #{description2}"
+                LucilleCore::pressEnterToContinue()
+                node1 = NavigationPoints::architectureNavigationPointGivenDescriptionOrNull(description1)
+                return if node1.nil?
+                node2  = (description2 != "node") ? NavigationPoints::architectureNavigationPointGivenDescriptionOrNull(description2) : node
+                return if node2.nil?
+                Network::linkObjects(node1, node2)
+            }
         }
     end
 end

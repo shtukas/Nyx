@@ -134,13 +134,31 @@ class NavigationPoints
         NavigationPoints::getNavigationPointByUUIDOrNull(uuid)
     end
 
+    # NavigationPoints::selectExistingNavigationPointOrNull()
+    def self.selectExistingNavigationPointOrNull()
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(NavigationPoints::getNavigationPoints(), lambda{|navpoint| NavigationPoints::toString(navpoint)})
+    end
+
+    # NavigationPoints::selectNavigationPointByDescriptionOrNull(description)
+    def self.selectNavigationPointByDescriptionOrNull(description)
+        points = NavigationPoints::getNavigationPoints()
+            .select{|navpoint| navpoint["description"].downcase == description.downcase }
+        if points.empty? then
+            return nil
+        end
+        if points.size == 1 then
+            return points[0]
+        end
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("navpoint", points, lambda{ |navpoint| NavigationPoints::toString(navpoint) })
+    end
+
     # NavigationPoints::selectNavigationPointsByCloseDescription(description)
     def self.selectNavigationPointsByCloseDescription(description)
         NavigationPoints::getNavigationPoints()
             .map{|navpoint| 
                 {
                     "navpoint" => navpoint,
-                    "distance" => CatalystUtils::stringDistance2(navpoint["description"].downcase, description.downcase)
+                    "distance" => Utils::stringDistance2(navpoint["description"].downcase, description.downcase)
                 }
             }
             .sort{|i1, i2| i1["distance"] <=> i2["distance"] }
@@ -149,17 +167,21 @@ class NavigationPoints
             .sort{|np1, np2| np1["description"] <=> np2["description"] }
     end
 
-    # NavigationPoints::architectureNavigationPointOrNull()
-    def self.architectureNavigationPointOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-        return nil if description == ""
+    # NavigationPoints::architectureNavigationPointGivenDescriptionOrNull(description)
+    def self.architectureNavigationPointGivenDescriptionOrNull(description)
 
+        # Trying to extract it by exact description
+        navpoint = NavigationPoints::selectNavigationPointByDescriptionOrNull(description)
+        return navpoint if navpoint
+
+        # Trying to extract it by approximate description
         navpoints = NavigationPoints::selectNavigationPointsByCloseDescription(description)
         if navpoints.size > 0 then
-            navpoint = CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(navpoints, lambda{|navpoint| NavigationPoints::toString(navpoint) })
+            navpoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("navpoint", navpoints, lambda{|navpoint| NavigationPoints::toString(navpoint) })
             return navpoint if navpoint
         end
 
+        # Making a new one
         typeX = NavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
         return nil if typeX.nil?
 
@@ -168,10 +190,14 @@ class NavigationPoints
         NavigationPoints::getNavigationPointByUUIDOrNull(uuid)
     end
 
-    # NavigationPoints::selectNavigationPointOrNull()
-    def self.selectNavigationPointOrNull()
-        CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(NavigationPoints::getNavigationPoints(), lambda{|navpoint| NavigationPoints::toString(navpoint)})
+    # NavigationPoints::architectureNavigationPointOrNull()
+    def self.architectureNavigationPointOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        return nil if description == ""
+        NavigationPoints::architectureNavigationPointGivenDescriptionOrNull(description)
     end
+
+    # ------------------------------------------------
 
     # NavigationPoints::landing(navpoint)
     def self.landing(navpoint)
@@ -199,7 +225,7 @@ class NavigationPoints
             puts ""
 
             mx.item("update description".yellow, lambda {
-                description = CatalystUtils::editTextSynchronously(navpoint["description"])
+                description = Utils::editTextSynchronously(navpoint["description"])
                 return if description == ""
                 NavigationPoints::updateNavigationPointDescription(navpoint["uuid"], description)
             })
@@ -207,13 +233,17 @@ class NavigationPoints
             mx.item("link to architectured node".yellow, lambda {
                 node = Patricia::achitectureNodeOrNull()
                 return if node.nil?
-                Network::link(navpoint, node)
+                Network::linkObjects(navpoint, node)
             })
 
             mx.item("unlink".yellow, lambda {
-                node = Patricia::selectOneOfTheLinkedNodeOrNull(navpoint)
+                node = Network::selectOneOfTheLinkedNodeOrNull(navpoint)
                 return if node.nil?
-                Network::unlink(navpoint, node)
+                Network::unlinkObjects(navpoint, node)
+            })
+
+            mx.item("architect ancestors path".yellow, lambda {
+                Network::architectAncestorsPathsToNode(element)
             })
 
             mx.item("reshape: select connected items -> move to architectured navigation node".yellow, lambda {

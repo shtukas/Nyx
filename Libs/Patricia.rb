@@ -41,7 +41,7 @@ class Patricia
     # Patricia::landing(item)
     def self.landing(item)
         if Patricia::isNereidElement(item) then
-            NereidNyxExt::landing(item)
+            Olivia::landing(item)
             return
         end
         if Patricia::isNavigationPoint(item) then
@@ -56,7 +56,7 @@ class Patricia
 
     # Patricia::selectOneNodeOrNull()
     def self.selectOneNodeOrNull()
-        searchItem = CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(Patricia::nyxSearchItemsAll(), lambda{|item| item["announce"] })
+        searchItem = Utils::selectOneObjectOrNullUsingInteractiveInterface(Patricia::nyxSearchItemsAll(), lambda{|item| item["announce"] })
         return nil if searchItem.nil?
         searchItem["payload"]
     end
@@ -75,19 +75,12 @@ class Patricia
         end
     end
 
-    # Patricia::selectOneOfTheLinkedNodeOrNull(node)
-    def self.selectOneOfTheLinkedNodeOrNull(node)
-        related = Network::getLinkedObjectsInTimeOrder(node)
-        return if related.empty?
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("related", related, lambda{|node| Patricia::toString(node) })
-    end
-
     # -------------------------------------------------------
 
     # Patricia::nyxSearchItemsAll()
     def self.nyxSearchItemsAll()
         searchItems = [
-            NereidNyxExt::nyxSearchItems(),
+            Olivia::nyxSearchItems(),
             NavigationPoints::nyxSearchItems()
         ]
         .flatten
