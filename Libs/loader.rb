@@ -139,7 +139,6 @@ require_relative "Bank.rb"
 require_relative "BinaryBlobsService.rb"
 
 require_relative "CatalystUtils.rb"
-require_relative "Commons.rb"
 
 require_relative "Nereid.rb"
 =begin
@@ -159,7 +158,7 @@ require_relative "NereidNyxExt.rb"
 require_relative "Network.rb"
 
 require_relative "NX141FilenameReaderWriter.rb"
-require_relative "NyxNavigationPoints.rb"
+require_relative "NavigationPoints.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"

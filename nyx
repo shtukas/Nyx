@@ -9,16 +9,16 @@ require_relative "Libs/loader.rb"
 def diveNavigationPoints()
     loop {
         system("clear")
-        typex = NyxNavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
+        typex = NavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
         break if typex.nil?
         loop {
             system("clear")
-            classifiers = NyxNavigationPoints::getNavigationPoints()
+            classifiers = NavigationPoints::getNavigationPoints()
                             .select{|classifier| classifier["type"] == typex["type"] }
                             .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"] }
-            classifier = CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(classifiers, lambda{|classifier| NyxNavigationPoints::toString(classifier) })
+            classifier = CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(classifiers, lambda{|classifier| NavigationPoints::toString(classifier) })
             break if classifier.nil?
-            NyxNavigationPoints::landing(classifier)
+            NavigationPoints::landing(classifier)
         }
     }
 end

@@ -3,10 +3,15 @@
 
 class Network
 
+    # Network::databasePath()
+    def self.databasePath()
+        "/Users/pascal/Galaxy/DataBank/Nyx/Network.sqlite3"
+    end
+
     # Network::issueLink(node1uuid, node2uuid)
     def self.issueLink(node1uuid, node2uuid)
         return if node1uuid == node2uuid
-        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db = SQLite3::Database.new(Network::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -19,7 +24,7 @@ class Network
 
     # Network::deleteLink(node1uuid, node2uuid)
     def self.deleteLink(node1uuid, node2uuid)
-        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db = SQLite3::Database.new(Network::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from _network_ where _node1_=? and _node2_=?", [node1uuid, node2uuid]
@@ -29,7 +34,7 @@ class Network
 
     # Network::getLinkedUUIDs(uuid)
     def self.getLinkedUUIDs(uuid)
-        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db = SQLite3::Database.new(Network::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -68,7 +73,7 @@ class Network
 
     # Network::removeElementOccurences(uuid)
     def self.removeElementOccurences(uuid)
-        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db = SQLite3::Database.new(Network::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from _network_ where _node1_=?", [uuid]

@@ -4,5 +4,4 @@ SQLite version 3.32.3 2020-06-18 14:16:19
 Enter ".help" for usage hints.
 
 sqlite> create table _network_ (_node1_ text, _node2_ text);
-sqlite> create table _NX141Cache_ (_unixtime_ real, _nx141_ text, _description_ text);
 sqlite> create table _navigationpoints_ (_uuid_ text, _unixtime_ real, _type_ text, _description_ text);

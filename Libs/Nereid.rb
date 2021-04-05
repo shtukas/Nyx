@@ -242,18 +242,6 @@ end
 
 class NereidDatabaseDataCarriers
 
-    # NereidDatabaseDataCarriers::destroy(element)
-    def self.destroy(element)
-        uuid = element["uuid"]
-        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _datacarrier_ where _uuid_=?", [uuid]
-        db.commit 
-        db.close
-    end
-
     # NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, type, payload)
     def self.insertElementComponents(uuid, unixtime, description, type, payload)
         db = SQLite3::Database.new(NereidDatabase::databaseFilepath())

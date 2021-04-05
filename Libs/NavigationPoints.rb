@@ -1,14 +1,19 @@
 
 # encoding: UTF-8
 
-class NyxNavigationPoints
+class NavigationPoints
+
+    # NavigationPoints::databasePath()
+    def self.databasePath()
+        "/Users/pascal/Galaxy/DataBank/Nyx/NavigationPoints.sqlite3"
+    end
 
     # ------------------------------------------------
     # Database
 
-    # NyxNavigationPoints::issueNewNavigationPoint(uuid, type, description)
+    # NavigationPoints::issueNewNavigationPoint(uuid, type, description)
     def self.issueNewNavigationPoint(uuid, type, description)
-        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db = SQLite3::Database.new(NavigationPoints::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -18,18 +23,18 @@ class NyxNavigationPoints
         db.close
     end
 
-    # NyxNavigationPoints::updateNavigationPointDescription(uuid, description)
+    # NavigationPoints::updateNavigationPointDescription(uuid, description)
     def self.updateNavigationPointDescription(uuid, description)
-        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db = SQLite3::Database.new(NavigationPoints::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "update _navigationpoints_ set _description_=? where _uuid_=?", [description, uuid]
         db.close
     end
 
-    # NyxNavigationPoints::getNavigationPoints()
+    # NavigationPoints::getNavigationPoints()
     def self.getNavigationPoints()
-        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db = SQLite3::Database.new(NavigationPoints::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -47,9 +52,9 @@ class NyxNavigationPoints
         answer
     end
 
-    # NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
+    # NavigationPoints::getNavigationPointByUUIDOrNull(uuid)
     def self.getNavigationPointByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db = SQLite3::Database.new(NavigationPoints::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -67,9 +72,9 @@ class NyxNavigationPoints
         answer
     end
 
-    # NyxNavigationPoints::destroy(navpoint)
+    # NavigationPoints::destroy(navpoint)
     def self.destroy(navpoint)
-        db = SQLite3::Database.new(Commons::nyxDatabaseFilepath())
+        db = SQLite3::Database.new(NavigationPoints::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -80,7 +85,7 @@ class NyxNavigationPoints
     
     # ------------------------------------------------
 
-    # NyxNavigationPoints::typeXs()
+    # NavigationPoints::typeXs()
     def self.typeXs()
         [
             {
@@ -102,36 +107,36 @@ class NyxNavigationPoints
         ]
     end
 
-    # NyxNavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
+    # NavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
     def self.interactivelySelectNavigationPointTypeXOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("navigation point type: ", NyxNavigationPoints::typeXs(), lambda{|item| item["name"] })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("navigation point type: ", NavigationPoints::typeXs(), lambda{|item| item["name"] })
     end
 
     # ------------------------------------------------
 
-    # NyxNavigationPoints::toString(navpoint)
+    # NavigationPoints::toString(navpoint)
     def self.toString(navpoint)
-        typename = NyxNavigationPoints::typeXs().select{|typex| typex["type"] == navpoint["type"] }.map{|typex| typex["name"] }.first
+        typename = NavigationPoints::typeXs().select{|typex| typex["type"] == navpoint["type"] }.map{|typex| typex["name"] }.first
         raise "b373b8d6-454e-4710-85e4-41160372395a" if typename.nil?
         "[navpoint: #{typename}] #{navpoint["description"]}"
     end
 
-    # NyxNavigationPoints::interactivelyIssueNewNavigationPointOrNull()
+    # NavigationPoints::interactivelyIssueNewNavigationPointOrNull()
     def self.interactivelyIssueNewNavigationPointOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return nil if description == ""
 
-        typeX = NyxNavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
+        typeX = NavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
         return nil if typeX.nil?
 
         uuid = SecureRandom.uuid
-        NyxNavigationPoints::issueNewNavigationPoint(uuid, typeX["type"], description)
-        NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
+        NavigationPoints::issueNewNavigationPoint(uuid, typeX["type"], description)
+        NavigationPoints::getNavigationPointByUUIDOrNull(uuid)
     end
 
-    # NyxNavigationPoints::selectNavigationPointsByCloseDescription(description)
+    # NavigationPoints::selectNavigationPointsByCloseDescription(description)
     def self.selectNavigationPointsByCloseDescription(description)
-        NyxNavigationPoints::getNavigationPoints()
+        NavigationPoints::getNavigationPoints()
             .map{|navpoint| 
                 {
                     "navpoint" => navpoint,
@@ -144,43 +149,43 @@ class NyxNavigationPoints
             .sort{|np1, np2| np1["description"] <=> np2["description"] }
     end
 
-    # NyxNavigationPoints::architectureNavigationPointOrNull()
+    # NavigationPoints::architectureNavigationPointOrNull()
     def self.architectureNavigationPointOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description: ")
         return nil if description == ""
 
-        navpoints = NyxNavigationPoints::selectNavigationPointsByCloseDescription(description)
+        navpoints = NavigationPoints::selectNavigationPointsByCloseDescription(description)
         if navpoints.size > 0 then
-            navpoint = CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(navpoints, lambda{|navpoint| NyxNavigationPoints::toString(navpoint) })
+            navpoint = CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(navpoints, lambda{|navpoint| NavigationPoints::toString(navpoint) })
             return navpoint if navpoint
         end
 
-        typeX = NyxNavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
+        typeX = NavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
         return nil if typeX.nil?
 
         uuid = SecureRandom.uuid
-        NyxNavigationPoints::issueNewNavigationPoint(uuid, typeX["type"], description)
-        NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
+        NavigationPoints::issueNewNavigationPoint(uuid, typeX["type"], description)
+        NavigationPoints::getNavigationPointByUUIDOrNull(uuid)
     end
 
-    # NyxNavigationPoints::selectNavigationPointOrNull()
+    # NavigationPoints::selectNavigationPointOrNull()
     def self.selectNavigationPointOrNull()
-        CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(NyxNavigationPoints::getNavigationPoints(), lambda{|navpoint| NyxNavigationPoints::toString(navpoint)})
+        CatalystUtils::selectOneObjectOrNullUsingInteractiveInterface(NavigationPoints::getNavigationPoints(), lambda{|navpoint| NavigationPoints::toString(navpoint)})
     end
 
-    # NyxNavigationPoints::landing(navpoint)
+    # NavigationPoints::landing(navpoint)
     def self.landing(navpoint)
 
         loop {
 
-            return if NyxNavigationPoints::getNavigationPointByUUIDOrNull(navpoint["uuid"]).nil? # could have been destroyed at the previous run
+            return if NavigationPoints::getNavigationPointByUUIDOrNull(navpoint["uuid"]).nil? # could have been destroyed at the previous run
 
-            navpoint = NyxNavigationPoints::getNavigationPointByUUIDOrNull(navpoint["uuid"])
+            navpoint = NavigationPoints::getNavigationPointByUUIDOrNull(navpoint["uuid"])
 
             system('clear')
             mx = LCoreMenuItemsNX1.new()
             
-            puts NyxNavigationPoints::toString(navpoint).green
+            puts NavigationPoints::toString(navpoint).green
             puts "uuid: #{navpoint["uuid"]}".yellow
 
             puts ""
@@ -196,7 +201,7 @@ class NyxNavigationPoints
             mx.item("update description".yellow, lambda {
                 description = CatalystUtils::editTextSynchronously(navpoint["description"])
                 return if description == ""
-                NyxNavigationPoints::updateNavigationPointDescription(navpoint["uuid"], description)
+                NavigationPoints::updateNavigationPointDescription(navpoint["uuid"], description)
             })
 
             mx.item("link to architectured node".yellow, lambda {
@@ -231,7 +236,7 @@ class NyxNavigationPoints
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    NyxNavigationPoints::destroy(navpoint)
+                    NavigationPoints::destroy(navpoint)
                 end
             })
 
@@ -240,13 +245,13 @@ class NyxNavigationPoints
         }
     end
 
-    # NyxNavigationPoints::nyxSearchItems()
+    # NavigationPoints::nyxSearchItems()
     def self.nyxSearchItems()
-        NyxNavigationPoints::getNavigationPoints()
+        NavigationPoints::getNavigationPoints()
             .map{|navpoint|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{NyxNavigationPoints::toString(navpoint)}",
+                    "announce" => "#{volatileuuid} #{NavigationPoints::toString(navpoint)}",
                     "payload"  => navpoint
                 }
             }

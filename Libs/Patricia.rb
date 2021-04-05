@@ -20,7 +20,7 @@ class Patricia
         item = NereidInterface::getElementOrNull(uuid)
         return item if item
 
-        item = NyxNavigationPoints::getNavigationPointByUUIDOrNull(uuid)
+        item = NavigationPoints::getNavigationPointByUUIDOrNull(uuid)
         return item if item
 
         nil
@@ -32,7 +32,7 @@ class Patricia
             return NereidInterface::toString(item)
         end
         if Patricia::isNavigationPoint(item) then
-            return NyxNavigationPoints::toString(item)
+            return NavigationPoints::toString(item)
         end
         puts item
         raise "[error: d4c62cad-0080-4270-82a9-81b518c93c0e]"
@@ -45,7 +45,7 @@ class Patricia
             return
         end
         if Patricia::isNavigationPoint(item) then
-            NyxNavigationPoints::landing(item)
+            NavigationPoints::landing(item)
             return
         end
         puts item
@@ -71,7 +71,7 @@ class Patricia
             return NereidInterface::interactivelyIssueNewElementOrNull()
         end
         if choice == "navigation point" then
-            return NyxNavigationPoints::interactivelyIssueNewNavigationPointOrNull()
+            return NavigationPoints::interactivelyIssueNewNavigationPointOrNull()
         end
     end
 
@@ -88,7 +88,7 @@ class Patricia
     def self.nyxSearchItemsAll()
         searchItems = [
             NereidNyxExt::nyxSearchItems(),
-            NyxNavigationPoints::nyxSearchItems()
+            NavigationPoints::nyxSearchItems()
         ]
         .flatten
     end
