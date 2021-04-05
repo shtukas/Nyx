@@ -78,7 +78,7 @@ class NereidNyxExt
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description == ""
                 element["description"] = description
-                NereidInterface::insertElement(element)
+                NereidInterface::commitElement(element)
             })
 
             mx.item("link to architectured node".yellow, lambda { 

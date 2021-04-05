@@ -1,7 +1,7 @@
 # require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 =begin
     NereidInterface::interactivelyIssueNewElementOrNull()
-    NereidInterface::insertElement(element)
+    NereidInterface::commitElement(element)
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
     NereidInterface::getElements()
@@ -233,8 +233,8 @@ end
 
 class NereidDatabaseDataCarriers
 
-    # NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, type, payload)
-    def self.insertElementComponents(uuid, unixtime, description, type, payload)
+    # NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, type, payload)
+    def self.commitElementComponents(uuid, unixtime, description, type, payload)
         db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -245,14 +245,14 @@ class NereidDatabaseDataCarriers
         db.close
     end
 
-    # NereidDatabaseDataCarriers::insertElement(element)
-    def self.insertElement(element)
+    # NereidDatabaseDataCarriers::commitElement(element)
+    def self.commitElement(element)
         uuid        = element["uuid"]
         unixtime    = element["unixtime"]
         description = element["description"]
         type        = element["type"]
         payload     = element["payload"]
-        NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, type, payload)
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, type, payload)
     end
 
     # NereidDatabaseDataCarriers::getElementOrNull(uuid)
@@ -385,9 +385,9 @@ class NereidInterface
         NereidInterface::toStringFromElement(input)
     end
 
-    # NereidInterface::insertElement(element)
-    def self.insertElement(element)
-        NereidDatabaseDataCarriers::insertElement(element)
+    # NereidInterface::commitElement(element)
+    def self.commitElement(element)
+        NereidDatabaseDataCarriers::commitElement(element)
     end
 
     # NereidInterface::interactivelyIssueNewElementOrNull()
@@ -400,7 +400,7 @@ class NereidInterface
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return nil if description == ""
             payload = ""
-            NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, "Line", payload)
+            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, "Line", payload)
             return NereidDatabaseDataCarriers::getElementOrNull(uuid)
         end
         if type == "Url" then
@@ -413,7 +413,7 @@ class NereidInterface
             if description == "" then
                 description = payload
             end
-            NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, "Url", payload)
+            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, "Url", payload)
             return NereidDatabaseDataCarriers::getElementOrNull(uuid)
         end
         if type == "Text" then
@@ -423,7 +423,7 @@ class NereidInterface
             payload = NereidBinaryBlobsService::putBlob(text)
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return nil if description == ""
-            NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, "Text", payload)
+            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, "Text", payload)
             return NereidDatabaseDataCarriers::getElementOrNull(uuid)
         end
         if type == "ClickableType" then
@@ -443,7 +443,7 @@ class NereidInterface
                 description = payload
             end
 
-            NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, "ClickableType", payload)
+            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, "ClickableType", payload)
             return NereidDatabaseDataCarriers::getElementOrNull(uuid)
         end
         if type == "AionPoint" then
@@ -461,7 +461,7 @@ class NereidInterface
                 description = payload
             end
 
-            NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, "AionPoint", payload)
+            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, "AionPoint", payload)
             return NereidDatabaseDataCarriers::getElementOrNull(uuid)
         end
         nil
@@ -511,7 +511,7 @@ class NereidInterface
                 description = NereidUtils::editTextSynchronously(element["description"])
                 return if description == ""
                 element["description"] = description
-                NereidDatabaseDataCarriers::insertElement(element)
+                NereidDatabaseDataCarriers::commitElement(element)
             })
 
             mx.item("edit".yellow, lambda { NereidInterface::edit(element) })
@@ -570,7 +570,7 @@ class NereidInterface
                 text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
                 text = NereidUtils::editTextSynchronously(text)
                 element["payload"] = NereidBinaryBlobsService::putBlob(text)
-                NereidDatabaseDataCarriers::insertElement(element)
+                NereidDatabaseDataCarriers::commitElement(element)
             end
             return
         end
@@ -604,7 +604,7 @@ class NereidInterface
                 payload = "#{nhash}|#{dottedExtension}"
 
                 element["payload"] = payload
-                NereidDatabaseDataCarriers::insertElement(element)
+                NereidDatabaseDataCarriers::commitElement(element)
             end
             return
         end
@@ -632,7 +632,7 @@ class NereidInterface
                 return nil if !File.exists?(location)
                 payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
                 element["payload"] = payload
-                NereidDatabaseDataCarriers::insertElement(element)
+                NereidDatabaseDataCarriers::commitElement(element)
             end
             return
         end
@@ -659,7 +659,7 @@ class NereidInterface
             text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
             text = NereidUtils::editTextSynchronously(text)
             element["payload"] = NereidBinaryBlobsService::putBlob(text)
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return
         end
         if element["type"] == "ClickableType" then
@@ -739,7 +739,7 @@ class NereidInterface
             return nil if line == ""
             element["description"] = line
             element["payload"] = ""
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return element
         end
         if element["type"] == "Url" then
@@ -753,7 +753,7 @@ class NereidInterface
                 element["description"] = description
             end        
 
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return element
         end
         if element["type"] == "Text" then
@@ -766,7 +766,7 @@ class NereidInterface
                 element["description"] = description
             end
 
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return element
         end
         if element["type"] == "ClickableType" then
@@ -784,7 +784,7 @@ class NereidInterface
                 element["description"] = description
             end
 
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return element
         end
         if element["type"] == "AionPoint" then
@@ -800,7 +800,7 @@ class NereidInterface
                 element["description"] = description
             end
 
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return element
         end
         raise "[error: 707CAFD7-46CF-489B-B829-5F4816C4911D]"
@@ -820,7 +820,7 @@ class NereidInterface
             return nil if description == ""
             element["description"] = description
             element["payload"] = ""
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return element
         end
         if type == "Url" then
@@ -835,7 +835,7 @@ class NereidInterface
                 element["description"] = description
             end 
 
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return element
         end
         if type == "Text" then
@@ -848,7 +848,7 @@ class NereidInterface
                 element["description"] = description
             end 
 
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return element
         end
         if type == "ClickableType" then
@@ -868,7 +868,7 @@ class NereidInterface
                 element["description"] = description
             end 
 
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return element
         end
         if type == "AionPoint" then
@@ -886,7 +886,7 @@ class NereidInterface
                 element["description"] = description
             end 
 
-            NereidDatabaseDataCarriers::insertElement(element)
+            NereidDatabaseDataCarriers::commitElement(element)
             return element
         end
     end

@@ -143,7 +143,7 @@ require_relative "CatalystUtils.rb"
 require_relative "Nereid.rb"
 =begin
     NereidInterface::interactivelyIssueNewElementOrNull()
-    NereidInterface::insertElement(element)
+    NereidInterface::commitElement(element)
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
     NereidInterface::getElements()
