@@ -78,14 +78,6 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 # ---------------------------------------------------------------------------------------
 
-class NereidConfig
-
-    # NereidConfig::pathToNereid()
-    def self.pathToNereid()
-        "/Users/pascal/Galaxy/DataBank/Nyx/Nereid"
-    end
-end
-
 class NereidUtils
 
     # NereidUtils::editTextSynchronously(text)
@@ -205,7 +197,7 @@ class NereidBinaryBlobsService
 
     # NereidBinaryBlobsService::repositoryFolderPath()
     def self.repositoryFolderPath()
-        "#{NereidConfig::pathToNereid()}/Datablobs"
+        "/Users/pascal/Galaxy/DataBank/Nyx/Elements-Datablobs"
     end
 
     # NereidBinaryBlobsService::filepathToContentHash(filepath)
@@ -236,7 +228,7 @@ end
 class NereidDatabase
     # NereidDatabase::databaseFilepath()
     def self.databaseFilepath()
-        "#{NereidConfig::pathToNereid()}/database.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Nyx/Elements.sqlite3"
     end
 end
 

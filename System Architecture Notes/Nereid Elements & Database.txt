@@ -1,4 +1,4 @@
-Filename: Nereid/database.sqlite3
+Filename: Elements.sqlite3
 
 sqlite> create table _datacarrier_ (_uuid_ text, _unixtime_ real, _description_ text, _type_ text, _payload_ text);
 
