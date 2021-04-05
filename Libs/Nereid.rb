@@ -1,7 +1,6 @@
 # require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 =begin
     NereidInterface::interactivelyIssueNewElementOrNull()
-    NereidInterface::insertElementComponents(uuid, unixtime, description, type, payload)
     NereidInterface::insertElement(element)
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
@@ -384,11 +383,6 @@ class NereidInterface
             return NereidInterface::toStringFromElement(element)
         end
         NereidInterface::toStringFromElement(input)
-    end
-
-    # NereidInterface::insertElementComponents(uuid, unixtime, description, type, payload)
-    def self.insertElementComponents(uuid, unixtime, description, type, payload)
-        NereidDatabaseDataCarriers::insertElementComponents(uuid, unixtime, description, type, payload)
     end
 
     # NereidInterface::insertElement(element)
