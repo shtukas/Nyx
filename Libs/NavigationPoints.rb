@@ -175,6 +175,7 @@ class NavigationPoints
         return navpoint if navpoint
 
         # Trying to extract it by approximate description
+        puts "Trying to extract an existing navigation point for description: #{description}"
         navpoints = NavigationPoints::selectNavigationPointsByCloseDescription(description)
         if navpoints.size > 0 then
             navpoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("navpoint", navpoints, lambda{|navpoint| NavigationPoints::toString(navpoint) })
