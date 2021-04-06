@@ -294,6 +294,36 @@ class NereidInterface
         NereidDatabaseDataCarriers::commitElement(element)
     end
 
+    # NereidInterface::issueLineElement(line)
+    def self.issueLineElement(line)
+        uuid = SecureRandom.hex
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, line, "Line", "")
+        NereidDatabaseDataCarriers::getElementOrNull(uuid)
+    end
+
+    # NereidInterface::issueNewURLElement(url)
+    def self.issueNewURLElement(url)
+        uuid = SecureRandom.hex
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, link, "Url", link)
+        NereidDatabaseDataCarriers::getElementOrNull(uuid)
+    end
+
+    # NereidInterface::issueTextElement(description, text)
+    def self.issueTextElement(description, text)
+        uuid = SecureRandom.hex
+        payload = NereidBinaryBlobsService::putBlob(text)
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, description, "Text", payload)
+        NereidDatabaseDataCarriers::getElementOrNull(uuid)
+    end
+
+    # NereidInterface::issueAionPointElement(location)
+    def self.issueAionPointElement(location)
+        uuid = SecureRandom.hex
+        payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
+        NereidDatabaseDataCarriers::getElementOrNull(uuid)
+    end
+
     # NereidInterface::interactivelyIssueNewElementOrNull()
     def self.interactivelyIssueNewElementOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
@@ -538,95 +568,6 @@ class NereidInterface
                 element["payload"] = payload
                 NereidDatabaseDataCarriers::commitElement(element)
             end
-            return
-        end
-        raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
-    end
-
-    # NereidInterface::accessTodoListingEdition(input) # input: uuid: String | element Element
-    def self.accessTodoListingEdition(input)
-
-        element = NereidInterface::inputToElementOrNull(input, "access")
-        return if element.nil?
-
-        if element["type"] == "Line" then
-            puts element["description"]
-            return
-        end
-        if element["type"] == "Url" then
-            puts "opening '#{element["payload"]}'"
-            NereidUtils::openUrl(element["payload"])
-            return
-        end
-        if element["type"] == "Text" then
-            puts "opening text '#{element["payload"]}'"
-            text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
-            text = NereidUtils::editTextSynchronously(text)
-            element["payload"] = NereidBinaryBlobsService::putBlob(text)
-            NereidDatabaseDataCarriers::commitElement(element)
-            return
-        end
-        if element["type"] == "ClickableType" then
-            puts "opening file '#{element["payload"]}'"
-            blobuuid, extension = element["payload"].split("|")
-            filepath = "/Users/pascal/Desktop/#{element["uuid"]}#{extension}"
-            blob = NereidBinaryBlobsService::getBlobOrNull(blobuuid)
-            File.open(filepath, "w"){|f| f.write(blob) }
-            puts "I have exported the file at '#{filepath}'"
-            system("open '#{filepath}'")
-            return
-        end
-        if element["type"] == "AionPoint" then
-            puts "opening aion point '#{element["payload"]}'"
-            nhash = element["payload"]
-            targetReconstructionFolderpath = "/Users/pascal/Desktop"
-            AionCore::exportHashAtFolder(NereidElizabeth.new(), nhash, targetReconstructionFolderpath)
-            puts "Export completed"
-
-            aionObject = AionCore::getAionObjectByHash(NereidElizabeth.new(), nhash)
-            location = "/Users/pascal/Desktop/#{aionObject["name"]}"
-
-            if location[-7, 7] == ".webloc" then
-                system("open '#{location}'")
-            end
-            if [".png", ".pdf"].include?(location[-4, 4]) then
-                system("open '#{location}'")
-            end
-            return
-        end
-        raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
-    end
-
-    # NereidInterface::postAccessCleanUpTodoListingEdition(input) # input: uuid: String | element Element
-    def self.postAccessCleanUpTodoListingEdition(input)
-
-        element = NereidInterface::inputToElementOrNull(input, "postAccessCleanUpTodoListingEdition")
-        return if element.nil?
-
-        if element["type"] == "Line" then
-            return
-        end
-        if element["type"] == "Url" then
-            return
-        end
-        if element["type"] == "Text" then
-            return
-        end
-        if element["type"] == "ClickableType" then
-            puts "cleaning file '#{element["payload"]}'"
-            blobuuid, extension = element["payload"].split("|")
-            filepath = "/Users/pascal/Desktop/#{element["uuid"]}#{extension}"
-            return if !File.exists?(filepath)
-            LucilleCore::removeFileSystemLocation(filepath)
-            return
-        end
-        if element["type"] == "AionPoint" then
-            puts "cleaning aion point '#{element["payload"]}'"
-            nhash = element["payload"]
-            aionObject = AionCore::getAionObjectByHash(NereidElizabeth.new(), nhash)
-            location = "/Users/pascal/Desktop/#{aionObject["name"]}"
-            return if !File.exists?(location)
-            LucilleCore::removeFileSystemLocation(location)
             return
         end
         raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"

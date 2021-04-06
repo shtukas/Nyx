@@ -75,9 +75,50 @@ class Patricia
         end
     end
 
+    # Patricia::architectureZeroOrMoreNodes()
+    def self.architectureZeroOrMoreNodes()
+        nodes = []
+        loop {
+            node = Patricia::achitectureNodeOrNull()
+            if node then
+                nodes << node
+            end
+            if nodes.size > 0 then
+                puts "Currently selected: "
+                nodes.each{|node|
+                    puts "    - #{Patricia::toString(node)}"
+                }
+                if LucilleCore::askQuestionAnswerAsBoolean("Make another one ? ") then
+                    next
+                else
+                    break
+                end
+            end
+        }
+        nodes 
+    end
+
     # Patricia::importFolderInteractively()
     def self.importFolderInteractively()
+        # First we select the nodes we are going to attach the data to
+        # Then we ask for the folder path
+        # Then we import each location as aion point
 
+        puts "First we architecture the nodes we are going to attach the data to"
+        LucilleCore::pressEnterToContinue()
+        nodes = Patricia::architectureZeroOrMoreNodes()
+        return if nodes.empty?
+
+        folderpath = LucilleCore::askQuestionAnswerAsString("parent folderpath: ")
+
+        LucilleCore::locationsAtFolder(folderpath).each{|location|
+            element = NereidInterface::issueAionPointElement(location)
+            puts "Created element: #{Patricia::toString(element)}"
+            nodes.each{|node|
+                puts "    Linking to: #{Patricia::toString(node)} "
+                Links::linkObjects(node, element)
+            }
+        }
     end
 
     # -------------------------------------------------------

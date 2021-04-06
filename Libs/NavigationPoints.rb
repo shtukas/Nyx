@@ -18,7 +18,7 @@ class NavigationPoints
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _navigationpoints_ where _uuid_=?", [uuid]
-        db.execute "insert into _navigationpoints_ (_uuid_, _unixtime_, _type_, _description_) values (?,?,?,?)", [uuid, Time.new.to_i, type, description]
+        db.execute "insert into _navigationpoints_ (_uuid_, _unixtime_, _type_, _description_) values (?,?,?,?)", [uuid, Time.new.to_f, type, description]
         db.commit 
         db.close
     end

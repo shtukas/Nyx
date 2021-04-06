@@ -1,4 +1,10 @@
 
+pascal@Lucille20 Nyx % sqlite3 NavigationPoints.sqlite3
+SQLite version 3.32.3 2020-06-18 14:16:19
+Enter ".help" for usage hints.
+
+sqlite> create table _navigationpoints_ (_uuid_ text, _unixtime_ real, _type_ text, _description_ text);
+
 NavigationPoint {
     "uuid"         : String
     "unixtime"     : Float
