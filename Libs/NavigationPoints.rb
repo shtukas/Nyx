@@ -208,7 +208,8 @@ class NavigationPoints
 
             navpoint = NavigationPoints::getNavigationPointByUUIDOrNull(navpoint["uuid"])
 
-            system('clear')
+            puts "-- Nav Point --------------------------"
+
             mx = LCoreMenuItemsNX1.new()
             
             puts NavigationPoints::toString(navpoint).green

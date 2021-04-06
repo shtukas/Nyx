@@ -21,7 +21,9 @@ class Olivia
     def self.landing(element)
 
         loop {
-            system("clear")
+
+            puts "-- Olivia -----------------------------"
+
             element = NereidInterface::getElementOrNull(element["uuid"]) # could have been deleted or transmuted in the previous loop
             return if element.nil?
 

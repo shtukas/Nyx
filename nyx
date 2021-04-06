@@ -8,11 +8,11 @@ require_relative "Libs/loader.rb"
 
 def diveNavigationPoints()
     loop {
-        system("clear")
+        puts "Navigation point type selection:"
         typex = NavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
         break if typex.nil?
         loop {
-            system("clear")
+            puts "Navigation point selection:"
             classifiers = NavigationPoints::getNavigationPoints()
                             .select{|classifier| classifier["type"] == typex["type"] }
                             .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"] }
@@ -24,8 +24,7 @@ def diveNavigationPoints()
 end
 
 loop {
-    system("clear")
-    puts "Nyx 🗺"
+    puts "-- Nyx 🗺 -----------------------------"
 
     ops = [
         "Search",

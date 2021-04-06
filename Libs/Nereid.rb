@@ -398,9 +398,9 @@ class NereidInterface
             return if NereidInterface::getElementOrNull(element["uuid"]).nil?
             element = NereidInterface::getElementOrNull(element["uuid"]) # could have been transmuted in the previous loop
 
-            system("clear")
-
             mx = LCoreMenuItemsNX1.new()
+
+            puts "-- Element ----------------------------"
 
             puts NereidInterface::toString(element)
             puts "uuid: #{element["uuid"]}".yellow
