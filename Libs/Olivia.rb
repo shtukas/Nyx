@@ -49,7 +49,7 @@ class Olivia
             })
 
             mx.item("update/set description".yellow, lambda {
-                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                description = Utils::editTextSynchronously(element["description"])
                 return if description == ""
                 element["description"] = description
                 NereidInterface::commitElement(element)
