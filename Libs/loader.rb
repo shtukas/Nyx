@@ -149,7 +149,7 @@ require_relative "Nereid.rb"
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
 require_relative "Olivia.rb"
-require_relative "Network.rb"
+require_relative "Links.rb"
 
 require_relative "NavigationPoints.rb"
 

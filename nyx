@@ -31,7 +31,8 @@ loop {
         "Network Listing",
         "Dive Navigation Points",
         "Make new Element (with ancestors paths)",
-        "Architect Navigation Point (with ancestors paths)"
+        "Architect Navigation Point (with ancestors paths)",
+        "Import Folder"
     ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
     break if operation.nil?
@@ -60,5 +61,8 @@ loop {
         next if node.nil?
         Network::architectAncestorsPathsToNode(node)
         Patricia::landing(node)
+    end
+    if operation == "Import Folder" then
+        Patricia::importFolderInteractively()
     end
 }

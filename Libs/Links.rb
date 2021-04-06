@@ -1,17 +1,17 @@
 
 # encoding: UTF-8
 
-class Network
+class Links
 
-    # Network::databasePath()
+    # Links::databasePath()
     def self.databasePath()
-        "/Users/pascal/Galaxy/DataBank/Nyx/Network.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Nyx/Links.sqlite3"
     end
 
-    # Network::issueLink(node1uuid, node2uuid)
+    # Links::issueLink(node1uuid, node2uuid)
     def self.issueLink(node1uuid, node2uuid)
         return if node1uuid == node2uuid
-        db = SQLite3::Database.new(Network::databasePath())
+        db = SQLite3::Database.new(Links::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -22,9 +22,9 @@ class Network
         db.close
     end
 
-    # Network::deleteLink(node1uuid, node2uuid)
+    # Links::deleteLink(node1uuid, node2uuid)
     def self.deleteLink(node1uuid, node2uuid)
-        db = SQLite3::Database.new(Network::databasePath())
+        db = SQLite3::Database.new(Links::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from _network_ where _node1_=? and _node2_=?", [node1uuid, node2uuid]
@@ -32,9 +32,9 @@ class Network
         db.close
     end
 
-    # Network::getLinkedUUIDs(uuid)
+    # Links::getLinkedUUIDs(uuid)
     def self.getLinkedUUIDs(uuid)
-        db = SQLite3::Database.new(Network::databasePath())
+        db = SQLite3::Database.new(Links::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -51,34 +51,34 @@ class Network
 
     # --------------------------------------------------
 
-    # Network::linkObjects(object1, object2)
+    # Links::linkObjects(object1, object2)
     def self.linkObjects(object1, object2)
-        Network::issueLink(object1["uuid"], object2["uuid"])
+        Links::issueLink(object1["uuid"], object2["uuid"])
     end
 
-    # Network::unlinkObjects(object1, object2)
+    # Links::unlinkObjects(object1, object2)
     def self.unlinkObjects(object1, object2)
-        Network::deleteLink(object1["uuid"], object2["uuid"])
+        Links::deleteLink(object1["uuid"], object2["uuid"])
     end
 
-    # Network::areLinkedObjects(object1, object2)
+    # Links::areLinkedObjects(object1, object2)
     def self.areLinkedObjects(object1, object2)
-        Network::getLinkedUUIDs(object1["uuid"]).include?(object2["uuid"])
+        Links::getLinkedUUIDs(object1["uuid"]).include?(object2["uuid"])
     end
 
-    # Network::getLinkedObjects(object)
+    # Links::getLinkedObjects(object)
     def self.getLinkedObjects(object)
-        Network::getLinkedUUIDs(object["uuid"]).map{|uuid| Patricia::getNodeByUUIDOrNull(uuid) }.compact
+        Links::getLinkedUUIDs(object["uuid"]).map{|uuid| Patricia::getNodeByUUIDOrNull(uuid) }.compact
     end
 
-    # Network::getLinkedObjectsInTimeOrder(object)
+    # Links::getLinkedObjectsInTimeOrder(object)
     def self.getLinkedObjectsInTimeOrder(object)
-        Network::getLinkedObjects(object).sort{|o1, o2| o1["unixtime"]<=>o2["unixtime"] }
+        Links::getLinkedObjects(object).sort{|o1, o2| o1["unixtime"]<=>o2["unixtime"] }
     end
 
-    # Network::removeElementOccurences(uuid)
+    # Links::removeElementOccurences(uuid)
     def self.removeElementOccurences(uuid)
-        db = SQLite3::Database.new(Network::databasePath())
+        db = SQLite3::Database.new(Links::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.execute "delete from _network_ where _node1_=?", [uuid]
@@ -88,24 +88,24 @@ class Network
 
     # --------------------------------------------------
 
-    # Network::selectOneOfTheLinkedNodeOrNull(node)
+    # Links::selectOneOfTheLinkedNodeOrNull(node)
     def self.selectOneOfTheLinkedNodeOrNull(node)
-        related = Network::getLinkedObjectsInTimeOrder(node)
+        related = Links::getLinkedObjectsInTimeOrder(node)
         return if related.empty?
         LucilleCore::selectEntityFromListOfEntitiesOrNull("related", related, lambda{|node| Patricia::toString(node) })
     end
 
-    # Network::reshape(node1, nodes, node2)
+    # Links::reshape(node1, nodes, node2)
     def self.reshape(node1, nodes, node2)
         # This function takes a node1 and some nodes and a node2 and detach all the nodes from 
         # node1 and attach them to node2
         nodes.each{|n|
-            Network::linkObjects(node2, n)
-            Network::unlinkObjects(node1, n)
+            Links::linkObjects(node2, n)
+            Links::unlinkObjects(node1, n)
         }
     end
 
-    # Network::architectAncestorsPathsToNode(node)
+    # Links::architectAncestorsPathsToNode(node)
     def self.architectAncestorsPathsToNode(node)
         # This function takes a node and proposes the user to present paths and ensure that the paths exist
         # While resolving the navigation nodes names we use 
@@ -125,7 +125,7 @@ class Network
                 return if node1.nil?
                 node2  = (description2 != "node") ? NavigationPoints::architectureNavigationPointGivenDescriptionOrNull(description2) : node
                 return if node2.nil?
-                Network::linkObjects(node1, node2)
+                Links::linkObjects(node1, node2)
             }
         }
     end

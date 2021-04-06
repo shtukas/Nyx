@@ -75,6 +75,11 @@ class Patricia
         end
     end
 
+    # Patricia::importFolderInteractively()
+    def self.importFolderInteractively()
+
+    end
+
     # -------------------------------------------------------
 
     # Patricia::networkNodesInOrder()

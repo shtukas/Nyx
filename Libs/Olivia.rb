@@ -36,7 +36,7 @@ class Olivia
 
             mx = LCoreMenuItemsNX1.new()
 
-            Network::getLinkedObjectsInTimeOrder(element).each{|node|
+            Links::getLinkedObjectsInTimeOrder(element).each{|node|
                 mx.item("related: #{Patricia::toString(node)}", lambda { 
                     Patricia::landing(node)
                 })
@@ -58,22 +58,22 @@ class Olivia
             mx.item("link to architectured node".yellow, lambda { 
                 node = Patricia::achitectureNodeOrNull()
                 return if node.nil?
-                Network::linkObjects(element, node)
+                Links::linkObjects(element, node)
             })
 
             mx.item("unlink".yellow, lambda {
-                node = Network::selectOneOfTheLinkedNodeOrNull(element)
+                node = Links::selectOneOfTheLinkedNodeOrNull(element)
                 return if node.nil?
-                Network::unlinkObjects(element, node)
+                Links::unlinkObjects(element, node)
             })
 
             mx.item("architect ancestors path".yellow, lambda {
-                Network::architectAncestorsPathsToNode(element)
+                Links::architectAncestorsPathsToNode(element)
             })
 
             mx.item("reshape: select connected items -> move to architectured navigation node".yellow, lambda {
 
-                nodes, _ = LucilleCore::selectZeroOrMore("connected", [], Network::getLinkedObjectsInTimeOrder(element), lambda{ |n| Patricia::toString(n) })
+                nodes, _ = LucilleCore::selectZeroOrMore("connected", [], Links::getLinkedObjectsInTimeOrder(element), lambda{ |n| Patricia::toString(n) })
                 return if nodes.empty?
 
                 node2 = Patricia::achitectureNodeOrNull()
@@ -81,7 +81,7 @@ class Olivia
 
                 return if nodes.any?{|node| node["uuid"] == node2["uuid"] }
 
-                Network::reshape(element, nodes, node2)
+                Links::reshape(element, nodes, node2)
             })
 
             mx.item("transmute".yellow, lambda { 

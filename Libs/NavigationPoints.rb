@@ -217,7 +217,7 @@ class NavigationPoints
 
             puts ""
 
-            Network::getLinkedObjectsInTimeOrder(navpoint).each{|node|
+            Links::getLinkedObjectsInTimeOrder(navpoint).each{|node|
                 mx.item("related: #{Patricia::toString(node)}", lambda { 
                     Patricia::landing(node)
                 })
@@ -234,22 +234,22 @@ class NavigationPoints
             mx.item("link to architectured node".yellow, lambda {
                 node = Patricia::achitectureNodeOrNull()
                 return if node.nil?
-                Network::linkObjects(navpoint, node)
+                Links::linkObjects(navpoint, node)
             })
 
             mx.item("unlink".yellow, lambda {
-                node = Network::selectOneOfTheLinkedNodeOrNull(navpoint)
+                node = Links::selectOneOfTheLinkedNodeOrNull(navpoint)
                 return if node.nil?
-                Network::unlinkObjects(navpoint, node)
+                Links::unlinkObjects(navpoint, node)
             })
 
             mx.item("architect ancestors path".yellow, lambda {
-                Network::architectAncestorsPathsToNode(element)
+                Links::architectAncestorsPathsToNode(element)
             })
 
             mx.item("reshape: select connected items -> move to architectured navigation node".yellow, lambda {
 
-                nodes, _ = LucilleCore::selectZeroOrMore("connected", [], Network::getLinkedObjectsInTimeOrder(navpoint), lambda{ |n| Patricia::toString(n) })
+                nodes, _ = LucilleCore::selectZeroOrMore("connected", [], Links::getLinkedObjectsInTimeOrder(navpoint), lambda{ |n| Patricia::toString(n) })
                 return if nodes.empty?
 
                 node2 = Patricia::achitectureNodeOrNull()
@@ -257,7 +257,7 @@ class NavigationPoints
 
                 return if nodes.any?{|node| node["uuid"] == node2["uuid"] }
 
-                Network::reshape(navpoint, nodes, node2)
+                Links::reshape(navpoint, nodes, node2)
             })
 
             mx.item("view json object".yellow, lambda { 
