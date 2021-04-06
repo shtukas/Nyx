@@ -151,7 +151,6 @@ require_relative "Nereid.rb"
 require_relative "Olivia.rb"
 require_relative "Network.rb"
 
-require_relative "NX141FilenameReaderWriter.rb"
 require_relative "NavigationPoints.rb"
 
 require_relative "Patricia.rb"
