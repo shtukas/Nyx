@@ -58,17 +58,13 @@ class Olivia
             mx.item("link to architectured node".yellow, lambda { 
                 node = Patricia::achitectureNodeOrNull()
                 return if node.nil?
-                Links::linkObjects(element, node)
+                Links::linkObjectsDirectionaly(element, node)
             })
 
             mx.item("unlink".yellow, lambda {
                 node = Links::selectOneOfTheLinkedNodeOrNull(element)
                 return if node.nil?
                 Links::unlinkObjects(element, node)
-            })
-
-            mx.item("architect ancestors path".yellow, lambda {
-                Links::architectAncestorsPathsToNode(element)
             })
 
             mx.item("reshape: select connected items -> move to architectured navigation node".yellow, lambda {
@@ -81,7 +77,7 @@ class Olivia
 
                 return if nodes.any?{|node| node["uuid"] == node2["uuid"] }
 
-                Links::reshape(element, nodes, node2)
+                Links::reshapeDirectionaly(element, nodes, node2)
             })
 
             mx.item("transmute".yellow, lambda { 

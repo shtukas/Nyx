@@ -116,7 +116,7 @@ class Patricia
             puts "Created element: #{Patricia::toString(element)}"
             nodes.each{|node|
                 puts "    Linking to: #{Patricia::toString(node)} "
-                Links::linkObjects(node, element)
+                Links::linkObjectsDirectionaly(node, element)
             }
         }
     end
@@ -147,4 +147,39 @@ class Patricia
     end
 
     # -------------------------------------------------------
+
+    # Patricia::parentsChains(node)
+    def self.parentsChains(node)
+        chains = [
+            {
+                "objects" => [node]
+            }
+        ]
+
+        chainIsComplete = lambda{|chain|
+            Links::getLinkedObjectsParents(chain["objects"][0]).empty?
+        }
+
+        allChainsAreComplete = lambda{|chains|
+            chains.all?{|chain| chainIsComplete.call(chain) }
+        }
+
+        updateChain = lambda{|chain|
+            parents = Links::getLinkedObjectsParents(chain["objects"][0])
+            return chain if parents.empty?
+            parents.map{|parent|
+                {
+                    "objects" => [parent] + chain["objects"].clone
+                }
+                
+            }
+        }
+
+        while !allChainsAreComplete.call(chains) do
+            chains = chains.map{|chain| updateChain.call(chain) }.flatten
+        end
+
+        chains
+    end
+
 end

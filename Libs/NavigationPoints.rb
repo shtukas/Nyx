@@ -235,17 +235,13 @@ class NavigationPoints
             mx.item("link to architectured node".yellow, lambda {
                 node = Patricia::achitectureNodeOrNull()
                 return if node.nil?
-                Links::linkObjects(navpoint, node)
+                Links::linkObjectsDirectionaly(navpoint, node)
             })
 
             mx.item("unlink".yellow, lambda {
                 node = Links::selectOneOfTheLinkedNodeOrNull(navpoint)
                 return if node.nil?
                 Links::unlinkObjects(navpoint, node)
-            })
-
-            mx.item("architect ancestors path".yellow, lambda {
-                Links::architectAncestorsPathsToNode(element)
             })
 
             mx.item("reshape: select connected items -> move to architectured navigation node".yellow, lambda {
@@ -258,7 +254,7 @@ class NavigationPoints
 
                 return if nodes.any?{|node| node["uuid"] == node2["uuid"] }
 
-                Links::reshape(navpoint, nodes, node2)
+                Links::reshapeDirectionaly(navpoint, nodes, node2)
             })
 
             mx.item("view json object".yellow, lambda { 
