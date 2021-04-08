@@ -8,14 +8,14 @@ class Classification
         "/Users/pascal/Galaxy/DataBank/Nyx/Classification.sqlite3"
     end
 
-    # Classification::insertRecord(recordId, pointuuid, attributeValue)
-    def self.insertRecord(recordId, pointuuid, attributeValue)
+    # Classification::insertRecord(recordId, pointuuid, classificationValue)
+    def self.insertRecord(recordId, pointuuid, classificationValue)
         db = SQLite3::Database.new(Classification::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _classifiers_ where _recordId_=?", [recordId]
-        db.execute "insert into _classifiers_ (_recordId_, _pointuuid_, _attributeValue_) values (?,?,?)", [recordId, pointuuid, attributeValue]
+        db.execute "insert into _classifiers_ (_recordId_, _pointuuid_, _classificationValue_) values (?,?,?)", [recordId, pointuuid, classificationValue]
         db.commit 
         db.close
     end
@@ -31,24 +31,86 @@ class Classification
             answer = {
                 "recordId"       => row['_recordId_'],
                 "pointuuid"      => row['_pointuuid_'],
-                "attributeValue" => row['_attributeValue_'],
+                "classificationValue" => row['_classificationValue_'],
             }
         end
         db.close
         answer
     end
 
-    # Classification::getPointUUIDsPerAttributeValue(attributeValue)
-    def self.getPointUUIDsPerAttributeValue(attributeValue)
+    # Classification::getPointUUIDsPerClassificationValue(classificationValue)
+    def self.getPointUUIDsPerClassificationValue(classificationValue)
         db = SQLite3::Database.new(Classification::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute("select * from _classifiers_ where _attributeValue_=? ", [attributeValue]) do |row|
+        db.execute("select * from _classifiers_ where _classificationValue_=? ", [classificationValue]) do |row|
             answer << row['_pointuuid_']
         end
         db.close
         answer
+    end
+
+    # Classification::getPointsPerClassificationValue(classificationValue)
+    def self.getPointsPerClassificationValue(classificationValue)
+        Classification::getPointUUIDsPerClassificationValue(classificationValue)
+            .map{|uuid| NereidInterface::getElementOrNull(uuid) }
+            .compact
+    end
+
+    # Classification::getDistinctClassificationValues()
+    def self.getDistinctClassificationValues()
+        db = SQLite3::Database.new(Classification::databasePath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select distinct(_classificationValue_) as _classificationValue_ from _classifiers_", []) do |row|
+            answer << row['_classificationValue_']
+        end
+        db.close
+        answer
+    end
+
+    # Classification::landing(classificationValue)
+    def self.landing(classificationValue)
+
+        loop {
+
+            puts "-- Classification Value --------------------------"
+
+            mx = LCoreMenuItemsNX1.new()
+            
+            puts classificationValue.green
+
+            puts ""
+
+            Classification::getPointsPerClassificationValue(classificationValue).each{|node|
+                mx.item("node: #{NereidInterface::toString(node)}", lambda { 
+                    Olivia::landing(node)
+                })
+            }
+
+            puts ""
+
+            status = mx.promptAndRunSandbox()
+            break if !status
+        }
+    end
+
+    # Classification::nx19s()
+    def self.nx19s()
+        Classification::getDistinctClassificationValues()
+            .map{|classificationValue|
+                volatileuuid = SecureRandom.hex[0, 8]
+                {
+                    "announce" => "#{volatileuuid} [classification] #{classificationValue}",
+                    "nx15"  => {
+                        "type"    => "classificationValue",
+                        "payload" => classificationValue
+                    }
+                }
+            }
     end
 end

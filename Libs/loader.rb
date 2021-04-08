@@ -137,8 +137,6 @@ require_relative "Classification"
 
 require_relative "Links.rb"
 
-require_relative "NavigationPoints.rb"
-
 require_relative "Nereid.rb"
 =begin
     NereidInterface::interactivelyIssueNewElementOrNull()

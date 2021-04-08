@@ -3,4 +3,4 @@ pascal@Lucille20 Nyx % sqlite3 Classification.sqlite3
 SQLite version 3.32.3 2020-06-18 14:16:19
 Enter ".help" for usage hints.
 
-sqlite> create table _classifiers_ (_recordId_ text, _pointuuid_ text, _attributeValue_ text);
+sqlite> create table _classifiers_ (_recordId_ text, _pointuuid_ text, _classificationValue_ text);

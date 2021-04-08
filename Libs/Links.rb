@@ -113,17 +113,17 @@ class Links
 
     # Links::getLinkedObjects(object)
     def self.getLinkedObjects(object)
-        Links::getLinkedUUIDs(object["uuid"]).map{|uuid| Patricia::getNodeByUUIDOrNull(uuid) }.compact
+        Links::getLinkedUUIDs(object["uuid"]).map{|uuid| NereidInterface::getElementOrNull(uuid) }.compact
     end
 
     # Links::getLinkedObjectsParents(object)
     def self.getLinkedObjectsParents(object)
-        Links::getLinkedUUIDsParents(object["uuid"]).map{|uuid| Patricia::getNodeByUUIDOrNull(uuid) }.compact
+        Links::getLinkedUUIDsParents(object["uuid"]).map{|uuid| NereidInterface::getElementOrNull(uuid) }.compact
     end
 
     # Links::getLinkedObjectsChildren(object)
     def self.getLinkedObjectsChildren(object)
-        Links::getLinkedUUIDsChildren(object["uuid"]).map{|uuid| Patricia::getNodeByUUIDOrNull(uuid) }.compact
+        Links::getLinkedUUIDsChildren(object["uuid"]).map{|uuid| NereidInterface::getElementOrNull(uuid) }.compact
     end
 
     # Links::getLinkedObjectsInTimeOrder(object)

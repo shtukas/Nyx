@@ -6,32 +6,13 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-def diveNavigationPoints()
-    loop {
-        puts "Navigation point type selection:"
-        typex = NavigationPoints::interactivelySelectNavigationPointTypeXOrNull()
-        break if typex.nil?
-        loop {
-            puts "Navigation point selection:"
-            classifiers = NavigationPoints::getNavigationPoints()
-                            .select{|classifier| classifier["type"] == typex["type"] }
-                            .sort{|c1, c2| c1["unixtime"] <=> c2["unixtime"] }
-            classifier = Utils::selectOneObjectOrNullUsingInteractiveInterface(classifiers, lambda{|classifier| NavigationPoints::toString(classifier) })
-            break if classifier.nil?
-            NavigationPoints::landing(classifier)
-        }
-    }
-end
-
 loop {
     puts "-- Nyx 🗺 -----------------------------"
 
     ops = [
         "Search",
-        "Network Listing",
-        "Dive Navigation Points",
-        "Make new Element (with ancestors paths)",
-        "Architect Navigation Point (with ancestors paths)",
+        "Nodes Listing",
+        "Make new Element",
         "Import Folder"
     ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
@@ -39,28 +20,18 @@ loop {
     if operation == "Search" then
         Patricia::generalSearchLoop()
     end
-    if operation == "Network Listing" then
+    if operation == "Nodes Listing" then
         loop {
             nodes = Patricia::networkNodesInOrder()
-            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| Patricia::toString(node) })
+            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| NereidInterface::toString(node) })
             break if node.nil?
-            Patricia::landing(node)
+            Olivia::landing(node)
         }
     end
-    if operation == "Dive Navigation Points" then
-        diveNavigationPoints()
-    end
-    if operation == "Make new Element (with ancestors paths)" then
+    if operation == "Make new Element" then
         node = NereidInterface::interactivelyIssueNewElementOrNull()
         next if node.nil?
-        Network::architectAncestorsPathsToNode(node)
-        Patricia::landing(node)
-    end
-    if operation == "Architect Navigation Point (with ancestors paths)" then
-        node = NavigationPoints::architectureNavigationPointOrNull()
-        next if node.nil?
-        Network::architectAncestorsPathsToNode(node)
-        Patricia::landing(node)
+        Olivia::landing(node)
     end
     if operation == "Import Folder" then
         Patricia::importFolderInteractively()

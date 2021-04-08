@@ -5,14 +5,17 @@ class Olivia
 
     # This class extends Nereid with a few functions it doesn't have
 
-    # Olivia::nyxSearchItems()
-    def self.nyxSearchItems()
+    # Olivia::nx19s()
+    def self.nx19s()
         NereidInterface::getElements()
             .map{|element|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce"     => "#{volatileuuid} #{NereidInterface::toString(element)}",
-                    "payload"      => element
+                    "announce" => "#{volatileuuid} #{NereidInterface::toString(element)}",
+                    "nx15"     => {
+                        "type"    => "neiredElement",
+                        "payload" => element
+                    }
                 }
             }
     end
@@ -37,8 +40,8 @@ class Olivia
             mx = LCoreMenuItemsNX1.new()
 
             Links::getLinkedObjectsInTimeOrder(element).each{|node|
-                mx.item("related: #{Patricia::toString(node)}", lambda { 
-                    Patricia::landing(node)
+                mx.item("related: #{NereidInterface::toString(node)}", lambda { 
+                    Olivia::landing(node)
                 })
             }
 
@@ -55,29 +58,14 @@ class Olivia
                 NereidInterface::commitElement(element)
             })
 
-            mx.item("link to architectured node".yellow, lambda { 
-                node = Patricia::achitectureNodeOrNull()
-                return if node.nil?
-                Links::linkObjectsDirectionaly(element, node)
+            mx.item("attach".yellow, lambda { 
+
             })
 
-            mx.item("unlink".yellow, lambda {
+            mx.item("detach".yellow, lambda {
                 node = Links::selectOneOfTheLinkedNodeOrNull(element)
                 return if node.nil?
                 Links::unlinkObjects(element, node)
-            })
-
-            mx.item("reshape: select connected items -> move to architectured navigation node".yellow, lambda {
-
-                nodes, _ = LucilleCore::selectZeroOrMore("connected", [], Links::getLinkedObjectsInTimeOrder(element), lambda{ |n| Patricia::toString(n) })
-                return if nodes.empty?
-
-                node2 = Patricia::achitectureNodeOrNull()
-                return if node2.nil?
-
-                return if nodes.any?{|node| node["uuid"] == node2["uuid"] }
-
-                Links::reshapeDirectionaly(element, nodes, node2)
             })
 
             mx.item("transmute".yellow, lambda { 

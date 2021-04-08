@@ -1,5 +1,10 @@
 
-NyxSearchItem {
-    "announce"     : String
-    "payload"      : NyxNetworkNode
+Nx15 {
+    "type"    : "neiredElement" | "classificationValue"
+    "payload" : NeiredElement | String
+}
+
+Nx19 {
+    "announce" : String
+    "nx15"     : Nx15
 }
