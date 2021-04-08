@@ -87,7 +87,7 @@ class Classification
             puts ""
 
             Classification::getPointsPerClassificationValue(classificationValue).each{|node|
-                mx.item("node: #{NereidInterface::toString(node)}", lambda { 
+                mx.item(NereidInterface::toString(node), lambda { 
                     Olivia::landing(node)
                 })
             }
@@ -105,7 +105,7 @@ class Classification
             .map{|classificationValue|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} [classification] #{classificationValue}",
+                    "announce" => "#{volatileuuid} #{classificationValue}",
                     "nx15"  => {
                         "type"    => "classificationValue",
                         "payload" => classificationValue

@@ -259,22 +259,15 @@ class NereidInterface
     # NereidInterface::toStringFromElement(element)
     def self.toStringFromElement(element)
         if element["type"] == "Line" then
-            description = element["description"]
-            # -------------------------------------------------
-            # Correction of a mistake resulting from bad data transfer
-            if (description.size % 2 == 0) and (description[0, description.size/2] == description[description.size/2, description.size]) then
-                description = description[0, description.size/2]
-            end
-            # -------------------------------------------------
-            return "[nereid] [line] #{description}"    
+            return "#{element["description"]} [line]"
         end
         if element["type"] == "Url" and element["description"] == element["payload"] then
-            return "[nereid] [url] #{element["payload"]}"    
+            return "#{element["payload"]} [url]"
         end
         if element["type"] == "AionPoint" then
-            return "[nereid] [#{element["type"].downcase}] #{element["description"]}"  
+            return "#{element["description"]} [aion point]"  
         end
-        "[nereid] [#{element["type"].downcase}] #{element["description"]} | #{element["payload"]}"
+        "#{element["description"]} | #{element["payload"]} [#{element["type"].downcase}]"
     end
 
     # NereidInterface::toString(input) # input: uuid: String | element Element
