@@ -39,12 +39,6 @@ class Olivia
 
             mx = LCoreMenuItemsNX1.new()
 
-            Links::getLinkedObjectsInTimeOrder(element).each{|node|
-                mx.item("related: #{NereidInterface::toString(node)}", lambda { 
-                    Olivia::landing(node)
-                })
-            }
-
             puts ""
 
             mx.item("access".yellow, lambda { 
@@ -63,9 +57,7 @@ class Olivia
             })
 
             mx.item("detach".yellow, lambda {
-                node = Links::selectOneOfTheLinkedNodeOrNull(element)
-                return if node.nil?
-                Links::unlinkObjects(element, node)
+
             })
 
             mx.item("transmute".yellow, lambda { 
