@@ -119,6 +119,7 @@ class NavigationPoints
         typename = NavigationPoints::typeXs().select{|typex| typex["type"] == navpoint["type"] }.map{|typex| typex["name"] }.first
         raise "b373b8d6-454e-4710-85e4-41160372395a" if typename.nil?
         "[navpoint: #{typename}] #{navpoint["description"]}"
+        navpoint["description"]
     end
 
     # NavigationPoints::interactivelyIssueNewNavigationPointOrNull()

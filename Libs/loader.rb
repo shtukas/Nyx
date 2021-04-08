@@ -133,7 +133,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 require_relative "BinaryBlobsService.rb"
 
-require_relative "Utils.rb"
+require_relative "Classification"
+
+require_relative "Links.rb"
+
+require_relative "NavigationPoints.rb"
 
 require_relative "Nereid.rb"
 =begin
@@ -148,15 +152,15 @@ require_relative "Nereid.rb"
     NereidInterface::transmuteOrNull(element): # new element with same uuid, or null
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
-require_relative "Olivia.rb"
-require_relative "Links.rb"
 
-require_relative "NavigationPoints.rb"
+require_relative "Olivia.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "SectionsType0141.rb"
+
+require_relative "Utils.rb"
 
 # ------------------------------------------------------------
 
