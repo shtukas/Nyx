@@ -390,22 +390,6 @@ class NereidInterface
         nil
     end
 
-    # NereidInterface::inputToElementOrNull(input, operationName) # input: uuid: String | element Element
-    def self.inputToElementOrNull(input, operationName)
-        if input.class.to_s == "String" then
-            element = NereidInterface::getElementOrNull(input)
-            if element.nil? then
-                return nil if operationName == "postAccessCleanUpTodoListingEdition"
-                puts "I could not find an element for input '#{input}'. #{operationName} aborted."
-                LucilleCore::pressEnterToContinue()
-                return nil
-            end
-            return element
-        else
-            return input
-        end
-    end
-
     # NereidInterface::destroyElement(uuid)
     def self.destroyElement(uuid)
         FileSystemAdapter::destroyElementOnDisk(uuid)
