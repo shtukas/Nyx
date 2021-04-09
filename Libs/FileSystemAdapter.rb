@@ -194,6 +194,11 @@ class FileSystemAdapter
 
     # ----------------------------------------------------------------------------------------
 
+    # FileSystemAdapter::access(uuid) # input: uuid: String | element Element
+    def self.access(uuid)
+        raise "Access has not been implemented yet"
+    end
+
     # FileSystemAdapter::edit(uuid)
     def self.edit(uuid)
         raise "Edition has not been implemented yet"

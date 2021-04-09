@@ -6,7 +6,6 @@
     NereidInterface::getElementOrNull(uuid)
     NereidInterface::getElements()
     NereidInterface::landing(input) # input: uuid: String , element Element
-    NereidInterface::access(input)
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
 
@@ -429,7 +428,7 @@ class NereidInterface
             puts ""
 
             mx.item("access".yellow,lambda { 
-                NereidInterface::access(element) 
+                FileSystemAdapter::access(element["uuid"]) 
             })
 
             mx.item("set/update description".yellow, lambda {
@@ -461,107 +460,6 @@ class NereidInterface
             status = mx.promptAndRunSandbox()
             break if !status
         }
-    end
-
-    # NereidInterface::access(input) # input: uuid: String | element Element
-    def self.access(input)
-
-        element = NereidInterface::inputToElementOrNull(input, "access")
-        return if element.nil?
-
-        if element["type"] == "Line" then
-            puts element["description"]
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if element["type"] == "Url" then
-            puts "opening '#{element["payload"]}'"
-            NereidUtils::openUrl(element["payload"])
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if element["type"] == "Text" then
-            puts "opening text '#{element["payload"]}'"
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
-            return if type.nil?
-            if type == "read-only" then
-                text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
-                filepath = "/Users/pascal/Desktop/#{element["uuid"]}.txt"
-                File.open(filepath, "w"){|f| f.write(text) }
-                puts "I have exported the file at '#{filepath}'"
-                LucilleCore::pressEnterToContinue()
-            end
-            if type == "read-write" then
-                text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
-                text = NereidUtils::editTextSynchronously(text)
-                element["payload"] = NereidBinaryBlobsService::putBlob(text)
-                NereidDatabaseDataCarriers::commitElement(element)
-            end
-            return
-        end
-        if element["type"] == "ClickableType" then
-            puts "opening file '#{element["payload"]}'"
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
-            return if type.nil?
-            if type == "read-only" then
-                blobuuid, extension = element["payload"].split("|")
-                filepath = "/Users/pascal/Desktop/#{element["uuid"]}#{extension}"
-                blob = NereidBinaryBlobsService::getBlobOrNull(blobuuid)
-                File.open(filepath, "w"){|f| f.write(blob) }
-                puts "I have exported the file at '#{filepath}'"
-                LucilleCore::pressEnterToContinue()
-            end
-            if type == "read-write" then
-                blobuuid, extension = element["payload"].split("|")
-                filepath = "/Users/pascal/Desktop/#{element["uuid"]}#{extension}"
-                blob = NereidBinaryBlobsService::getBlobOrNull(blobuuid)
-                File.open(filepath, "w"){|f| f.write(blob) }
-                puts "I have exported the file at '#{filepath}'"
-                puts "When done, you will enter the filename of the replacement"
-                LucilleCore::pressEnterToContinue()
-                filename = LucilleCore::askQuestionAnswerAsString("desktop filename (empty to abort): ")
-                return if filename == ""
-                filepath = "/Users/pascal/Desktop/#{filename}"
-                return nil if !File.exists?(filepath)
-
-                nhash = NereidBinaryBlobsService::putBlob(IO.read(filepath))
-                dottedExtension = File.extname(filename)
-                payload = "#{nhash}|#{dottedExtension}"
-
-                element["payload"] = payload
-                NereidDatabaseDataCarriers::commitElement(element)
-            end
-            return
-        end
-        if element["type"] == "AionPoint" then
-            puts "opening aion point '#{element["payload"]}'"
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["read-only", "read-write"])
-            return if type.nil?
-            if type == "read-only" then
-                nhash = element["payload"]
-                targetReconstructionFolderpath = "/Users/pascal/Desktop"
-                AionCore::exportHashAtFolder(NereidElizabeth.new(), nhash, targetReconstructionFolderpath)
-                puts "Export completed"
-                LucilleCore::pressEnterToContinue()
-            end
-            if type == "read-write" then
-                nhash = element["payload"]
-                targetReconstructionFolderpath = "/Users/pascal/Desktop"
-                AionCore::exportHashAtFolder(NereidElizabeth.new(), nhash, targetReconstructionFolderpath)
-                puts "Export completed"
-                puts "When done, you will enter the location name of the replacement"
-                LucilleCore::pressEnterToContinue()
-                locationname = LucilleCore::askQuestionAnswerAsString("desktop location name (empty to abort): ")
-                return if locationname == ""
-                location = "/Users/pascal/Desktop/#{locationname}"
-                return nil if !File.exists?(location)
-                payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-                element["payload"] = payload
-                NereidDatabaseDataCarriers::commitElement(element)
-            end
-            return
-        end
-        raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
     end
 
     # NereidInterface::destroyElement(uuid)

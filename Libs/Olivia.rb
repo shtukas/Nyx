@@ -42,7 +42,7 @@ class Olivia
             puts ""
 
             mx.item("access".yellow, lambda { 
-                NereidInterface::access(element)
+                FileSystemAdapter::access(element["uuid"])
             })
 
             mx.item("update/set description".yellow, lambda {
