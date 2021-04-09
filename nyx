@@ -22,7 +22,7 @@ loop {
     if operation == "Nodes Listing" then
         loop {
             elements = Patricia::networkNodesInOrder()
-            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", elements, lambda{|e| Elements::toString(e["uuid"]) })
+            element = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", elements, lambda{|e| Elements::toString(e["uuid"]) })
             break if element.nil?
             Elements::landing(element)
         }
