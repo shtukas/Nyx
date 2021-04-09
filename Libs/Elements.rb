@@ -158,7 +158,6 @@ class Elements
         db.execute "delete from _datacarrier_ where _uuid_=?", [uuid]
         db.commit 
         db.close
-
     end
 
     # Elements::nx19s()

@@ -131,8 +131,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 # ------------------------------------------------------------
 
-require_relative "BinaryBlobsService.rb"
-
 require_relative "Classification"
 
 require_relative "Elements.rb"
