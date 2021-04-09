@@ -22,14 +22,14 @@ loop {
     if operation == "Nodes Listing" then
         loop {
             elements = Patricia::networkNodesInOrder()
-            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", elements, lambda{|e| Olivia::toString(e["uuid"]) })
+            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", elements, lambda{|e| Elements::toString(e["uuid"]) })
             break if element.nil?
-            Olivia::landing(element)
+            Elements::landing(element)
         }
     end
     if operation == "Make new Element" then
-        element = Olivia::interactivelyIssueNewElementOrNull()
+        element = Elements::interactivelyIssueNewElementOrNull()
         next if element.nil?
-        Olivia::landing(element)
+        Elements::landing(element)
     end
 }

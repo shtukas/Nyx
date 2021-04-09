@@ -55,7 +55,7 @@ class Classification
     # Classification::getPointsPerClassificationValue(classificationValue)
     def self.getPointsPerClassificationValue(classificationValue)
         Classification::getPointUUIDsPerClassificationValue(classificationValue)
-            .map{|uuid| Olivia::getElementOrNull(uuid) }
+            .map{|uuid| Elements::getElementOrNull(uuid) }
             .compact
     end
 
@@ -87,8 +87,8 @@ class Classification
             puts ""
 
             Classification::getPointsPerClassificationValue(classificationValue).each{|node|
-                mx.item(Olivia::toString(node["uuid"]), lambda { 
-                    Olivia::landing(node)
+                mx.item(Elements::toString(node["uuid"]), lambda { 
+                    Elements::landing(node)
                 })
             }
 

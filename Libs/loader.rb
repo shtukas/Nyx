@@ -135,11 +135,11 @@ require_relative "BinaryBlobsService.rb"
 
 require_relative "Classification"
 
+require_relative "Elements.rb"
+
 require_relative "FileSystemAdapter"
 
 require_relative "Nereid.rb"
-
-require_relative "Olivia.rb"
 
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"

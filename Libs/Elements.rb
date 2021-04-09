@@ -3,9 +3,26 @@
 
 class Olivia
 
-    # Olivia::getElements()
+    # Olivia::databaseFilepath()
+    def self.databaseFilepath()
+        "/Users/pascal/Galaxy/DataBank/Nyx/Elements.sqlite3"
+    end
+
+    # Elements::commitToDatabase(uuid, unixtime, description)
+    def self.commitToDatabase(uuid, unixtime, description)
+        db = SQLite3::Database.new(Olivia::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _datacarrier_ where _uuid_=?", [uuid]
+        db.execute "insert into _datacarrier_ (_uuid_, _unixtime_, _description_) values (?,?,?)", [uuid, unixtime, description]
+        db.commit 
+        db.close
+    end
+
+    # Elements::getElements()
     def self.getElements()
-        db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
+        db = SQLite3::Database.new(Olivia::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -21,9 +38,9 @@ class Olivia
         answer
     end
 
-    # Olivia::getElementOrNull(uuid)
+    # Elements::getElementOrNull(uuid)
     def self.getElementOrNull(uuid)
-        db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
+        db = SQLite3::Database.new(Olivia::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -41,7 +58,7 @@ class Olivia
         answer
     end
 
-    # Olivia::interactivelyIssueNewElementOrNull()
+    # Elements::interactivelyIssueNewElementOrNull()
     def self.interactivelyIssueNewElementOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"])
         return nil if type.nil?
@@ -51,9 +68,9 @@ class Olivia
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return nil if description == ""
             payload = ""
-            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+            Elements::commitToDatabase(uuid, unixtime, description)
             FileSystemAdapter::makeNewElement(uuid, description, "Line", description)
-            return Olivia::getElementOrNull(uuid)
+            return Elements::getElementOrNull(uuid)
         end
         if type == "Url" then
             uuid = SecureRandom.uuid
@@ -64,9 +81,9 @@ class Olivia
             if description == "" then
                 description = url
             end
-            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+            Elements::commitToDatabase(uuid, unixtime, description)
             FileSystemAdapter::makeNewElement(uuid, description, "Url", url)
-            return Olivia::getElementOrNull(uuid)
+            return Elements::getElementOrNull(uuid)
         end
         if type == "Text" then
             uuid = SecureRandom.uuid
@@ -74,9 +91,9 @@ class Olivia
             text = Utils::editTextSynchronously("")
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
-            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+            Elements::commitToDatabase(uuid, unixtime, description)
             FileSystemAdapter::makeNewElement(uuid, description, "Text", text)
-            return Olivia::getElementOrNull(uuid)
+            return Elements::getElementOrNull(uuid)
         end
         if type == "UniqueFileClickable" then
             uuid = SecureRandom.uuid
@@ -89,9 +106,9 @@ class Olivia
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
 
-            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+            Elements::commitToDatabase(uuid, unixtime, description)
             FileSystemAdapter::makeNewElement(uuid, description, "UniqueFileClickable", filepath)
-            return Olivia::getElementOrNull(uuid)
+            return Elements::getElementOrNull(uuid)
         end
         if type == "FSLocation" then
             uuid = SecureRandom.uuid
@@ -104,9 +121,9 @@ class Olivia
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
 
-            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+            Elements::commitToDatabase(uuid, unixtime, description)
             FileSystemAdapter::makeNewElement(uuid, description, "FSLocation", location)
-            return Olivia::getElementOrNull(uuid)
+            return Elements::getElementOrNull(uuid)
         end
         if type == "FSUniqueString" then
             raise "FSUniqueString not implemented yet"
@@ -114,19 +131,27 @@ class Olivia
         nil
     end
 
-    # Olivia::destroyElement(uuid)
+    # Elements::destroyElement(uuid)
     def self.destroyElement(uuid)
         FileSystemAdapter::destroyElementOnDisk(uuid)
-        NereidDatabaseDataCarriers::destroyElement(uuid)
+
+        db = SQLite3::Database.new(Olivia::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _datacarrier_ where _uuid_=?", [uuid]
+        db.commit 
+        db.close
+
     end
 
-    # Olivia::nx19s()
+    # Elements::nx19s()
     def self.nx19s()
-        Olivia::getElements()
+        Elements::getElements()
             .map{|element|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{Olivia::toString(element["uuid"])}",
+                    "announce" => "#{volatileuuid} #{Elements::toString(element["uuid"])}",
                     "nx15"     => {
                         "type"    => "neiredElement",
                         "payload" => element
@@ -135,17 +160,17 @@ class Olivia
             }
     end
 
-    # Olivia::landing(element)
+    # Elements::landing(element)
     def self.landing(element)
 
         loop {
 
             puts "-- Olivia -----------------------------"
 
-            element = Olivia::getElementOrNull(element["uuid"]) # could have been deleted or transmuted in the previous loop
+            element = Elements::getElementOrNull(element["uuid"]) # could have been deleted or transmuted in the previous loop
             return if element.nil?
 
-            puts "[nyx] #{Olivia::toString(element["uuid"])}".green
+            puts "[nyx] #{Elements::toString(element["uuid"])}".green
 
             puts "uuid: #{element["uuid"]}".yellow
             puts "payload: #{element["payload"]}".yellow
@@ -185,7 +210,7 @@ class Olivia
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    Olivia::destroyElement(element["uuid"])
+                    Elements::destroyElement(element["uuid"])
                 end
             })
 
@@ -196,9 +221,9 @@ class Olivia
         }
     end
 
-    # Olivia::toString(uuid)
+    # Elements::toString(uuid)
     def self.toString(uuid)
-        element = Olivia::getElementOrNull(uuid)
+        element = Elements::getElementOrNull(uuid)
         if element then
             element["description"]
         else
