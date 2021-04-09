@@ -19,7 +19,7 @@ class Patricia
 
     # Patricia::networkNodesInOrder()
     def self.networkNodesInOrder()
-        NereidInterface::getElements().sort{|n1, n2| n1["unixtime"]<=>n2["unixtime"] }
+        Olivia::getElements().sort{|n1, n2| n1["unixtime"]<=>n2["unixtime"] }
     end
 
     # Patricia::nx19s()

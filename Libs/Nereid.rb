@@ -165,26 +165,6 @@ class NereidDatabaseDataCarriers
         answer
     end
 
-    # NereidDatabaseDataCarriers::getElements()
-    def self.getElements()
-        db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _datacarrier_", []) do |row|
-            answer << {
-                "uuid"        => row['_uuid_'], 
-                "unixtime"    => row['_unixtime_'],
-                "description" => row['_description_'],
-                "type"        => row['_type_'],
-                "payload"     => row['_payload_']
-            }
-        end
-        db.close
-        answer
-    end
-
     # NereidDatabaseDataCarriers::destroyElement(uuid)
     def self.destroyElement(uuid)
         db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
@@ -235,11 +215,6 @@ class NereidInterface
     # NereidInterface::getElementOrNull(uuid)
     def self.getElementOrNull(uuid)
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
-    end
-
-    # NereidInterface::getElements()
-    def self.getElements()
-        NereidDatabaseDataCarriers::getElements()
     end
 end
 

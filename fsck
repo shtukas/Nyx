@@ -4,7 +4,7 @@
 
 require_relative "Libs/loader.rb"
 
-NereidInterface::getElements().each{|element|
+Olivia::getElements().each{|element|
     puts element["uuid"]
     FileSystemAdapter::fsckElement(element["uuid"])
 }

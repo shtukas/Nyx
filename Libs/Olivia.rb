@@ -3,6 +3,24 @@
 
 class Olivia
 
+    # Olivia::getElements()
+    def self.getElements()
+        db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _datacarrier_", []) do |row|
+            answer << {
+                "uuid"        => row['_uuid_'], 
+                "unixtime"    => row['_unixtime_'],
+                "description" => row['_description_']
+            }
+        end
+        db.close
+        answer
+    end
+
     # Olivia::interactivelyIssueNewElementOrNull()
     def self.interactivelyIssueNewElementOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"])
@@ -84,7 +102,7 @@ class Olivia
 
     # Olivia::nx19s()
     def self.nx19s()
-        NereidInterface::getElements()
+        Olivia::getElements()
             .map{|element|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
