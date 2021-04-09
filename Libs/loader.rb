@@ -36,11 +36,6 @@ require "time"
 
 require 'colorize'
 
-# -----------------------------------------------------------------------
-# require 'curses' # I commented that out, thereby disabling 
-# Utils::ncurseSelection1410(lambda1, lambda2) ,
-# when I introduced pepin 
-
 require 'pepin'
 
 =begin
