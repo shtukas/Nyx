@@ -157,32 +157,3 @@ class NereidDatabaseDataCarriers
     end
 end
 
-class NereidElizabeth
-
-    def initialize()
-    end
-
-    def commitBlob(blob)
-        NereidBinaryBlobsService::putBlob(blob)
-    end
-
-    def filepathToContentHash(filepath)
-        NereidBinaryBlobsService::filepathToContentHash(filepath)
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = NereidBinaryBlobsService::getBlobOrNull(nhash)
-        raise "[NereidElizabeth error: 2400b1c6-42ff-49d0-b37c-fbd37f179e01]" if blob.nil?
-        blob
-    end
-
-    def datablobCheck(nhash)
-        begin
-            readBlobErrorIfNotFound(nhash)
-            true
-        rescue
-            false
-        end
-    end
-end
-
