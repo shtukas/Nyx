@@ -139,8 +139,6 @@ require_relative "Elements.rb"
 
 require_relative "FileSystemAdapter"
 
-require_relative "Nereid.rb"
-
 require_relative "Patricia.rb"
 require_relative "ProgrammableBooleans.rb"
 

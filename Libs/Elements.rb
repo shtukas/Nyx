@@ -3,6 +3,22 @@
 
 class Olivia
 
+    # Olivia::editTextSynchronously(text)
+    def self.editTextSynchronously(text)
+        filename = SecureRandom.hex
+        filepath = "/tmp/#{filename}"
+        File.open(filepath, 'w') {|f| f.write(text)}
+        system("open '#{filepath}'")
+        print "> press enter when done: "
+        input = STDIN.gets
+        IO.read(filepath)
+    end
+
+    # Olivia::openUrl(url)
+    def self.openUrl(url)
+        system("open -a Safari '#{url}'")
+    end
+
     # Olivia::databaseFilepath()
     def self.databaseFilepath()
         "/Users/pascal/Galaxy/DataBank/Nyx/Elements.sqlite3"
