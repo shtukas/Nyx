@@ -126,8 +126,8 @@ class FileSystemAdapter
         IO.read(filepath)
     end
 
-    # FileSystemAdapter::getContentDataOrNull(uuid)
-    def self.getContentDataOrNull(uuid)
+    # FileSystemAdapter::getElementContentDataOrNull(uuid)
+    def self.getElementContentDataOrNull(uuid)
         # This only returns data for "Line", "Url", "FSUniqueString" otherwise raise an error
         folderpath = FileSystemAdapter::getElementFolderpathByUUIDOrNull(uuid)
         type = FileSystemAdapter::getType(uuid)
@@ -135,8 +135,8 @@ class FileSystemAdapter
         IO.read("#{folderpath}/element.txt")
     end
 
-    # FileSystemAdapter::getContentFilepathOrNull(uuid)
-    def self.getContentFilepathOrNull(uuid)
+    # FileSystemAdapter::getElementContentFilepathOrNull(uuid)
+    def self.getElementContentFilepathOrNull(uuid)
         # This only returns data for "Text", "UniqueFileClickable", "FSLocation"
         folderpath = FileSystemAdapter::getElementFolderpathByUUIDOrNull(uuid)
         type = FileSystemAdapter::getType(uuid)
@@ -158,7 +158,7 @@ class FileSystemAdapter
         end
     end
 
-   # FileSystemAdapter::fsckElement(uuid)
+    # FileSystemAdapter::fsckElement(uuid)
     def self.fsckElement(uuid)
         elementFolderpath = FileSystemAdapter::getElementFolderpathByUUIDOrNull(uuid)
         if elementFolderpath.nil? then
@@ -181,14 +181,21 @@ class FileSystemAdapter
             raise "fsck fail: non standard type (found '#{type}') for uuid: #{uuid}"
         end
         if ["Line", "Url", "FSUniqueString"].include?(type) then
-            if FileSystemAdapter::getContentDataOrNull(uuid).nil? then
+            if FileSystemAdapter::getElementContentDataOrNull(uuid).nil? then
                 raise "fsck fail: could not find content data for uuid: #{uuid}"
             end
         end
         if ["Text", "UniqueFileClickable", "FSLocation"].include?(type) then
-            if FileSystemAdapter::getContentFilepathOrNull(uuid).nil? then
+            if FileSystemAdapter::getElementContentFilepathOrNull(uuid).nil? then
                 raise "fsck fail: could not find content filepath for uuid: #{uuid}"
             end
         end
+    end
+
+    # FileSystemAdapter::destroyElementOnDisk(uuid)
+    def self.destroyElementOnDisk(uuid)
+        folderpath = FileSystemAdapter::getElementFolderpathByUUIDOrNull(uuid)
+        raise "error: 40cbbc29-6e16-43d7-98e6-eaec68f762a7" if !File.exists?(folderpath)
+        LucilleCore::removeFileSystemLocation(folderpath)
     end
 end

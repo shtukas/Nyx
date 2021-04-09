@@ -731,8 +731,8 @@ class NereidInterface
 
     # NereidInterface::destroyElement(uuid)
     def self.destroyElement(uuid)
+        FileSystemAdapter::destroyElementOnDisk(uuid)
         NereidDatabaseDataCarriers::destroyElement(uuid)
-        true
     end
 end
 
