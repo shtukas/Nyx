@@ -138,12 +138,6 @@ require_relative "Classification"
 require_relative "FileSystemAdapter"
 
 require_relative "Nereid.rb"
-=begin
-    NereidInterface::toString(input) # input: uuid: String , element Element
-    NereidInterface::getElementOrNull(uuid)
-    NereidInterface::getElements()
-    Olivia::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
-=end
 
 require_relative "Olivia.rb"
 

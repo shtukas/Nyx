@@ -21,10 +21,10 @@ loop {
     end
     if operation == "Nodes Listing" then
         loop {
-            nodes = Patricia::networkNodesInOrder()
-            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|node| NereidInterface::toString(node) })
-            break if node.nil?
-            Olivia::landing(node)
+            elements = Patricia::networkNodesInOrder()
+            node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", elements, lambda{|e| Olivia::toString(e["uuid"]) })
+            break if element.nil?
+            Olivia::landing(element)
         }
     end
     if operation == "Make new Element" then

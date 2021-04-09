@@ -1,10 +1,4 @@
 # require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
-=begin
-    NereidInterface::toString(input) # input: uuid: String , element Element
-    NereidInterface::getElementOrNull(uuid)
-    NereidInterface::getElements()
-    Olivia::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
-=end
 
 # ---------------------------------------------------------------------------------------
 
@@ -246,32 +240,6 @@ class NereidInterface
     # NereidInterface::getElements()
     def self.getElements()
         NereidDatabaseDataCarriers::getElements()
-    end
-
-    # NereidInterface::toStringFromElement(element)
-    def self.toStringFromElement(element)
-        if element["type"] == "Line" then
-            return "#{element["description"]} [line]"
-        end
-        if element["type"] == "Url" and element["description"] == element["payload"] then
-            return "#{element["payload"]} [url]"
-        end
-        if element["type"] == "AionPoint" then
-            return "#{element["description"]} [aion point]"  
-        end
-        "#{element["description"]} | #{element["payload"]} [#{element["type"].downcase}]"
-    end
-
-    # NereidInterface::toString(input) # input: uuid: String | element Element
-    def self.toString(input)
-        if input.class.to_s == "String" then
-            element = NereidInterface::getElementOrNull(input)
-            if element.nil? then
-                return "[nereid] no element found for input: #{input}"
-            end
-            return NereidInterface::toStringFromElement(element)
-        end
-        NereidInterface::toStringFromElement(input)
     end
 end
 

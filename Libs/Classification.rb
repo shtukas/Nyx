@@ -87,7 +87,7 @@ class Classification
             puts ""
 
             Classification::getPointsPerClassificationValue(classificationValue).each{|node|
-                mx.item(NereidInterface::toString(node), lambda { 
+                mx.item(Olivia::toString(node["uuid"]), lambda { 
                     Olivia::landing(node)
                 })
             }

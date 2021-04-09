@@ -88,7 +88,7 @@ class Olivia
             .map{|element|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{NereidInterface::toString(element)}",
+                    "announce" => "#{volatileuuid} #{Olivia::toString(element["uuid"])}",
                     "nx15"     => {
                         "type"    => "neiredElement",
                         "payload" => element
@@ -107,7 +107,7 @@ class Olivia
             element = NereidInterface::getElementOrNull(element["uuid"]) # could have been deleted or transmuted in the previous loop
             return if element.nil?
 
-            puts "[nyx] #{NereidInterface::toString(element)}".green
+            puts "[nyx] #{Olivia::toString(element["uuid"])}".green
 
             puts "uuid: #{element["uuid"]}".yellow
             puts "payload: #{element["payload"]}".yellow
@@ -158,4 +158,13 @@ class Olivia
         }
     end
 
+    # Olivia::toString(uuid)
+    def self.toString(uuid)
+        element = NereidDatabaseDataCarriers::getElementOrNull(uuid)
+        if element then
+            element["description"]
+        else
+            "could not find element for uuid: #{uuid}"
+        end
+    end
 end
