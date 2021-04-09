@@ -1,11 +1,10 @@
 # require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 =begin
-    NereidInterface::interactivelyIssueNewElementOrNull()
     NereidInterface::commitElement(element)
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
     NereidInterface::getElements()
-    NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
+    Olivia::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
 
 # ---------------------------------------------------------------------------------------
@@ -133,14 +132,14 @@ end
 
 class NereidDatabaseDataCarriers
 
-    # NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, type, payload)
-    def self.commitElementComponents(uuid, unixtime, description, type, payload)
+    # NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+    def self.commitElementComponents(uuid, unixtime, description)
         db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _datacarrier_ where _uuid_=?", [uuid]
-        db.execute "insert into _datacarrier_ (_uuid_, _unixtime_, _description_, _type_, _payload_) values (?,?,?,?,?)", [uuid, unixtime, description, type, payload]
+        db.execute "insert into _datacarrier_ (_uuid_, _unixtime_, _description_) values (?,?,?)", [uuid, unixtime, description]
         db.commit 
         db.close
     end
@@ -150,9 +149,7 @@ class NereidDatabaseDataCarriers
         uuid        = element["uuid"]
         unixtime    = element["unixtime"]
         description = element["description"]
-        type        = element["type"]
-        payload     = element["payload"]
-        NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, type, payload)
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
     end
 
     # NereidDatabaseDataCarriers::getElementOrNull(uuid)
@@ -286,14 +283,14 @@ class NereidInterface
     # NereidInterface::issueLineElement(line)
     def self.issueLineElement(line)
         uuid = SecureRandom.hex
-        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, line, "Line", "")
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, line)
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 
     # NereidInterface::issueNewURLElement(url)
     def self.issueNewURLElement(url)
         uuid = SecureRandom.hex
-        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, link, "Url", link)
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, link)
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 
@@ -301,7 +298,7 @@ class NereidInterface
     def self.issueTextElement(description, text)
         uuid = SecureRandom.hex
         payload = NereidBinaryBlobsService::putBlob(text)
-        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, description, "Text", payload)
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, description)
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 
@@ -309,91 +306,8 @@ class NereidInterface
     def self.issueAionPointElement(location)
         uuid = SecureRandom.hex
         payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, File.basename(location), "AionPoint", payload)
+        NereidDatabaseDataCarriers::commitElementComponents(uuid, Time.new.to_i, File.basename(location))
         NereidDatabaseDataCarriers::getElementOrNull(uuid)
-    end
-
-    # NereidInterface::interactivelyIssueNewElementOrNull()
-    def self.interactivelyIssueNewElementOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
-        return nil if type.nil?
-        if type == "Line" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            return nil if description == ""
-            payload = ""
-            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, "Line", payload)
-            return NereidDatabaseDataCarriers::getElementOrNull(uuid)
-        end
-        if type == "Url" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
-            url = LucilleCore::askQuestionAnswerAsString("url: ")
-            return nil if url == ""
-            payload = url
-            description = LucilleCore::askQuestionAnswerAsString("description (optional): ")
-            if description == "" then
-                description = payload
-            end
-            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, "Url", payload)
-            return NereidDatabaseDataCarriers::getElementOrNull(uuid)
-        end
-        if type == "Text" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
-            text = Utils::editTextSynchronously("")
-            payload = NereidBinaryBlobsService::putBlob(text)
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            return nil if description == ""
-            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, "Text", payload)
-            return NereidDatabaseDataCarriers::getElementOrNull(uuid)
-        end
-        if type == "ClickableType" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
-
-            filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")
-            filepath = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
-            return nil if !File.exists?(filepath)
-
-            nhash = NereidBinaryBlobsService::putBlob(IO.read(filepath))
-            dottedExtension = File.extname(filenameOnTheDesktop)
-            payload = "#{nhash}|#{dottedExtension}"
-
-            description = LucilleCore::askQuestionAnswerAsString("description (optional): ")
-            if description == "" then
-                description = payload
-            end
-
-            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, "ClickableType", payload)
-            return NereidDatabaseDataCarriers::getElementOrNull(uuid)
-        end
-        if type == "AionPoint" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
-
-            locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
-            location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
-            return nil if !File.exists?(location)
-
-            payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-
-            description = LucilleCore::askQuestionAnswerAsString("description (optional): ")
-            if description == "" then
-                description = payload
-            end
-
-            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description, "AionPoint", payload)
-            return NereidDatabaseDataCarriers::getElementOrNull(uuid)
-        end
-        nil
-    end
-
-    # NereidInterface::destroyElement(uuid)
-    def self.destroyElement(uuid)
-        FileSystemAdapter::destroyElementOnDisk(uuid)
-        NereidDatabaseDataCarriers::destroyElement(uuid)
     end
 end
 

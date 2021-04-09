@@ -139,12 +139,11 @@ require_relative "FileSystemAdapter"
 
 require_relative "Nereid.rb"
 =begin
-    NereidInterface::interactivelyIssueNewElementOrNull()
     NereidInterface::commitElement(element)
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
     NereidInterface::getElements()
-    NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
+    Olivia::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
 
 require_relative "Olivia.rb"

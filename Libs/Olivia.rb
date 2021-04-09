@@ -3,7 +3,84 @@
 
 class Olivia
 
-    # This class extends Nereid with a few functions it doesn't have
+    # Olivia::interactivelyIssueNewElementOrNull()
+    def self.interactivelyIssueNewElementOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"])
+        return nil if type.nil?
+        if type == "Line" then
+            uuid = SecureRandom.uuid
+            unixtime = Time.new.to_i
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            return nil if description == ""
+            payload = ""
+            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+            FileSystemAdapter::makeNewElement(uuid, description, "Line", description)
+            return NereidInterface::getElementOrNull(uuid)
+        end
+        if type == "Url" then
+            uuid = SecureRandom.uuid
+            unixtime = Time.new.to_i
+            url = LucilleCore::askQuestionAnswerAsString("url: ")
+            return nil if url == ""
+            description = LucilleCore::askQuestionAnswerAsString("description (optional): ")
+            if description == "" then
+                description = url
+            end
+            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+            FileSystemAdapter::makeNewElement(uuid, description, "Url", url)
+            return NereidInterface::getElementOrNull(uuid)
+        end
+        if type == "Text" then
+            uuid = SecureRandom.uuid
+            unixtime = Time.new.to_i
+            text = Utils::editTextSynchronously("")
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return nil if description == ""
+            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+            FileSystemAdapter::makeNewElement(uuid, description, "Text", text)
+            return NereidInterface::getElementOrNull(uuid)
+        end
+        if type == "UniqueFileClickable" then
+            uuid = SecureRandom.uuid
+            unixtime = Time.new.to_i
+
+            filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")
+            filepath = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
+            return nil if !File.exists?(filepath)
+
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return nil if description == ""
+
+            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+            FileSystemAdapter::makeNewElement(uuid, description, "UniqueFileClickable", filepath)
+            return NereidInterface::getElementOrNull(uuid)
+        end
+        if type == "FSLocation" then
+            uuid = SecureRandom.uuid
+            unixtime = Time.new.to_i
+
+            locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
+            location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
+            return nil if !File.exists?(location)
+
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return nil if description == ""
+
+            NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
+            FileSystemAdapter::makeNewElement(uuid, description, "FSLocation", location)
+            return NereidInterface::getElementOrNull(uuid)
+        end
+        if type == "FSUniqueString" then
+            raise "FSUniqueString not implemented yet"
+        end
+        nil
+    end
+
+    # Olivia::destroyElement(uuid)
+    def self.destroyElement(uuid)
+        FileSystemAdapter::destroyElementOnDisk(uuid)
+        NereidDatabaseDataCarriers::destroyElement(uuid)
+    end
 
     # Olivia::nx19s()
     def self.nx19s()
@@ -71,7 +148,7 @@ class Olivia
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    NereidInterface::destroyElement(element["uuid"])
+                    Olivia::destroyElement(element["uuid"])
                 end
             })
 

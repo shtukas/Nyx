@@ -29,9 +29,9 @@ loop {
         }
     end
     if operation == "Make new Element" then
-        node = NereidInterface::interactivelyIssueNewElementOrNull()
-        next if node.nil?
-        Olivia::landing(node)
+        element = Olivia::interactivelyIssueNewElementOrNull()
+        next if element.nil?
+        Olivia::landing(element)
     end
     if operation == "Import Folder" then
         Patricia::importFolderInteractively()

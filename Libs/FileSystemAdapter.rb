@@ -34,7 +34,7 @@ class FileSystemAdapter
         "/Users/pascal/Galaxy/Documents/02-NyxRepository"
     end
 
-    # FileSystemAdapter::makeNewElement(uuid, unixtime, description, type, content)
+    # FileSystemAdapter::makeNewElement(uuid, description, type, content)
     # Here is what the content is per type
     # "Line"                : the description, in this case the line is aligned with the description
     # "Url"                 : the url
@@ -42,7 +42,7 @@ class FileSystemAdapter
     # "UniqueFileClickable" : filepath
     # "FSLocation"          : location
     # "FSUniqueString"      : String
-    def self.makeNewElement(uuid, unixtime, description, type, contentInstruction)
+    def self.makeNewElement(uuid, description, type, contentInstruction)
         raise "217a6dd1-ba91-45de-857b-b806d0c7d377" if !["Line", "Url", "Text", "UniqueFileClickable", "FSLocation", "FSUniqueString"].include?(type)
 
         nyxElementFolderpath = "#{FileSystemAdapter::nyxRepositoryFolderPath()}/#{SecureRandom.hex[0, 2]}/#{Utils::l22()}"
