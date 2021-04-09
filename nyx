@@ -13,7 +13,6 @@ loop {
         "Search",
         "Nodes Listing",
         "Make new Element",
-        "Import Folder"
     ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
     break if operation.nil?
@@ -32,8 +31,5 @@ loop {
         element = Olivia::interactivelyIssueNewElementOrNull()
         next if element.nil?
         Olivia::landing(element)
-    end
-    if operation == "Import Folder" then
-        Patricia::importFolderInteractively()
     end
 }

@@ -15,19 +15,6 @@ class Patricia
         Utils::selectOneObjectOrNullUsingInteractiveInterface(Patricia::nx19s(), lambda{|item| item["announce"] })
     end
 
-    # Patricia::importFolderInteractively()
-    def self.importFolderInteractively()
-        classificationValue = LucilleCore::askQuestionAnswerAsString("classification value for folder items: ")
-
-        folderpath = LucilleCore::askQuestionAnswerAsString("parent folderpath: ")
-
-        LucilleCore::locationsAtFolder(folderpath).each{|location|
-            element = NereidInterface::issueAionPointElement(location)
-            puts "Created element: #{NereidInterface::toString(element)}"
-            Classification::insertRecord(SecureRandom.hex, element["uuid"], classificationValue)
-        }
-    end
-
     # -------------------------------------------------------
 
     # Patricia::networkNodesInOrder()
