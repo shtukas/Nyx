@@ -5,7 +5,6 @@
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
     NereidInterface::getElements()
-    NereidInterface::landing(input) # input: uuid: String , element Element
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
 
@@ -405,61 +404,6 @@ class NereidInterface
         else
             return input
         end
-    end
-
-    # NereidInterface::landing(input) # input: uuid: String | element Element
-    def self.landing(input)
-
-        element = NereidInterface::inputToElementOrNull(input, "landing")
-        return if element.nil?
-
-        loop {
-
-            return if NereidInterface::getElementOrNull(element["uuid"]).nil?
-            element = NereidInterface::getElementOrNull(element["uuid"]) # could have been transmuted in the previous loop
-
-            mx = LCoreMenuItemsNX1.new()
-
-            puts "-- Element ----------------------------"
-
-            puts NereidInterface::toString(element)
-            puts "uuid: #{element["uuid"]}".yellow
-
-            puts ""
-
-            mx.item("access".yellow,lambda { 
-                FileSystemAdapter::access(element["uuid"]) 
-            })
-
-            mx.item("set/update description".yellow, lambda {
-                description = NereidUtils::editTextSynchronously(element["description"])
-                return if description == ""
-                element["description"] = description
-                NereidDatabaseDataCarriers::commitElement(element)
-            })
-
-            mx.item("edit".yellow, lambda { FileSystemAdapter::edit(element["uuid"]) })
-
-            mx.item("transmute".yellow, lambda { 
-                FileSystemAdapter::transmute(element["uuid"])
-            })
-
-            mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(element)
-                LucilleCore::pressEnterToContinue()
-            })
-
-            mx.item("destroy".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("Are you sure you want to destroy this element ? ") then
-                    NereidInterface::destroyElement(element["uuid"])
-                end
-            })
-
-            puts ""
-
-            status = mx.promptAndRunSandbox()
-            break if !status
-        }
     end
 
     # NereidInterface::destroyElement(uuid)
