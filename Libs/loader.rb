@@ -135,6 +135,8 @@ require_relative "BinaryBlobsService.rb"
 
 require_relative "Classification"
 
+require_relative "FileSystemAdapter"
+
 require_relative "Nereid.rb"
 =begin
     NereidInterface::interactivelyIssueNewElementOrNull()
