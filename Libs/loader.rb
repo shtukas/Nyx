@@ -138,7 +138,6 @@ require_relative "Elements.rb"
 require_relative "FileSystemAdapter"
 
 require_relative "Patricia.rb"
-require_relative "ProgrammableBooleans.rb"
 
 require_relative "SectionsType0141.rb"
 
