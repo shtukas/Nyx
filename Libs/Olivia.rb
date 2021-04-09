@@ -61,7 +61,7 @@ class Olivia
             })
 
             mx.item("transmute".yellow, lambda { 
-                NereidInterface::transmuteOrNull(element)
+                FileSystemAdapter::transmute(element["uuid"])
             })
 
             mx.item("json object".yellow, lambda { 

@@ -198,4 +198,10 @@ class FileSystemAdapter
         raise "error: 40cbbc29-6e16-43d7-98e6-eaec68f762a7" if !File.exists?(folderpath)
         LucilleCore::removeFileSystemLocation(folderpath)
     end
+
+    # FileSystemAdapter::transmute(uuid)
+    def self.transmute(uuid)
+        raise "Transmutation has not been implemented yet"
+    end
+
 end
