@@ -21,6 +21,26 @@ class Olivia
         answer
     end
 
+    # Olivia::getElementOrNull(uuid)
+    def self.getElementOrNull(uuid)
+        db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute("select * from _datacarrier_ where _uuid_=?", [uuid]) do |row|
+            answer = {
+                "uuid"        => row['_uuid_'], 
+                "unixtime"    => row['_unixtime_'],
+                "description" => row['_description_'],
+                "type"        => row['_type_'],
+                "payload"     => row['_payload_']
+            }
+        end
+        db.close
+        answer
+    end
+
     # Olivia::interactivelyIssueNewElementOrNull()
     def self.interactivelyIssueNewElementOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"])
@@ -33,7 +53,7 @@ class Olivia
             payload = ""
             NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
             FileSystemAdapter::makeNewElement(uuid, description, "Line", description)
-            return NereidInterface::getElementOrNull(uuid)
+            return Olivia::getElementOrNull(uuid)
         end
         if type == "Url" then
             uuid = SecureRandom.uuid
@@ -46,7 +66,7 @@ class Olivia
             end
             NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
             FileSystemAdapter::makeNewElement(uuid, description, "Url", url)
-            return NereidInterface::getElementOrNull(uuid)
+            return Olivia::getElementOrNull(uuid)
         end
         if type == "Text" then
             uuid = SecureRandom.uuid
@@ -56,7 +76,7 @@ class Olivia
             return nil if description == ""
             NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
             FileSystemAdapter::makeNewElement(uuid, description, "Text", text)
-            return NereidInterface::getElementOrNull(uuid)
+            return Olivia::getElementOrNull(uuid)
         end
         if type == "UniqueFileClickable" then
             uuid = SecureRandom.uuid
@@ -71,7 +91,7 @@ class Olivia
 
             NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
             FileSystemAdapter::makeNewElement(uuid, description, "UniqueFileClickable", filepath)
-            return NereidInterface::getElementOrNull(uuid)
+            return Olivia::getElementOrNull(uuid)
         end
         if type == "FSLocation" then
             uuid = SecureRandom.uuid
@@ -86,7 +106,7 @@ class Olivia
 
             NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
             FileSystemAdapter::makeNewElement(uuid, description, "FSLocation", location)
-            return NereidInterface::getElementOrNull(uuid)
+            return Olivia::getElementOrNull(uuid)
         end
         if type == "FSUniqueString" then
             raise "FSUniqueString not implemented yet"
@@ -122,7 +142,7 @@ class Olivia
 
             puts "-- Olivia -----------------------------"
 
-            element = NereidInterface::getElementOrNull(element["uuid"]) # could have been deleted or transmuted in the previous loop
+            element = Olivia::getElementOrNull(element["uuid"]) # could have been deleted or transmuted in the previous loop
             return if element.nil?
 
             puts "[nyx] #{Olivia::toString(element["uuid"])}".green
@@ -178,7 +198,7 @@ class Olivia
 
     # Olivia::toString(uuid)
     def self.toString(uuid)
-        element = NereidDatabaseDataCarriers::getElementOrNull(uuid)
+        element = Olivia::getElementOrNull(uuid)
         if element then
             element["description"]
         else

@@ -145,26 +145,6 @@ class NereidDatabaseDataCarriers
         NereidDatabaseDataCarriers::commitElementComponents(uuid, unixtime, description)
     end
 
-    # NereidDatabaseDataCarriers::getElementOrNull(uuid)
-    def self.getElementOrNull(uuid)
-        db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = nil
-        db.execute("select * from _datacarrier_ where _uuid_=?", [uuid]) do |row|
-            answer = {
-                "uuid"        => row['_uuid_'], 
-                "unixtime"    => row['_unixtime_'],
-                "description" => row['_description_'],
-                "type"        => row['_type_'],
-                "payload"     => row['_payload_']
-            }
-        end
-        db.close
-        answer
-    end
-
     # NereidDatabaseDataCarriers::destroyElement(uuid)
     def self.destroyElement(uuid)
         db = SQLite3::Database.new(NereidDatabase::databaseFilepath())
@@ -203,18 +183,6 @@ class NereidElizabeth
         rescue
             false
         end
-    end
-end
-
-#AionCore::commitLocationReturnHash(operator, location)
-#AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
-#AionFsck::structureCheckAionHash(operator, nhash)
-
-class NereidInterface
-
-    # NereidInterface::getElementOrNull(uuid)
-    def self.getElementOrNull(uuid)
-        NereidDatabaseDataCarriers::getElementOrNull(uuid)
     end
 end
 

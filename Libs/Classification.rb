@@ -55,7 +55,7 @@ class Classification
     # Classification::getPointsPerClassificationValue(classificationValue)
     def self.getPointsPerClassificationValue(classificationValue)
         Classification::getPointUUIDsPerClassificationValue(classificationValue)
-            .map{|uuid| NereidInterface::getElementOrNull(uuid) }
+            .map{|uuid| Olivia::getElementOrNull(uuid) }
             .compact
     end
 
