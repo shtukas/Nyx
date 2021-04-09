@@ -139,7 +139,6 @@ require_relative "FileSystemAdapter"
 
 require_relative "Nereid.rb"
 =begin
-    NereidInterface::commitElement(element)
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
     NereidInterface::getElements()

@@ -1,6 +1,5 @@
 # require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Nereid.rb"
 =begin
-    NereidInterface::commitElement(element)
     NereidInterface::toString(input) # input: uuid: String , element Element
     NereidInterface::getElementOrNull(uuid)
     NereidInterface::getElements()
@@ -273,11 +272,6 @@ class NereidInterface
             return NereidInterface::toStringFromElement(element)
         end
         NereidInterface::toStringFromElement(input)
-    end
-
-    # NereidInterface::commitElement(element)
-    def self.commitElement(element)
-        NereidDatabaseDataCarriers::commitElement(element)
     end
 end
 
