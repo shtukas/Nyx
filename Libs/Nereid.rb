@@ -777,10 +777,5 @@ class NereidFsck
         raise "cfe763bb-013b-4ae6-a611-935dca16260b"
     end
 
-    # NereidFsck::check()
-    def self.check()
-        NereidInterface::getElements()
-            .each{|element| checkElement(element) }
-    end
 end
 
