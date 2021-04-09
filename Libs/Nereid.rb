@@ -7,7 +7,6 @@
     NereidInterface::getElements()
     NereidInterface::landing(input) # input: uuid: String , element Element
     NereidInterface::access(input)
-    NereidInterface::edit(input): # new element with same uuid, or null
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
 
@@ -440,7 +439,7 @@ class NereidInterface
                 NereidDatabaseDataCarriers::commitElement(element)
             })
 
-            mx.item("edit".yellow, lambda { NereidInterface::edit(element) })
+            mx.item("edit".yellow, lambda { FileSystemAdapter::edit(element["uuid"]) })
 
             mx.item("transmute".yellow, lambda { 
                 FileSystemAdapter::transmute(element["uuid"])
@@ -563,84 +562,6 @@ class NereidInterface
             return
         end
         raise "[error: 456c8df0-efb7-4588-b30d-7884b33442b9]"
-    end
-
-    # NereidInterface::edit(input): # input: uuid: String | element Element -> new element with same uuid, or null
-    def self.edit(input)
-
-        element = NereidInterface::inputToElementOrNull(input, "transmutation")
-        return if element.nil?
-
-        if element["type"] == "Line" then
-            line = LucilleCore::askQuestionAnswerAsString("line: ")
-            return nil if line == ""
-            element["description"] = line
-            element["payload"] = ""
-            NereidDatabaseDataCarriers::commitElement(element)
-            return element
-        end
-        if element["type"] == "Url" then
-            url = LucilleCore::askQuestionAnswerAsString("url: ")
-            if url != "" then
-                element["payload"] = url
-            end
-
-            description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
-            if description != "" then
-                element["description"] = description
-            end        
-
-            NereidDatabaseDataCarriers::commitElement(element)
-            return element
-        end
-        if element["type"] == "Text" then
-            text = NereidBinaryBlobsService::getBlobOrNull(element["payload"])
-            text = Utils::editTextSynchronously(text)
-            element["payload"] = NereidBinaryBlobsService::putBlob(text)
-
-            description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
-            if description != "" then
-                element["description"] = description
-            end
-
-            NereidDatabaseDataCarriers::commitElement(element)
-            return element
-        end
-        if element["type"] == "ClickableType" then
-            filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")
-            filepath = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
-            if File.exists?(filepath) then
-                nhash = NereidBinaryBlobsService::putBlob(IO.read(filepath))
-                dottedExtension = File.extname(filenameOnTheDesktop)
-                payload = "#{nhash}|#{dottedExtension}"
-                element["payload"] = payload
-            end
-
-            description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
-            if description != "" then
-                element["description"] = description
-            end
-
-            NereidDatabaseDataCarriers::commitElement(element)
-            return element
-        end
-        if element["type"] == "AionPoint" then
-            locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
-            location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
-            if File.exists?(location) then
-                payload = AionCore::commitLocationReturnHash(NereidElizabeth.new(), location)
-                element["payload"] = payload
-            end
-
-            description = LucilleCore::askQuestionAnswerAsString("description (empty for not changing): ")
-            if description != "" then
-                element["description"] = description
-            end
-
-            NereidDatabaseDataCarriers::commitElement(element)
-            return element
-        end
-        raise "[error: 707CAFD7-46CF-489B-B829-5F4816C4911D]"
     end
 
     # NereidInterface::destroyElement(uuid)

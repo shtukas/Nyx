@@ -146,7 +146,6 @@ require_relative "Nereid.rb"
     NereidInterface::getElements()
     NereidInterface::landing(input) # input: uuid: String , element Element
     NereidInterface::access(input)
-    NereidInterface::edit(input): # new element with same uuid, or null
     NereidInterface::destroyElement(uuid) # Boolean # Indicates if the destroy was logically successful.
 =end
 
