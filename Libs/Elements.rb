@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class Olivia
+class Elements
 
-    # Olivia::editTextSynchronously(text)
+    # Elements::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = SecureRandom.hex
         filepath = "/tmp/#{filename}"
@@ -14,19 +14,19 @@ class Olivia
         IO.read(filepath)
     end
 
-    # Olivia::openUrl(url)
+    # Elements::openUrl(url)
     def self.openUrl(url)
         system("open -a Safari '#{url}'")
     end
 
-    # Olivia::databaseFilepath()
+    # Elements::databaseFilepath()
     def self.databaseFilepath()
         "/Users/pascal/Galaxy/DataBank/Nyx/Elements.sqlite3"
     end
 
     # Elements::commitToDatabase(uuid, unixtime, description)
     def self.commitToDatabase(uuid, unixtime, description)
-        db = SQLite3::Database.new(Olivia::databaseFilepath())
+        db = SQLite3::Database.new(Elements::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -38,7 +38,7 @@ class Olivia
 
     # Elements::getElements()
     def self.getElements()
-        db = SQLite3::Database.new(Olivia::databaseFilepath())
+        db = SQLite3::Database.new(Elements::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -56,7 +56,7 @@ class Olivia
 
     # Elements::getElementOrNull(uuid)
     def self.getElementOrNull(uuid)
-        db = SQLite3::Database.new(Olivia::databaseFilepath())
+        db = SQLite3::Database.new(Elements::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -151,7 +151,7 @@ class Olivia
     def self.destroyElement(uuid)
         FileSystemAdapter::destroyElementOnDisk(uuid)
 
-        db = SQLite3::Database.new(Olivia::databaseFilepath())
+        db = SQLite3::Database.new(Elements::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
