@@ -174,17 +174,15 @@ class Quarks
 
         loop {
 
-            puts "-- Olivia -----------------------------"
+            puts "-- Quark -----------------------------"
 
             quark = Quarks::getQuarkOrNull(quark["uuid"]) # could have been deleted or transmuted in the previous loop
             return if quark.nil?
 
-            puts "[nyx] #{Quarks::toString(quark)}".green
+            puts Quarks::toString(quark).green
 
             puts "uuid: #{quark["uuid"]}".yellow
-            puts "payload: #{quark["payload"]}".yellow
-
-            puts ""
+            puts "type: #{FileSystemAdapter::getQuarkType(quark["uuid"])}".yellow
 
             mx = LCoreMenuItemsNX1.new()
 

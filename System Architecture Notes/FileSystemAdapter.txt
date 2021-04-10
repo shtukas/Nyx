@@ -1,0 +1,21 @@
+Some Neired Entities are going to be represented as folders on the file system.
+
+The folder name is the quark uuid (which has to be a uuid, not any random string)
+
+Each folder then has the following files
+    - uuid.txt        : which contains the uuid of the quark
+    - description.txt : The description
+    - type.txt        : which contains the type "Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"
+    - manifest.txt     : which, depending on the type, contains
+        - The line 
+        - The url
+        - The file name of the text file (which is in the same folder)
+        - The filename of the clikable file (which is in the same folder)
+        - The foldername of the directory (which is in the same folder)
+        - The unique string
+
+Glosarry:
+    - The record in the database , record
+    - The quark json object      , quark object
+    - The quark filepath         , quark filepath
+    - The content location       , content location

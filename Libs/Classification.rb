@@ -20,15 +20,15 @@ class Classification
         db.close
     end
 
-    # Classification::getRecordByRecordIdOrNull(recordId)
-    def self.getRecordByRecordIdOrNull(recordId)
+    # Classification::getRecords()
+    def self.getRecords()
         db = SQLite3::Database.new(Classification::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        answer = nil
+        answer = []
         db.execute("select * from _classifiers_", []) do |row|
-            answer = {
+            answer << {
                 "recordId"       => row['_recordId_'],
                 "pointuuid"      => row['_pointuuid_'],
                 "classificationValue" => row['_classificationValue_'],

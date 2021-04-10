@@ -1,37 +1,16 @@
 
 # encoding: UTF-8
 
-=begin
-    
-Some Neired Entities are going to be represented as folders on the file system.
-
-The folder name can be anything, unique, unrelated to the uuid of the quark. In this first implementation we are ging to use L22s.
-
-Each folder then has the following files
-    - uuid.txt        : which contains the uuid of the quark
-    - description.txt : The description
-    - type.txt        : which contains the type "Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"
-    - manifest.txt     : which, depending on the type, contains
-        - The line 
-        - The url
-        - The file name of the text file (which is in the same folder)
-        - The filename of the clikable file (which is in the same folder)
-        - The foldername of the directory (which is in the same folder)
-        - The unique string
-
-Glosarry:
-    - The record in the database , record
-    - The quark json object    , quark object
-    - The quark filepath       , quark filepath
-    - The content location       , content location
-
-=end
-
 class FileSystemAdapter
 
     # FileSystemAdapter::quarksRepositoryFolderPath()
     def self.quarksRepositoryFolderPath()
         "/Users/pascal/Galaxy/Documents/02-NyxQuarks"
+    end
+
+    # FileSystemAdapter::getQuarkFolderpathByUUID(uuid) : Folderpath
+    def self.getQuarkFolderpathByUUID(uuid)
+        "#{FileSystemAdapter::quarksRepositoryFolderPath()}/#{uuid}"
     end
 
     # FileSystemAdapter::makeNewQuark(uuid, description, type, content)
@@ -45,7 +24,7 @@ class FileSystemAdapter
     def self.makeNewQuark(uuid, description, type, contentInstruction)
         raise "217a6dd1-ba91-45de-857b-b806d0c7d377" if !["Line", "Url", "Text", "UniqueFileClickable", "FSLocation", "FSUniqueString"].include?(type)
 
-        nyxQuarkFolderpath = "#{FileSystemAdapter::quarksRepositoryFolderPath()}/#{LucilleCore::l22()}"
+        nyxQuarkFolderpath = "#{FileSystemAdapter::quarksRepositoryFolderPath()}/#{uuid}"
 
         FileUtils.mkpath(nyxQuarkFolderpath)
 
@@ -85,45 +64,16 @@ class FileSystemAdapter
         end
     end
 
-    # FileSystemAdapter::getQuarkFolderpathByUUIDOrNullUseTheForce(uuid) : Folderpath or Nil
-    def self.getQuarkFolderpathByUUIDOrNullUseTheForce(uuid)
-        LucilleCore::locationsAtFolder(FileSystemAdapter::quarksRepositoryFolderPath()).each{|nyxQuarkFolderpath|
-            uuidFilepath = "#{nyxQuarkFolderpath}/uuid.txt"
-            quarkUUID = IO.read(uuidFilepath).strip
-            return nyxQuarkFolderpath if (quarkUUID == uuid)
-        }
-        nil
-    end
-
-    # FileSystemAdapter::getQuarkFolderpathByUUIDOrNull(uuid) : Folderpath
-    def self.getQuarkFolderpathByUUIDOrNull(uuid)
-        folderpath = KeyValueStore::getOrNull(nil, "8308926b-332a-4ca9-acf0-3bbc63fc90ab:#{uuid}")
-        if folderpath then
-            uuidFilepath = "#{folderpath}/uuid.txt"
-            if File.exists?(uuidFilepath) then
-                return folderpath if (IO.read(uuidFilepath).strip == uuid)
-            end
-        end
-
-        folderpath = FileSystemAdapter::getQuarkFolderpathByUUIDOrNullUseTheForce(uuid)
-        return nil if folderpath.nil?
-        KeyValueStore::set(nil, "8308926b-332a-4ca9-acf0-3bbc63fc90ab:#{uuid}", folderpath)
-
-        folderpath 
-    end
-
     # FileSystemAdapter::setQuarkDescription(uuid, description)
     def self.setQuarkDescription(uuid, description)
         # This updates the database and the quark on quark folder
-        folderpath = FileSystemAdapter::getQuarkFolderpathByUUIDOrNull(uuid)
-        raise "error: 2bb4a688-9303-4a94-b5be-0856902cdd90 ; could not set the description (quark folderpath not found) for uuid: #{uuid}"
+        folderpath = FileSystemAdapter::getQuarkFolderpathByUUID(uuid)
         File.open("#{folderpath}/description.txt", "w") {|f| f.write(description)}
     end
 
     # FileSystemAdapter::getQuarkType(uuid) : Folderpath
     def self.getQuarkType(uuid)
-        folderpath = FileSystemAdapter::getQuarkFolderpathByUUIDOrNull(uuid)
-        raise "error: adfc4dc1-f7a3-462b-8c4e-b368f3f9621e ; could not get the type (quark folderpath not found) for uuid: #{uuid}" if folderpath.nil?
+        folderpath = FileSystemAdapter::getQuarkFolderpathByUUID(uuid)
         filepath = "#{folderpath}/type.txt"
         raise "error: 8e0c51fa-89f7-4ef8-a1ef-b9ccf8f0588b ; could not find the type file (#{filepath}) for uuid: #{uuid}" if !File.exist?(filepath)
         IO.read(filepath)
@@ -132,7 +82,7 @@ class FileSystemAdapter
     # FileSystemAdapter::getQuarkContentDataOrNull(uuid)
     def self.getQuarkContentDataOrNull(uuid)
         # This only returns data for "Line", "Url", "FSUniqueString" otherwise raise an error
-        folderpath = FileSystemAdapter::getQuarkFolderpathByUUIDOrNull(uuid)
+        folderpath = FileSystemAdapter::getQuarkFolderpathByUUID(uuid)
         type = FileSystemAdapter::getQuarkType(uuid)
         raise "error: 32257b83-4473-494d-9d32-937db29767bf ; trying to extract content data for a non supported type" if !["Line", "Url", "FSUniqueString"].include?(type)
         IO.read("#{folderpath}/manifest.txt")
@@ -141,7 +91,7 @@ class FileSystemAdapter
     # FileSystemAdapter::getQuarkContentFilepathOrNull(uuid)
     def self.getQuarkContentFilepathOrNull(uuid)
         # This only returns data for "Text", "UniqueFileClickable", "FSLocation"
-        folderpath = FileSystemAdapter::getQuarkFolderpathByUUIDOrNull(uuid)
+        folderpath = FileSystemAdapter::getQuarkFolderpathByUUID(uuid)
         type = FileSystemAdapter::getQuarkType(uuid)
         raise "error: 781cc900-35ae-4b69-b0f4-bc6f0fa420f7 ; trying to extract content path for a non supported type" if !["Text", "UniqueFileClickable", "FSLocation"].include?(type)
         
@@ -163,8 +113,8 @@ class FileSystemAdapter
 
     # FileSystemAdapter::fsckQuark(uuid)
     def self.fsckQuark(uuid)
-        quarkFolderpath = FileSystemAdapter::getQuarkFolderpathByUUIDOrNull(uuid)
-        if quarkFolderpath.nil? then
+        quarkFolderpath = FileSystemAdapter::getQuarkFolderpathByUUID(uuid)
+        if !File.exists?(quarkFolderpath) then
             raise "fsck fail: did not find quark folderpath for uuid: #{uuid}"
         end
         if !File.exists?("#{quarkFolderpath}/uuid.txt") then
@@ -216,7 +166,7 @@ class FileSystemAdapter
 
     # FileSystemAdapter::destroyQuarkOnDisk(uuid)
     def self.destroyQuarkOnDisk(uuid)
-        folderpath = FileSystemAdapter::getQuarkFolderpathByUUIDOrNull(uuid)
+        folderpath = FileSystemAdapter::getQuarkFolderpathByUUID(uuid)
         raise "error: 40cbbc29-6e16-43d7-98e6-eaec68f762a7" if !File.exists?(folderpath)
         LucilleCore::removeFileSystemLocation(folderpath)
     end
