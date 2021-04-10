@@ -38,6 +38,20 @@ class Classification
         answer
     end
 
+    # Classification::getDistinctClassificationValues()
+    def self.getDistinctClassificationValues()
+        db = SQLite3::Database.new(Classification::databasePath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select distinct(_classificationValue_) as _classificationValue_ from _classifiers_", []) do |row|
+            answer << row['_classificationValue_']
+        end
+        db.close
+        answer
+    end
+
     # Classification::getPointUUIDsPerClassificationValue(classificationValue)
     def self.getPointUUIDsPerClassificationValue(classificationValue)
         db = SQLite3::Database.new(Classification::databasePath())
@@ -59,14 +73,14 @@ class Classification
             .compact
     end
 
-    # Classification::getDistinctClassificationValues()
-    def self.getDistinctClassificationValues()
+    # Classification::getDistinctClassificationValuesByPointuuid(pointuuid)
+    def self.getDistinctClassificationValuesByPointuuid(pointuuid)
         db = SQLite3::Database.new(Classification::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute("select distinct(_classificationValue_) as _classificationValue_ from _classifiers_", []) do |row|
+        db.execute("select distinct(_classificationValue_) as _classificationValue_ from _classifiers_ where _pointuuid_=? ", [pointuuid]) do |row|
             answer << row['_classificationValue_']
         end
         db.close

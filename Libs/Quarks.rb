@@ -174,7 +174,17 @@ class Quarks
 
         loop {
 
+            mx = LCoreMenuItemsNX1.new()
+
             puts "-- Quark -----------------------------"
+
+            Classification::getDistinctClassificationValuesByPointuuid(quark["uuid"]).each{|classificationValue|
+                mx.item(classificationValue, lambda { 
+                    Classification::landing(classificationValue)
+                })
+            }
+
+            puts ""
 
             quark = Quarks::getQuarkOrNull(quark["uuid"]) # could have been deleted or transmuted in the previous loop
             return if quark.nil?
@@ -183,8 +193,6 @@ class Quarks
 
             puts "uuid: #{quark["uuid"]}".yellow
             puts "type: #{FileSystemAdapter::getQuarkType(quark["uuid"])}".yellow
-
-            mx = LCoreMenuItemsNX1.new()
 
             puts ""
 
