@@ -55,7 +55,7 @@ class Classification
     # Classification::getPointsPerClassificationValue(classificationValue)
     def self.getPointsPerClassificationValue(classificationValue)
         Classification::getPointUUIDsPerClassificationValue(classificationValue)
-            .map{|uuid| Elements::getElementOrNull(uuid) }
+            .map{|uuid| Quarks::getQuarkOrNull(uuid) }
             .compact
     end
 
@@ -86,9 +86,9 @@ class Classification
 
             puts ""
 
-            Classification::getPointsPerClassificationValue(classificationValue).each{|node|
-                mx.item(Elements::toString(node["uuid"]), lambda { 
-                    Elements::landing(node)
+            Classification::getPointsPerClassificationValue(classificationValue).each{|quark|
+                mx.item(Quarks::toString(quark), lambda { 
+                    Quarks::landing(quark)
                 })
             }
 

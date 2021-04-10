@@ -12,7 +12,7 @@ loop {
     ops = [
         "Search",
         "Nodes Listing",
-        "Make new Element",
+        "Make new Quark",
     ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
     break if operation.nil?
@@ -21,15 +21,15 @@ loop {
     end
     if operation == "Nodes Listing" then
         loop {
-            elements = Patricia::networkNodesInOrder()
-            element = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", elements, lambda{|e| Elements::toString(e["uuid"]) })
-            break if element.nil?
-            Elements::landing(element)
+            quarks = Patricia::networkNodesInOrder()
+            quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda{|e| Quarks::toString(e) })
+            break if quark.nil?
+            Quarks::landing(quark)
         }
     end
-    if operation == "Make new Element" then
-        element = Elements::interactivelyIssueNewElementOrNull()
-        next if element.nil?
-        Elements::landing(element)
+    if operation == "Make new Quark" then
+        quark = Quarks::interactivelyIssueNewQuarkOrNull()
+        next if quark.nil?
+        Quarks::landing(quark)
     end
 }

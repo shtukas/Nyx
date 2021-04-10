@@ -4,7 +4,7 @@
 
 require_relative "Libs/loader.rb"
 
-Elements::getElements().each{|element|
-    puts element["uuid"]
-    FileSystemAdapter::fsckElement(element["uuid"])
+Quarks::getQuarks().each{|quark|
+    puts quark["uuid"]
+    FileSystemAdapter::fsckQuark(quark["uuid"])
 }

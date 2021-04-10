@@ -32,11 +32,6 @@ class Utils
         str == str.to_i.to_s
     end
 
-    # Utils::l22()
-    def self.l22()
-        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-    end
-
     # Utils::openUrl(url)
     def self.openUrl(url)
         system("open -a Safari '#{url}'")

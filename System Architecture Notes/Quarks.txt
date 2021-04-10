@@ -1,12 +1,11 @@
-Filename: Elements.sqlite3
+Filename: Quarks.sqlite3
 
 sqlite> create table _datacarrier_ (_uuid_ text, _unixtime_ real, _description_ text);
 
-"type": "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
-
-
-NereidElement {
+Quarks {
     "uuid"          : String
     "unixtime"      : Float
     "description"   : String
 }
+
+Quark Type: "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"

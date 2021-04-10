@@ -1,0 +1,10 @@
+
+Nx15 {
+    "type"    : "neiredQuark" | "classificationValue"
+    "payload" : Quark | String
+}
+
+Nx19 {
+    "announce" : String
+    "nx15"     : Nx15
+}

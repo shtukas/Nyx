@@ -3,9 +3,9 @@
 
 class Patricia
 
-    # Patricia::isNereidElement(element)
-    def self.isNereidElement(element)
-        !element["payload"].nil?
+    # Patricia::isQuarks(quark)
+    def self.isQuarks(quark)
+        !quark["payload"].nil?
     end
 
     # -------------------------------------------------------
@@ -19,14 +19,14 @@ class Patricia
 
     # Patricia::networkNodesInOrder()
     def self.networkNodesInOrder()
-        Elements::getElements().sort{|n1, n2| n1["unixtime"]<=>n2["unixtime"] }
+        Quarks::getQuarks().sort{|n1, n2| n1["unixtime"]<=>n2["unixtime"] }
     end
 
     # Patricia::nx19s()
     def self.nx19s()
         searchItems = [
             Classification::nx19s(),
-            Elements::nx19s(),
+            Quarks::nx19s(),
         ]
         .flatten
     end
@@ -36,8 +36,8 @@ class Patricia
         loop {
             nx19 = Patricia::selectOneNx19OrNull()
             break if nx19.nil? 
-            if nx19["nx15"]["type"] == "neiredElement" then
-                Elements::landing(nx19["nx15"]["payload"])
+            if nx19["nx15"]["type"] == "neiredQuark" then
+                Quarks::landing(nx19["nx15"]["payload"])
             end
             if nx19["nx15"]["type"] == "classificationValue" then
                 Classification::landing(nx19["nx15"]["payload"])

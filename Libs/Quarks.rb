@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class Elements
+class Quarks
 
-    # Elements::editTextSynchronously(text)
+    # Quarks::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = SecureRandom.hex
         filepath = "/tmp/#{filename}"
@@ -14,19 +14,21 @@ class Elements
         IO.read(filepath)
     end
 
-    # Elements::openUrl(url)
+    # Quarks::openUrl(url)
     def self.openUrl(url)
         system("open -a Safari '#{url}'")
     end
 
-    # Elements::databaseFilepath()
+    # --------------------------------------------------------------------
+
+    # Quarks::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Nyx/Elements.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Nyx/Quarks.sqlite3"
     end
 
-    # Elements::commitToDatabase(uuid, unixtime, description)
+    # Quarks::commitToDatabase(uuid, unixtime, description)
     def self.commitToDatabase(uuid, unixtime, description)
-        db = SQLite3::Database.new(Elements::databaseFilepath())
+        db = SQLite3::Database.new(Quarks::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -36,9 +38,9 @@ class Elements
         db.close
     end
 
-    # Elements::getElements()
-    def self.getElements()
-        db = SQLite3::Database.new(Elements::databaseFilepath())
+    # Quarks::getQuarks()
+    def self.getQuarks()
+        db = SQLite3::Database.new(Quarks::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -54,9 +56,9 @@ class Elements
         answer
     end
 
-    # Elements::getElementOrNull(uuid)
-    def self.getElementOrNull(uuid)
-        db = SQLite3::Database.new(Elements::databaseFilepath())
+    # Quarks::getQuarkOrNull(uuid)
+    def self.getQuarkOrNull(uuid)
+        db = SQLite3::Database.new(Quarks::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -74,8 +76,28 @@ class Elements
         answer
     end
 
-    # Elements::interactivelyIssueNewElementOrNull()
-    def self.interactivelyIssueNewElementOrNull()
+    # Quarks::destroyQuark(uuid)
+    def self.destroyQuark(uuid)
+        FileSystemAdapter::destroyQuarkOnDisk(uuid)
+
+        db = SQLite3::Database.new(Quarks::databaseFilepath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _datacarrier_ where _uuid_=?", [uuid]
+        db.commit 
+        db.close
+    end
+
+    # --------------------------------------------------------------------
+
+    # Quarks::toString(quark)
+    def self.toString(quark)
+        quark["description"]
+    end
+
+    # Quarks::interactivelyIssueNewQuarkOrNull()
+    def self.interactivelyIssueNewQuarkOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"])
         return nil if type.nil?
         if type == "Line" then
@@ -84,9 +106,9 @@ class Elements
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return nil if description == ""
             payload = ""
-            Elements::commitToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewElement(uuid, description, "Line", description)
-            return Elements::getElementOrNull(uuid)
+            Quarks::commitToDatabase(uuid, unixtime, description)
+            FileSystemAdapter::makeNewQuark(uuid, description, "Line", description)
+            return Quarks::getQuarkOrNull(uuid)
         end
         if type == "Url" then
             uuid = SecureRandom.uuid
@@ -97,9 +119,9 @@ class Elements
             if description == "" then
                 description = url
             end
-            Elements::commitToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewElement(uuid, description, "Url", url)
-            return Elements::getElementOrNull(uuid)
+            Quarks::commitToDatabase(uuid, unixtime, description)
+            FileSystemAdapter::makeNewQuark(uuid, description, "Url", url)
+            return Quarks::getQuarkOrNull(uuid)
         end
         if type == "Text" then
             uuid = SecureRandom.uuid
@@ -107,9 +129,9 @@ class Elements
             text = Utils::editTextSynchronously("")
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
-            Elements::commitToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewElement(uuid, description, "Text", text)
-            return Elements::getElementOrNull(uuid)
+            Quarks::commitToDatabase(uuid, unixtime, description)
+            FileSystemAdapter::makeNewQuark(uuid, description, "Text", text)
+            return Quarks::getQuarkOrNull(uuid)
         end
         if type == "UniqueFileClickable" then
             uuid = SecureRandom.uuid
@@ -122,9 +144,9 @@ class Elements
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
 
-            Elements::commitToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewElement(uuid, description, "UniqueFileClickable", filepath)
-            return Elements::getElementOrNull(uuid)
+            Quarks::commitToDatabase(uuid, unixtime, description)
+            FileSystemAdapter::makeNewQuark(uuid, description, "UniqueFileClickable", filepath)
+            return Quarks::getQuarkOrNull(uuid)
         end
         if type == "FSLocation" then
             uuid = SecureRandom.uuid
@@ -137,9 +159,9 @@ class Elements
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
 
-            Elements::commitToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewElement(uuid, description, "FSLocation", location)
-            return Elements::getElementOrNull(uuid)
+            Quarks::commitToDatabase(uuid, unixtime, description)
+            FileSystemAdapter::makeNewQuark(uuid, description, "FSLocation", location)
+            return Quarks::getQuarkOrNull(uuid)
         end
         if type == "FSUniqueString" then
             raise "FSUniqueString not implemented yet"
@@ -147,48 +169,20 @@ class Elements
         nil
     end
 
-    # Elements::destroyElement(uuid)
-    def self.destroyElement(uuid)
-        FileSystemAdapter::destroyElementOnDisk(uuid)
-
-        db = SQLite3::Database.new(Elements::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _datacarrier_ where _uuid_=?", [uuid]
-        db.commit 
-        db.close
-    end
-
-    # Elements::nx19s()
-    def self.nx19s()
-        Elements::getElements()
-            .map{|element|
-                volatileuuid = SecureRandom.hex[0, 8]
-                {
-                    "announce" => "#{volatileuuid} #{Elements::toString(element["uuid"])}",
-                    "nx15"     => {
-                        "type"    => "neiredElement",
-                        "payload" => element
-                    }
-                }
-            }
-    end
-
-    # Elements::landing(element)
-    def self.landing(element)
+    # Quarks::landing(quark)
+    def self.landing(quark)
 
         loop {
 
             puts "-- Olivia -----------------------------"
 
-            element = Elements::getElementOrNull(element["uuid"]) # could have been deleted or transmuted in the previous loop
-            return if element.nil?
+            quark = Quarks::getQuarkOrNull(quark["uuid"]) # could have been deleted or transmuted in the previous loop
+            return if quark.nil?
 
-            puts "[nyx] #{Elements::toString(element["uuid"])}".green
+            puts "[nyx] #{Quarks::toString(quark)}".green
 
-            puts "uuid: #{element["uuid"]}".yellow
-            puts "payload: #{element["payload"]}".yellow
+            puts "uuid: #{quark["uuid"]}".yellow
+            puts "payload: #{quark["payload"]}".yellow
 
             puts ""
 
@@ -197,11 +191,11 @@ class Elements
             puts ""
 
             mx.item("access".yellow, lambda { 
-                FileSystemAdapter::access(element["uuid"])
+                FileSystemAdapter::access(quark["uuid"])
             })
 
             mx.item("update/set description".yellow, lambda {
-                description = Utils::editTextSynchronously(element["description"])
+                description = Utils::editTextSynchronously(quark["description"])
                 return if description == ""
                 raise "not implemented yet"
             })
@@ -215,17 +209,17 @@ class Elements
             })
 
             mx.item("transmute".yellow, lambda { 
-                FileSystemAdapter::transmute(element["uuid"])
+                FileSystemAdapter::transmute(quark["uuid"])
             })
 
             mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(element)
+                puts JSON.pretty_generate(quark)
                 LucilleCore::pressEnterToContinue()
             })
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    Elements::destroyElement(element["uuid"])
+                    Quarks::destroyQuark(quark["uuid"])
                 end
             })
 
@@ -236,13 +230,20 @@ class Elements
         }
     end
 
-    # Elements::toString(uuid)
-    def self.toString(uuid)
-        element = Elements::getElementOrNull(uuid)
-        if element then
-            element["description"]
-        else
-            "could not find element for uuid: #{uuid}"
-        end
+    # --------------------------------------------------------------------
+
+    # Quarks::nx19s()
+    def self.nx19s()
+        Quarks::getQuarks()
+            .map{|quark|
+                volatileuuid = SecureRandom.hex[0, 8]
+                {
+                    "announce" => "#{volatileuuid} #{Quarks::toString(quark)}",
+                    "nx15"     => {
+                        "type"    => "neiredQuark",
+                        "payload" => quark
+                    }
+                }
+            }
     end
 end
