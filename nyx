@@ -12,6 +12,7 @@ loop {
     ops = [
         "Search",
         "Nodes Listing",
+        "Classifiers Listing",
         "Make new Quark",
     ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
@@ -25,6 +26,14 @@ loop {
             quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda{|e| Quarks::toString(e) })
             break if quark.nil?
             Quarks::landing(quark)
+        }
+    end
+    if operation == "Classifiers Listing" then
+        loop {
+            values = Classification::getDistinctClassificationValues().sort
+            value = LucilleCore::selectEntityFromListOfEntitiesOrNull("value", values)
+            break if value.nil?
+            Classification::landing(value)
         }
     end
     if operation == "Make new Quark" then
