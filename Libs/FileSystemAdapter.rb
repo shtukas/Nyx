@@ -24,7 +24,7 @@ class FileSystemAdapter
     def self.makeNewQuark(uuid, description, type, contentInstruction)
         raise "217a6dd1-ba91-45de-857b-b806d0c7d377" if !["Line", "Url", "Text", "UniqueFileClickable", "FSLocation", "FSUniqueString"].include?(type)
 
-        nyxQuarkFolderpath = "#{FileSystemAdapter::quarksRepositoryFolderPath()}/#{uuid}"
+        nyxQuarkFolderpath = FileSystemAdapter::getQuarkFolderpathByUUID(uuid)
 
         FileUtils.mkpath(nyxQuarkFolderpath)
 
@@ -146,16 +146,6 @@ class FileSystemAdapter
     end
 
     # ----------------------------------------------------------------------------------------
-
-    # FileSystemAdapter::access(uuid) # input: uuid: String | quark Quark
-    def self.access(uuid)
-        raise "Access has not been implemented yet"
-    end
-
-    # FileSystemAdapter::edit(uuid)
-    def self.edit(uuid)
-        raise "Edition has not been implemented yet"
-    end
 
     # FileSystemAdapter::transmute(uuid)
     def self.transmute(uuid)

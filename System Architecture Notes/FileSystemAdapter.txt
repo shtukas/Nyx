@@ -6,7 +6,7 @@ Each folder then has the following files
     - uuid.txt        : which contains the uuid of the quark
     - description.txt : The description
     - type.txt        : which contains the type "Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"
-    - manifest.txt     : which, depending on the type, contains
+    - manifest.txt    : which, depending on the type, contains
         - The line 
         - The url
         - The file name of the text file (which is in the same folder)

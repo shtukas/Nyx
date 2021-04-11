@@ -176,6 +176,111 @@ class Quarks
         nil
     end
 
+    # Quarks::accessEdit(quark)
+    def self.accessEdit(quark)
+        type = FileSystemAdapter::getQuarkType(quark["uuid"])
+
+        quarkFolderPath = FileSystemAdapter::getQuarkFolderpathByUUID(quark["uuid"])
+
+        if type == "Line" then
+            puts "line: #{Quarks::toString(quark)}"
+            if LucilleCore::askQuestionAnswerAsBoolean("edit ? : ", false) then
+
+                # Update Description
+                description = Utils::editTextSynchronously(quark["description"])
+                return if description == ""
+                quark["description"] = description
+                Quarks::commitQuarkToDatabase(quark)
+                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+
+                # Update Manifest
+                File.open("#{quarkFolderPath}/manifest.txt", "w") {|f| f.write(description)}
+            end
+        end
+
+        if type == "Url" then
+            puts "url: #{Quarks::toString(quark)}"
+            if LucilleCore::askQuestionAnswerAsBoolean("edit ? : ", false) then
+
+                # Update Description
+                description = Utils::editTextSynchronously(quark["description"])
+                return if description == ""
+                quark["description"] = description
+                Quarks::commitQuarkToDatabase(quark)
+                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+
+                # Update Manifest
+                url = Utils::editTextSynchronously(IO.read("#{quarkFolderPath}/manifest.txt"))
+                File.open("#{nyxQuarkFolderpath}/manifest.txt", "w") {|f| f.write(url)}
+            end
+        end
+
+        if type == "Text" then
+            system("open '#{quarkFolderPath}/#{IO.read("#{quarkFolderPath}/manifest.txt")}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("edit description ? : ", false) then
+
+                # Update Description
+                description = Utils::editTextSynchronously(quark["description"])
+                return if description == ""
+                quark["description"] = description
+                Quarks::commitQuarkToDatabase(quark)
+                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+            end
+        end
+
+        if type == "UniqueFileClickable" then
+            system("open '#{quarkFolderPath}/#{IO.read("#{quarkFolderPath}/manifest.txt")}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("edit description ? : ", false) then
+
+                # Update Description
+                description = Utils::editTextSynchronously(quark["description"])
+                return if description == ""
+                quark["description"] = description
+                Quarks::commitQuarkToDatabase(quark)
+                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+            end
+            if LucilleCore::askQuestionAnswerAsBoolean("edit file ? : ", false) then
+                system("open '#{quarkFolderPath}'")
+            end
+        end
+
+        if type == "FSLocation" then
+            puts "FSLocation: #{Quarks::toString(quark)}"
+            system("open '#{quarkFolderPath}/#{IO.read("#{quarkFolderPath}/manifest.txt")}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("edit (description) ? : ", false) then
+
+                # Update Description
+                description = Utils::editTextSynchronously(quark["description"])
+                return if description == ""
+                quark["description"] = description
+                Quarks::commitQuarkToDatabase(quark)
+                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+            end
+        end
+
+        if type == "FSUniqueString" then
+            puts "FSUniqueString: #{Quarks::toString(quark)}"
+            location = `atlas locate '#{IO.read("#{quarkFolderPath}/manifest.txt")}'`
+            if location.size > 0 then
+                puts location
+                LucilleCore::pressEnterToContinue()
+            end
+            if LucilleCore::askQuestionAnswerAsBoolean("edit ? : ", false) then
+
+                # Update Description
+                description = Utils::editTextSynchronously(quark["description"])
+                return if description == ""
+                quark["description"] = description
+                Quarks::commitQuarkToDatabase(quark)
+                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+
+                # Update Manifest
+                uniquestring = Utils::editTextSynchronously(IO.read("#{quarkFolderPath}/manifest.txt"))
+                File.open("#{nyxQuarkFolderpath}/manifest.txt", "w") {|f| f.write(uniquestring)}
+            end
+        end
+    end
+
     # Quarks::landing(quark)
     def self.landing(quark)
 
@@ -203,8 +308,8 @@ class Quarks
 
             puts ""
 
-            mx.item("access".yellow, lambda { 
-                FileSystemAdapter::access(quark["uuid"])
+            mx.item("access (edit)".yellow, lambda {
+                Quarks::accessEdit(quark)
             })
 
             mx.item("update/set description".yellow, lambda {
