@@ -26,8 +26,8 @@ class Quarks
         "/Users/pascal/Galaxy/DataBank/Nyx/Quarks.sqlite3"
     end
 
-    # Quarks::commitToDatabase(uuid, unixtime, description)
-    def self.commitToDatabase(uuid, unixtime, description)
+    # Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
+    def self.commitQuarkAttributesToDatabase(uuid, unixtime, description)
         db = SQLite3::Database.new(Quarks::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -36,6 +36,11 @@ class Quarks
         db.execute "insert into _datacarrier_ (_uuid_, _unixtime_, _description_) values (?,?,?)", [uuid, unixtime, description]
         db.commit 
         db.close
+    end
+
+    # Quarks::commitQuarkToDatabase(quark)
+    def self.commitQuarkToDatabase(quark)
+        Quarks::commitQuarkAttributesToDatabase(quark["uuid"], quark["unixtime"], quark["description"])
     end
 
     # Quarks::getQuarks()
@@ -80,6 +85,8 @@ class Quarks
     def self.destroyQuark(uuid)
         FileSystemAdapter::destroyQuarkOnDisk(uuid)
 
+        puts "Destroy database record for quark uuid '#{uuid}'"
+
         db = SQLite3::Database.new(Quarks::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -106,7 +113,7 @@ class Quarks
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return nil if description == ""
             payload = ""
-            Quarks::commitToDatabase(uuid, unixtime, description)
+            Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
             FileSystemAdapter::makeNewQuark(uuid, description, "Line", description)
             return Quarks::getQuarkOrNull(uuid)
         end
@@ -119,7 +126,7 @@ class Quarks
             if description == "" then
                 description = url
             end
-            Quarks::commitToDatabase(uuid, unixtime, description)
+            Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
             FileSystemAdapter::makeNewQuark(uuid, description, "Url", url)
             return Quarks::getQuarkOrNull(uuid)
         end
@@ -129,7 +136,7 @@ class Quarks
             text = Utils::editTextSynchronously("")
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
-            Quarks::commitToDatabase(uuid, unixtime, description)
+            Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
             FileSystemAdapter::makeNewQuark(uuid, description, "Text", text)
             return Quarks::getQuarkOrNull(uuid)
         end
@@ -144,7 +151,7 @@ class Quarks
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
 
-            Quarks::commitToDatabase(uuid, unixtime, description)
+            Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
             FileSystemAdapter::makeNewQuark(uuid, description, "UniqueFileClickable", filepath)
             return Quarks::getQuarkOrNull(uuid)
         end
@@ -159,7 +166,7 @@ class Quarks
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
 
-            Quarks::commitToDatabase(uuid, unixtime, description)
+            Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
             FileSystemAdapter::makeNewQuark(uuid, description, "FSLocation", location)
             return Quarks::getQuarkOrNull(uuid)
         end
@@ -178,14 +185,6 @@ class Quarks
 
             puts "-- Quark -----------------------------"
 
-            Classification::getDistinctClassificationValuesByPointuuid(quark["uuid"]).each{|classificationValue|
-                mx.item(classificationValue, lambda { 
-                    Classification::landing(classificationValue)
-                })
-            }
-
-            puts ""
-
             quark = Quarks::getQuarkOrNull(quark["uuid"]) # could have been deleted or transmuted in the previous loop
             return if quark.nil?
 
@@ -196,6 +195,14 @@ class Quarks
 
             puts ""
 
+            Classification::pointUUIDToClassificationValues(quark["uuid"]).each{|classificationValue|
+                mx.item(classificationValue, lambda { 
+                    Classification::landing(classificationValue)
+                })
+            }
+
+            puts ""
+
             mx.item("access".yellow, lambda { 
                 FileSystemAdapter::access(quark["uuid"])
             })
@@ -203,15 +210,21 @@ class Quarks
             mx.item("update/set description".yellow, lambda {
                 description = Utils::editTextSynchronously(quark["description"])
                 return if description == ""
-                raise "not implemented yet"
+                quark["description"] = description
+                Quarks::commitQuarkToDatabase(quark)
             })
 
             mx.item("attach".yellow, lambda { 
-
+                value = Classification::architectureClassificationValueOrNull()
+                return if value.nil?
+                Classification::insertRecord(SecureRandom.hex, quark["uuid"], value)
             })
 
             mx.item("detach".yellow, lambda {
-
+                values = Classification::pointUUIDToClassificationValues(quark["uuid"])
+                value = LucilleCore::selectEntityFromListOfEntitiesOrNull("classification value", values)
+                return if value.nil?
+                Classification::deleteRecordsByPointUUIDAndClassificationValue(quark["uuid"], value)
             })
 
             mx.item("transmute".yellow, lambda { 
@@ -244,7 +257,7 @@ class Quarks
             .map{|quark|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{Quarks::toString(quark)}",
+                    "announce" => "#{volatileuuid} [ ] #{Quarks::toString(quark)}",
                     "nx15"     => {
                         "type"    => "neiredQuark",
                         "payload" => quark

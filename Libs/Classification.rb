@@ -3,6 +3,8 @@
 
 class Classification
 
+    # -------------------------------------------------------------------------
+
     # Classification::databasePath()
     def self.databasePath()
         "/Users/pascal/Galaxy/DataBank/Nyx/Classification.sqlite3"
@@ -52,8 +54,21 @@ class Classification
         answer
     end
 
-    # Classification::getPointUUIDsPerClassificationValue(classificationValue)
-    def self.getPointUUIDsPerClassificationValue(classificationValue)
+    # Classification::deleteRecordsByPointUUIDAndClassificationValue(pointuuid, classificationValue)
+    def self.deleteRecordsByPointUUIDAndClassificationValue(pointuuid, classificationValue)
+        db = SQLite3::Database.new(Classification::databasePath())
+        db.busy_timeout = 117  
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _classifiers_ where _pointuuid_=? and _classificationValue_=?", [pointuuid, classificationValue]
+        db.commit 
+        db.close
+    end
+
+    # -------------------------------------------------------------------------
+
+    # Classification::classificationValueToPointUUIDs(classificationValue)
+    def self.classificationValueToPointUUIDs(classificationValue)
         db = SQLite3::Database.new(Classification::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -66,15 +81,15 @@ class Classification
         answer
     end
 
-    # Classification::getPointsPerClassificationValue(classificationValue)
-    def self.getPointsPerClassificationValue(classificationValue)
-        Classification::getPointUUIDsPerClassificationValue(classificationValue)
+    # Classification::classificationValueToQuarks(classificationValue)
+    def self.classificationValueToQuarks(classificationValue)
+        Classification::classificationValueToPointUUIDs(classificationValue)
             .map{|uuid| Quarks::getQuarkOrNull(uuid) }
             .compact
     end
 
-    # Classification::getDistinctClassificationValuesByPointuuid(pointuuid)
-    def self.getDistinctClassificationValuesByPointuuid(pointuuid)
+    # Classification::pointUUIDToClassificationValues(pointuuid)
+    def self.pointUUIDToClassificationValues(pointuuid)
         db = SQLite3::Database.new(Classification::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -86,6 +101,26 @@ class Classification
         db.close
         answer
     end
+
+    # -------------------------------------------------------------------------
+
+    # Classification::selectClassificationValueOrNull()
+    def self.selectClassificationValueOrNull()
+        Utils::selectLineOrNullUsingInteractiveInterface(Classification::getDistinctClassificationValues())
+    end
+
+    # Classification::architectureClassificationValueOrNull()
+    def self.architectureClassificationValueOrNull()
+        value = Classification::selectClassificationValueOrNull()
+        return value if value
+
+        value = LucilleCore::askQuestionAnswerAsString("new classification value: ")
+        return value if value
+
+        nil
+    end
+
+    # -------------------------------------------------------------------------
 
     # Classification::landing(classificationValue)
     def self.landing(classificationValue)
@@ -100,7 +135,7 @@ class Classification
 
             puts ""
 
-            Classification::getPointsPerClassificationValue(classificationValue).each{|quark|
+            Classification::classificationValueToQuarks(classificationValue).each{|quark|
                 mx.item(Quarks::toString(quark), lambda { 
                     Quarks::landing(quark)
                 })
@@ -119,7 +154,7 @@ class Classification
             .map{|classificationValue|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{classificationValue}",
+                    "announce" => "#{volatileuuid} [*] #{classificationValue}",
                     "nx15"  => {
                         "type"    => "classificationValue",
                         "payload" => classificationValue

@@ -167,7 +167,8 @@ class FileSystemAdapter
     # FileSystemAdapter::destroyQuarkOnDisk(uuid)
     def self.destroyQuarkOnDisk(uuid)
         folderpath = FileSystemAdapter::getQuarkFolderpathByUUID(uuid)
-        raise "error: 40cbbc29-6e16-43d7-98e6-eaec68f762a7" if !File.exists?(folderpath)
+        raise "error: 40cbbc29-6e16-43d7-98e6-eaec68f762a7 ; could not find folderpath '#{folderpath}' for uuid: #{uuid}" if !File.exists?(folderpath)
+        puts "Delete folder '#{folderpath}'"
         LucilleCore::removeFileSystemLocation(folderpath)
     end
 end
