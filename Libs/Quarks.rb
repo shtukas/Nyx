@@ -100,7 +100,15 @@ class Quarks
 
     # Quarks::toString(quark)
     def self.toString(quark)
-        quark["description"]
+        map = {
+            "Line" => "lne",
+            "Url"  => "url",
+            "Text" => "txt",
+            "UniqueFileClickable" => "clk",
+            "FSLocation" => "loc",
+            "FSUniqueString" => "ust"
+        }
+        "[#{map[FileSystemAdapter::getQuarkType(quark["uuid"])]}] #{quark["description"]}"
     end
 
     # Quarks::interactivelyIssueNewQuarkOrNull()
@@ -199,7 +207,9 @@ class Quarks
         end
 
         if type == "Url" then
-            puts "url: #{Quarks::toString(quark)}"
+            puts "descrition: #{Quarks::toString(quark)}"
+            puts "url: #{IO.read("#{quarkFolderPath}/manifest.txt")}"
+            system("open '#{IO.read("#{quarkFolderPath}/manifest.txt")}'")
             if LucilleCore::askQuestionAnswerAsBoolean("edit ? : ", false) then
 
                 # Update Description
@@ -286,27 +296,17 @@ class Quarks
 
         loop {
 
-            mx = LCoreMenuItemsNX1.new()
-
-            puts "-- Quark -----------------------------"
-
             quark = Quarks::getQuarkOrNull(quark["uuid"]) # could have been deleted or transmuted in the previous loop
             return if quark.nil?
+
+            puts "-- Quark -----------------------------"
 
             puts Quarks::toString(quark).green
 
             puts "uuid: #{quark["uuid"]}".yellow
-            puts "type: #{FileSystemAdapter::getQuarkType(quark["uuid"])}".yellow
-
             puts ""
 
-            Classification::pointUUIDToClassificationValues(quark["uuid"]).each{|classificationValue|
-                mx.item(classificationValue, lambda { 
-                    Classification::landing(classificationValue)
-                })
-            }
-
-            puts ""
+            mx = LCoreMenuItemsNX1.new()
 
             mx.item("access (edit)".yellow, lambda {
                 Quarks::accessEdit(quark)
@@ -322,7 +322,7 @@ class Quarks
             mx.item("attach".yellow, lambda { 
                 value = Classification::architectureClassificationValueOrNull()
                 return if value.nil?
-                Classification::insertRecord(SecureRandom.hex, quark["uuid"], value)
+                Classification::commitRecord(SecureRandom.hex, quark["uuid"], value)
             })
 
             mx.item("detach".yellow, lambda {
@@ -349,6 +349,14 @@ class Quarks
 
             puts ""
 
+            Classification::pointUUIDToClassificationValues(quark["uuid"]).each{|classificationValue|
+                mx.item("[*] #{classificationValue}", lambda { 
+                    Classification::landing(classificationValue)
+                })
+            }
+
+            puts ""
+
             status = mx.promptAndRunSandbox()
             break if !status
         }
@@ -362,7 +370,7 @@ class Quarks
             .map{|quark|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} [ ] #{Quarks::toString(quark)}",
+                    "announce" => "#{volatileuuid} #{Quarks::toString(quark)}",
                     "nx15"     => {
                         "type"    => "neiredQuark",
                         "payload" => quark

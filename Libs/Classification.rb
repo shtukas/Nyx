@@ -10,8 +10,8 @@ class Classification
         "/Users/pascal/Galaxy/DataBank/Nyx/Classification.sqlite3"
     end
 
-    # Classification::insertRecord(recordId, pointuuid, classificationValue)
-    def self.insertRecord(recordId, pointuuid, classificationValue)
+    # Classification::commitRecord(recordId, pointuuid, classificationValue)
+    def self.commitRecord(recordId, pointuuid, classificationValue)
         db = SQLite3::Database.new(Classification::databasePath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
@@ -135,6 +135,20 @@ class Classification
 
             puts ""
 
+            mx.item("rename".yellow, lambda {
+                newvalue = Utils::editTextSynchronously(classificationValue)
+                return if newvalue == ""
+                Classification::getRecords()
+                    .select{|record|
+                        record["classificationValue"] == classificationValue
+                    }
+                    .each{|record|
+                        Classification::commitRecord(record["recordId"], record["pointuuid"], newvalue)
+                    }
+            })
+
+            puts ""
+
             Classification::classificationValueToQuarks(classificationValue).each{|quark|
                 mx.item(Quarks::toString(quark), lambda { 
                     Quarks::landing(quark)
@@ -154,7 +168,7 @@ class Classification
             .map{|classificationValue|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} [*] #{classificationValue}",
+                    "announce" => "#{volatileuuid} [***] #{classificationValue}",
                     "nx15"  => {
                         "type"    => "classificationValue",
                         "payload" => classificationValue
