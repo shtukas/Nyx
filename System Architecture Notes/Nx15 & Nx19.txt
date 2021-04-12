@@ -1,6 +1,6 @@
 
 Nx15 {
-    "type"    : "neiredQuark" | "classificationValue"
+    "type"    : "quark" | "tag"
     "payload" : Quark | String
 }
 

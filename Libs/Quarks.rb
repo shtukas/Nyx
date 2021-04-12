@@ -320,16 +320,16 @@ class Quarks
             })
 
             mx.item("attach".yellow, lambda { 
-                value = Classification::architectureClassificationValueOrNull()
+                value = Tags::architectureTagOrNull()
                 return if value.nil?
-                Classification::commitRecord(SecureRandom.hex, quark["uuid"], value)
+                Tags::commitRecord(SecureRandom.hex, quark["uuid"], value)
             })
 
             mx.item("detach".yellow, lambda {
-                values = Classification::pointUUIDToClassificationValues(quark["uuid"])
+                values = Tags::pointUUIDToTags(quark["uuid"])
                 value = LucilleCore::selectEntityFromListOfEntitiesOrNull("classification value", values)
                 return if value.nil?
-                Classification::deleteRecordsByPointUUIDAndClassificationValue(quark["uuid"], value)
+                Tags::deleteRecordsByPointUUIDAndTag(quark["uuid"], value)
             })
 
             mx.item("transmute".yellow, lambda { 
@@ -349,9 +349,9 @@ class Quarks
 
             puts ""
 
-            Classification::pointUUIDToClassificationValues(quark["uuid"]).each{|classificationValue|
-                mx.item("[*] #{classificationValue}", lambda { 
-                    Classification::landing(classificationValue)
+            Tags::pointUUIDToTags(quark["uuid"]).each{|tag|
+                mx.item("[*] #{tag}", lambda { 
+                    Tags::landing(tag)
                 })
             }
 
@@ -372,7 +372,7 @@ class Quarks
                 {
                     "announce" => "#{volatileuuid} #{Quarks::toString(quark)}",
                     "nx15"     => {
-                        "type"    => "neiredQuark",
+                        "type"    => "quark",
                         "payload" => quark
                     }
                 }

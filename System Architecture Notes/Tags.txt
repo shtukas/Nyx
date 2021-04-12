@@ -1,5 +1,5 @@
 
-pascal@Lucille20 Nyx % sqlite3 Classification.sqlite3
+pascal@Lucille20 Nyx % sqlite3 Tags.sqlite3
 SQLite version 3.32.3 2020-06-18 14:16:19
 Enter ".help" for usage hints.
 

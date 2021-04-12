@@ -126,13 +126,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 # ------------------------------------------------------------
 
-require_relative "Classification"
-
 require_relative "Quarks.rb"
 
-require_relative "FileSystemAdapter"
+require_relative "FileSystemAdapter.rb"
 
 require_relative "Patricia.rb"
+
+require_relative "Tags.rb"
 
 require_relative "Utils.rb"
 

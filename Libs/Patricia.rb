@@ -25,7 +25,7 @@ class Patricia
     # Patricia::nx19s()
     def self.nx19s()
         searchItems = [
-            Classification::nx19s(),
+            Tags::nx19s(),
             Quarks::nx19s(),
         ]
         .flatten
@@ -36,11 +36,11 @@ class Patricia
         loop {
             nx19 = Patricia::selectOneNx19OrNull()
             break if nx19.nil? 
-            if nx19["nx15"]["type"] == "neiredQuark" then
+            if nx19["nx15"]["type"] == "quark" then
                 Quarks::landing(nx19["nx15"]["payload"])
             end
-            if nx19["nx15"]["type"] == "classificationValue" then
-                Classification::landing(nx19["nx15"]["payload"])
+            if nx19["nx15"]["type"] == "tag" then
+                Tags::landing(nx19["nx15"]["payload"])
             end
         }
     end
