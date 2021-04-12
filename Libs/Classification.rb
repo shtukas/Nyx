@@ -120,6 +120,17 @@ class Classification
         nil
     end
 
+    # Classification::renameClassificationValue(oldvalue, newvalue)
+    def self.renameClassificationValue(oldvalue, newvalue)
+        Classification::getRecords()
+            .select{|record|
+                record["classificationValue"] == oldvalue
+            }
+            .each{|record|
+                Classification::commitRecord(record["recordId"], record["pointuuid"], newvalue)
+            }
+    end
+
     # -------------------------------------------------------------------------
 
     # Classification::landing(classificationValue)
@@ -138,13 +149,7 @@ class Classification
             mx.item("rename".yellow, lambda {
                 newvalue = Utils::editTextSynchronously(classificationValue)
                 return if newvalue == ""
-                Classification::getRecords()
-                    .select{|record|
-                        record["classificationValue"] == classificationValue
-                    }
-                    .each{|record|
-                        Classification::commitRecord(record["recordId"], record["pointuuid"], newvalue)
-                    }
+                Classification::renameClassificationValue(classificationValue, newvalue)
             })
 
             puts ""
