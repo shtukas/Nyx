@@ -3,30 +3,30 @@
 
 class Patricia
 
-    # Patricia::isQuarks(quark)
-    def self.isQuarks(quark)
-        !quark["payload"].nil?
+    # Patricia::isNxPods(nxpod)
+    def self.isNxPods(nxpod)
+        !nxpod["payload"].nil?
     end
 
     # -------------------------------------------------------
 
-    # Patricia::selectOneNx19OrNull()
-    def self.selectOneNx19OrNull()
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(Patricia::nx19s(), lambda{|item| item["announce"] })
+    # Patricia::selectOneSx19OrNull()
+    def self.selectOneSx19OrNull()
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(Patricia::sx19s(), lambda{|item| item["announce"] })
     end
 
     # -------------------------------------------------------
 
     # Patricia::networkNodesInOrder()
     def self.networkNodesInOrder()
-        Quarks::getQuarks().sort{|n1, n2| n1["unixtime"]<=>n2["unixtime"] }
+        NxPods::getNxPods().sort{|n1, n2| n1["unixtime"]<=>n2["unixtime"] }
     end
 
-    # Patricia::nx19s()
-    def self.nx19s()
+    # Patricia::sx19s()
+    def self.sx19s()
         searchItems = [
-            Tags::nx19s(),
-            Quarks::nx19s(),
+            Tags::sx19s(),
+            NxPods::sx19s(),
         ]
         .flatten
     end
@@ -34,13 +34,13 @@ class Patricia
     # Patricia::generalSearchLoop()
     def self.generalSearchLoop()
         loop {
-            nx19 = Patricia::selectOneNx19OrNull()
-            break if nx19.nil? 
-            if nx19["nx15"]["type"] == "quark" then
-                Quarks::landing(nx19["nx15"]["payload"])
+            sx19 = Patricia::selectOneSx19OrNull()
+            break if sx19.nil? 
+            if sx19["sx15"]["type"] == "nxpod" then
+                NxPods::landing(sx19["sx15"]["payload"])
             end
-            if nx19["nx15"]["type"] == "tag" then
-                Tags::landing(nx19["nx15"]["payload"])
+            if sx19["sx15"]["type"] == "tag" then
+                Tags::landing(sx19["sx15"]["payload"])
             end
         }
     end

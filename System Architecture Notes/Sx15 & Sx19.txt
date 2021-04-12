@@ -1,0 +1,10 @@
+
+Sx15 {
+    "type"    : "nxpod" | "tag"
+    "payload" : NxPod | String
+}
+
+Sx19 {
+    "announce" : String
+    "sx15"     : Sx15
+}

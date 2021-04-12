@@ -1,9 +1,9 @@
 Some Neired Entities are going to be represented as folders on the file system.
 
-The folder name is the quark uuid (which has to be a uuid, not any random string)
+The folder name is the nxpod uuid (which has to be a uuid, not any random string)
 
 Each folder then has the following files
-    - uuid.txt        : which contains the uuid of the quark
+    - uuid.txt        : which contains the uuid of the nxpod
     - description.txt : The description
     - type.txt        : which contains the type "Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"
     - manifest.txt    : which, depending on the type, contains
@@ -16,6 +16,6 @@ Each folder then has the following files
 
 Glosarry:
     - The record in the database , record
-    - The quark json object      , quark object
-    - The quark filepath         , quark filepath
+    - The nxpod json object      , nxpod object
+    - The nxpod filepath         , nxpod filepath
     - The content location       , content location

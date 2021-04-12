@@ -13,7 +13,7 @@ loop {
         "Search",
         "Nodes Listing",
         "Tags Listing",
-        "Make new Quark",
+        "Make new NxPod",
     ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
     break if operation.nil?
@@ -22,10 +22,10 @@ loop {
     end
     if operation == "Nodes Listing" then
         loop {
-            quarks = Patricia::networkNodesInOrder()
-            quark = LucilleCore::selectEntityFromListOfEntitiesOrNull("quark", quarks, lambda{|e| Quarks::toString(e) })
-            break if quark.nil?
-            Quarks::landing(quark)
+            nxpods = Patricia::networkNodesInOrder()
+            nxpod = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxpod", nxpods, lambda{|e| NxPods::toString(e) })
+            break if nxpod.nil?
+            NxPods::landing(nxpod)
         }
     end
     if operation == "Tags Listing" then
@@ -36,9 +36,9 @@ loop {
             Tags::landing(value)
         }
     end
-    if operation == "Make new Quark" then
-        quark = Quarks::interactivelyIssueNewQuarkOrNull()
-        next if quark.nil?
-        Quarks::landing(quark)
+    if operation == "Make new NxPod" then
+        nxpod = NxPods::interactivelyIssueNewNxPodOrNull()
+        next if nxpod.nil?
+        NxPods::landing(nxpod)
     end
 }

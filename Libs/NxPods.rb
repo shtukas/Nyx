@@ -1,34 +1,16 @@
 
 # encoding: UTF-8
 
-class Quarks
+class NxPods
 
-    # Quarks::editTextSynchronously(text)
-    def self.editTextSynchronously(text)
-        filename = SecureRandom.hex
-        filepath = "/tmp/#{filename}"
-        File.open(filepath, 'w') {|f| f.write(text)}
-        system("open '#{filepath}'")
-        print "> press enter when done: "
-        input = STDIN.gets
-        IO.read(filepath)
-    end
-
-    # Quarks::openUrl(url)
-    def self.openUrl(url)
-        system("open -a Safari '#{url}'")
-    end
-
-    # --------------------------------------------------------------------
-
-    # Quarks::databaseFilepath()
+    # NxPods::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Nyx/Quarks.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Nyx/NxPods.sqlite3"
     end
 
-    # Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
-    def self.commitQuarkAttributesToDatabase(uuid, unixtime, description)
-        db = SQLite3::Database.new(Quarks::databaseFilepath())
+    # NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
+    def self.commitNxPodAttributesToDatabase(uuid, unixtime, description)
+        db = SQLite3::Database.new(NxPods::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -38,14 +20,14 @@ class Quarks
         db.close
     end
 
-    # Quarks::commitQuarkToDatabase(quark)
-    def self.commitQuarkToDatabase(quark)
-        Quarks::commitQuarkAttributesToDatabase(quark["uuid"], quark["unixtime"], quark["description"])
+    # NxPods::commitNxPodToDatabase(nxpod)
+    def self.commitNxPodToDatabase(nxpod)
+        NxPods::commitNxPodAttributesToDatabase(nxpod["uuid"], nxpod["unixtime"], nxpod["description"])
     end
 
-    # Quarks::getQuarks()
-    def self.getQuarks()
-        db = SQLite3::Database.new(Quarks::databaseFilepath())
+    # NxPods::getNxPods()
+    def self.getNxPods()
+        db = SQLite3::Database.new(NxPods::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -61,9 +43,9 @@ class Quarks
         answer
     end
 
-    # Quarks::getQuarkOrNull(uuid)
-    def self.getQuarkOrNull(uuid)
-        db = SQLite3::Database.new(Quarks::databaseFilepath())
+    # NxPods::getNxPodOrNull(uuid)
+    def self.getNxPodOrNull(uuid)
+        db = SQLite3::Database.new(NxPods::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -81,13 +63,13 @@ class Quarks
         answer
     end
 
-    # Quarks::destroyQuark(uuid)
-    def self.destroyQuark(uuid)
-        FileSystemAdapter::destroyQuarkOnDisk(uuid)
+    # NxPods::destroyNxPod(uuid)
+    def self.destroyNxPod(uuid)
+        FileSystemAdapter::destroyNxPodOnDisk(uuid)
 
-        puts "Destroy database record for quark uuid '#{uuid}'"
+        puts "Destroy database record for nxpod uuid '#{uuid}'"
 
-        db = SQLite3::Database.new(Quarks::databaseFilepath())
+        db = SQLite3::Database.new(NxPods::databaseFilepath())
         db.busy_timeout = 117  
         db.busy_handler { |count| true }
         db.transaction 
@@ -98,8 +80,8 @@ class Quarks
 
     # --------------------------------------------------------------------
 
-    # Quarks::toString(quark)
-    def self.toString(quark)
+    # NxPods::toString(nxpod)
+    def self.toString(nxpod)
         map = {
             "Line" => "lne",
             "Url"  => "url",
@@ -108,11 +90,11 @@ class Quarks
             "FSLocation" => "loc",
             "FSUniqueString" => "ust"
         }
-        "[#{map[FileSystemAdapter::getQuarkType(quark["uuid"])]}] #{quark["description"]}"
+        "[#{map[FileSystemAdapter::getNxPodType(nxpod["uuid"])]}] #{nxpod["description"]}"
     end
 
-    # Quarks::interactivelyIssueNewQuarkOrNull()
-    def self.interactivelyIssueNewQuarkOrNull()
+    # NxPods::interactivelyIssueNewNxPodOrNull()
+    def self.interactivelyIssueNewNxPodOrNull()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"])
         return nil if type.nil?
         if type == "Line" then
@@ -121,9 +103,9 @@ class Quarks
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return nil if description == ""
             payload = ""
-            Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewQuark(uuid, description, "Line", description)
-            return Quarks::getQuarkOrNull(uuid)
+            NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
+            FileSystemAdapter::makeNewNxPod(uuid, description, "Line", description)
+            return NxPods::getNxPodOrNull(uuid)
         end
         if type == "Url" then
             uuid = SecureRandom.uuid
@@ -134,9 +116,9 @@ class Quarks
             if description == "" then
                 description = url
             end
-            Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewQuark(uuid, description, "Url", url)
-            return Quarks::getQuarkOrNull(uuid)
+            NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
+            FileSystemAdapter::makeNewNxPod(uuid, description, "Url", url)
+            return NxPods::getNxPodOrNull(uuid)
         end
         if type == "Text" then
             uuid = SecureRandom.uuid
@@ -144,9 +126,9 @@ class Quarks
             text = Utils::editTextSynchronously("")
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
-            Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewQuark(uuid, description, "Text", text)
-            return Quarks::getQuarkOrNull(uuid)
+            NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
+            FileSystemAdapter::makeNewNxPod(uuid, description, "Text", text)
+            return NxPods::getNxPodOrNull(uuid)
         end
         if type == "UniqueFileClickable" then
             uuid = SecureRandom.uuid
@@ -159,9 +141,9 @@ class Quarks
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
 
-            Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewQuark(uuid, description, "UniqueFileClickable", filepath)
-            return Quarks::getQuarkOrNull(uuid)
+            NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
+            FileSystemAdapter::makeNewNxPod(uuid, description, "UniqueFileClickable", filepath)
+            return NxPods::getNxPodOrNull(uuid)
         end
         if type == "FSLocation" then
             uuid = SecureRandom.uuid
@@ -174,9 +156,9 @@ class Quarks
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
 
-            Quarks::commitQuarkAttributesToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewQuark(uuid, description, "FSLocation", location)
-            return Quarks::getQuarkOrNull(uuid)
+            NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
+            FileSystemAdapter::makeNewNxPod(uuid, description, "FSLocation", location)
+            return NxPods::getNxPodOrNull(uuid)
         end
         if type == "FSUniqueString" then
             raise "FSUniqueString not implemented yet"
@@ -184,93 +166,93 @@ class Quarks
         nil
     end
 
-    # Quarks::accessEdit(quark)
-    def self.accessEdit(quark)
-        type = FileSystemAdapter::getQuarkType(quark["uuid"])
+    # NxPods::accessEdit(nxpod)
+    def self.accessEdit(nxpod)
+        type = FileSystemAdapter::getNxPodType(nxpod["uuid"])
 
-        quarkFolderPath = FileSystemAdapter::getQuarkFolderpathByUUID(quark["uuid"])
+        nxpodFolderPath = FileSystemAdapter::getNxPodFolderpathByUUID(nxpod["uuid"])
 
         if type == "Line" then
-            puts "line: #{Quarks::toString(quark)}"
+            puts "line: #{NxPods::toString(nxpod)}"
             if LucilleCore::askQuestionAnswerAsBoolean("edit ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(quark["description"])
+                description = Utils::editTextSynchronously(nxpod["description"])
                 return if description == ""
-                quark["description"] = description
-                Quarks::commitQuarkToDatabase(quark)
-                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+                nxpod["description"] = description
+                NxPods::commitNxPodToDatabase(nxpod)
+                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
 
                 # Update Manifest
-                File.open("#{quarkFolderPath}/manifest.txt", "w") {|f| f.write(description)}
+                File.open("#{nxpodFolderPath}/manifest.txt", "w") {|f| f.write(description)}
             end
         end
 
         if type == "Url" then
-            puts "descrition: #{Quarks::toString(quark)}"
-            puts "url: #{IO.read("#{quarkFolderPath}/manifest.txt")}"
-            system("open '#{IO.read("#{quarkFolderPath}/manifest.txt")}'")
+            puts "descrition: #{NxPods::toString(nxpod)}"
+            puts "url: #{IO.read("#{nxpodFolderPath}/manifest.txt")}"
+            system("open '#{IO.read("#{nxpodFolderPath}/manifest.txt")}'")
             if LucilleCore::askQuestionAnswerAsBoolean("edit ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(quark["description"])
+                description = Utils::editTextSynchronously(nxpod["description"])
                 return if description == ""
-                quark["description"] = description
-                Quarks::commitQuarkToDatabase(quark)
-                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+                nxpod["description"] = description
+                NxPods::commitNxPodToDatabase(nxpod)
+                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
 
                 # Update Manifest
-                url = Utils::editTextSynchronously(IO.read("#{quarkFolderPath}/manifest.txt"))
-                File.open("#{nyxQuarkFolderpath}/manifest.txt", "w") {|f| f.write(url)}
+                url = Utils::editTextSynchronously(IO.read("#{nxpodFolderPath}/manifest.txt"))
+                File.open("#{nyxNxPodFolderpath}/manifest.txt", "w") {|f| f.write(url)}
             end
         end
 
         if type == "Text" then
-            system("open '#{quarkFolderPath}/#{IO.read("#{quarkFolderPath}/manifest.txt")}'")
+            system("open '#{nxpodFolderPath}/#{IO.read("#{nxpodFolderPath}/manifest.txt")}'")
             if LucilleCore::askQuestionAnswerAsBoolean("edit description ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(quark["description"])
+                description = Utils::editTextSynchronously(nxpod["description"])
                 return if description == ""
-                quark["description"] = description
-                Quarks::commitQuarkToDatabase(quark)
-                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+                nxpod["description"] = description
+                NxPods::commitNxPodToDatabase(nxpod)
+                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
             end
         end
 
         if type == "UniqueFileClickable" then
-            system("open '#{quarkFolderPath}/#{IO.read("#{quarkFolderPath}/manifest.txt")}'")
+            system("open '#{nxpodFolderPath}/#{IO.read("#{nxpodFolderPath}/manifest.txt")}'")
             if LucilleCore::askQuestionAnswerAsBoolean("edit description ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(quark["description"])
+                description = Utils::editTextSynchronously(nxpod["description"])
                 return if description == ""
-                quark["description"] = description
-                Quarks::commitQuarkToDatabase(quark)
-                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+                nxpod["description"] = description
+                NxPods::commitNxPodToDatabase(nxpod)
+                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
             end
             if LucilleCore::askQuestionAnswerAsBoolean("edit file ? : ", false) then
-                system("open '#{quarkFolderPath}'")
+                system("open '#{nxpodFolderPath}'")
             end
         end
 
         if type == "FSLocation" then
-            puts "FSLocation: #{Quarks::toString(quark)}"
-            system("open '#{quarkFolderPath}/#{IO.read("#{quarkFolderPath}/manifest.txt")}'")
+            puts "FSLocation: #{NxPods::toString(nxpod)}"
+            system("open '#{nxpodFolderPath}/#{IO.read("#{nxpodFolderPath}/manifest.txt")}'")
             if LucilleCore::askQuestionAnswerAsBoolean("edit (description) ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(quark["description"])
+                description = Utils::editTextSynchronously(nxpod["description"])
                 return if description == ""
-                quark["description"] = description
-                Quarks::commitQuarkToDatabase(quark)
-                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+                nxpod["description"] = description
+                NxPods::commitNxPodToDatabase(nxpod)
+                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
             end
         end
 
         if type == "FSUniqueString" then
-            puts "FSUniqueString: #{Quarks::toString(quark)}"
-            location = `atlas locate '#{IO.read("#{quarkFolderPath}/manifest.txt")}'`
+            puts "FSUniqueString: #{NxPods::toString(nxpod)}"
+            location = `atlas locate '#{IO.read("#{nxpodFolderPath}/manifest.txt")}'`
             if location.size > 0 then
                 puts location
                 LucilleCore::pressEnterToContinue()
@@ -278,78 +260,78 @@ class Quarks
             if LucilleCore::askQuestionAnswerAsBoolean("edit ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(quark["description"])
+                description = Utils::editTextSynchronously(nxpod["description"])
                 return if description == ""
-                quark["description"] = description
-                Quarks::commitQuarkToDatabase(quark)
-                File.open("#{quarkFolderPath}/description.txt", "w") {|f| f.write(description)}
+                nxpod["description"] = description
+                NxPods::commitNxPodToDatabase(nxpod)
+                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
 
                 # Update Manifest
-                uniquestring = Utils::editTextSynchronously(IO.read("#{quarkFolderPath}/manifest.txt"))
-                File.open("#{nyxQuarkFolderpath}/manifest.txt", "w") {|f| f.write(uniquestring)}
+                uniquestring = Utils::editTextSynchronously(IO.read("#{nxpodFolderPath}/manifest.txt"))
+                File.open("#{nyxNxPodFolderpath}/manifest.txt", "w") {|f| f.write(uniquestring)}
             end
         end
     end
 
-    # Quarks::landing(quark)
-    def self.landing(quark)
+    # NxPods::landing(nxpod)
+    def self.landing(nxpod)
 
         loop {
 
-            quark = Quarks::getQuarkOrNull(quark["uuid"]) # could have been deleted or transmuted in the previous loop
-            return if quark.nil?
+            nxpod = NxPods::getNxPodOrNull(nxpod["uuid"]) # could have been deleted or transmuted in the previous loop
+            return if nxpod.nil?
 
-            puts "-- Quark -----------------------------"
+            puts "-- NxPod -----------------------------"
 
-            puts Quarks::toString(quark).green
+            puts NxPods::toString(nxpod).green
 
-            puts "uuid: #{quark["uuid"]}".yellow
+            puts "uuid: #{nxpod["uuid"]}".yellow
             puts ""
 
             mx = LCoreMenuItemsNX1.new()
 
             mx.item("access (edit)".yellow, lambda {
-                Quarks::accessEdit(quark)
+                NxPods::accessEdit(nxpod)
             })
 
             mx.item("update/set description".yellow, lambda {
-                description = Utils::editTextSynchronously(quark["description"])
+                description = Utils::editTextSynchronously(nxpod["description"])
                 return if description == ""
-                quark["description"] = description
-                Quarks::commitQuarkToDatabase(quark)
+                nxpod["description"] = description
+                NxPods::commitNxPodToDatabase(nxpod)
             })
 
             mx.item("attach".yellow, lambda { 
                 value = Tags::architectureTagOrNull()
                 return if value.nil?
-                Tags::commitRecord(SecureRandom.hex, quark["uuid"], value)
+                Tags::commitRecord(SecureRandom.hex, nxpod["uuid"], value)
             })
 
             mx.item("detach".yellow, lambda {
-                values = Tags::pointUUIDToTags(quark["uuid"])
+                values = Tags::pointUUIDToTags(nxpod["uuid"])
                 value = LucilleCore::selectEntityFromListOfEntitiesOrNull("classification value", values)
                 return if value.nil?
-                Tags::deleteRecordsByPointUUIDAndTag(quark["uuid"], value)
+                Tags::deleteRecordsByPointUUIDAndTag(nxpod["uuid"], value)
             })
 
             mx.item("transmute".yellow, lambda { 
-                FileSystemAdapter::transmute(quark["uuid"])
+                FileSystemAdapter::transmute(nxpod["uuid"])
             })
 
             mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(quark)
+                puts JSON.pretty_generate(nxpod)
                 LucilleCore::pressEnterToContinue()
             })
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    Quarks::destroyQuark(quark["uuid"])
+                    NxPods::destroyNxPod(nxpod["uuid"])
                 end
             })
 
             puts ""
 
-            Tags::pointUUIDToTags(quark["uuid"]).each{|tag|
+            Tags::pointUUIDToTags(nxpod["uuid"]).each{|tag|
                 mx.item("[*] #{tag}", lambda { 
                     Tags::landing(tag)
                 })
@@ -364,16 +346,16 @@ class Quarks
 
     # --------------------------------------------------------------------
 
-    # Quarks::nx19s()
-    def self.nx19s()
-        Quarks::getQuarks()
-            .map{|quark|
+    # NxPods::sx19s()
+    def self.sx19s()
+        NxPods::getNxPods()
+            .map{|nxpod|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{Quarks::toString(quark)}",
-                    "nx15"     => {
-                        "type"    => "quark",
-                        "payload" => quark
+                    "announce" => "#{volatileuuid} #{NxPods::toString(nxpod)}",
+                    "sx15"     => {
+                        "type"    => "nxpod",
+                        "payload" => nxpod
                     }
                 }
             }

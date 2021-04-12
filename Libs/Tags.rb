@@ -81,10 +81,10 @@ class Tags
         answer
     end
 
-    # Tags::tagToQuarks(tag)
-    def self.tagToQuarks(tag)
+    # Tags::tagToNxPods(tag)
+    def self.tagToNxPods(tag)
         Tags::tagToPointUUIDs(tag)
-            .map{|uuid| Quarks::getQuarkOrNull(uuid) }
+            .map{|uuid| NxPods::getNxPodOrNull(uuid) }
             .compact
     end
 
@@ -154,9 +154,9 @@ class Tags
 
             puts ""
 
-            Tags::tagToQuarks(tag).each{|quark|
-                mx.item(Quarks::toString(quark), lambda { 
-                    Quarks::landing(quark)
+            Tags::tagToNxPods(tag).each{|nxpod|
+                mx.item(NxPods::toString(nxpod), lambda { 
+                    NxPods::landing(nxpod)
                 })
             }
 
@@ -167,14 +167,14 @@ class Tags
         }
     end
 
-    # Tags::nx19s()
-    def self.nx19s()
+    # Tags::sx19s()
+    def self.sx19s()
         Tags::getDistinctTags()
             .map{|tag|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
                     "announce" => "#{volatileuuid} [***] #{tag}",
-                    "nx15"  => {
+                    "sx15"  => {
                         "type"    => "tag",
                         "payload" => tag
                     }

@@ -4,7 +4,8 @@
 
 require_relative "Libs/loader.rb"
 
-Quarks::getQuarks().each{|quark|
-    puts quark["uuid"]
-    FileSystemAdapter::fsckQuark(quark["uuid"])
+NxPods::getNxPods().each{|nxpod|
+    puts nxpod["uuid"]
+    FileSystemAdapter::fsckNxPod(nxpod["uuid"])
 }
+puts "All good!".green

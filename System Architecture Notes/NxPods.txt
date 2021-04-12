@@ -1,8 +1,8 @@
-Filename: Quarks.sqlite3
+Filename: NxPods.sqlite3
 
 sqlite> create table _datacarrier_ (_uuid_ text, _unixtime_ real, _description_ text);
 
-Quarks {
+NxPod {
     "uuid"          : String
     "unixtime"      : Float
     "description"   : String
