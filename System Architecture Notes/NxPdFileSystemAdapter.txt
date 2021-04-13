@@ -1,4 +1,4 @@
-Some Neired Entities are going to be represented as folders on the file system.
+NxPods exists as folders on the file system.
 
 The folder name is the nxpod uuid (which has to be a uuid, not any random string)
 

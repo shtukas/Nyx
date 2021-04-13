@@ -65,7 +65,7 @@ class NxPods
 
     # NxPods::destroyNxPod(uuid)
     def self.destroyNxPod(uuid)
-        FileSystemAdapter::destroyNxPodOnDisk(uuid)
+        NxPdFileSystemAdapter::destroyNxPodOnDisk(uuid)
 
         puts "Destroy database record for nxpod uuid '#{uuid}'"
 
@@ -90,7 +90,7 @@ class NxPods
             "FSLocation" => "loc",
             "FSUniqueString" => "ust"
         }
-        "[#{map[FileSystemAdapter::getNxPodType(nxpod["uuid"])]}] #{nxpod["description"]}"
+        "[#{map[NxPdFileSystemAdapter::getNxPodType(nxpod["uuid"])]}] #{nxpod["description"]}"
     end
 
     # NxPods::interactivelyIssueNewNxPodOrNull()
@@ -104,7 +104,7 @@ class NxPods
             return nil if description == ""
             payload = ""
             NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewNxPod(uuid, description, "Line", description)
+            NxPdFileSystemAdapter::makeNewNxPod(uuid, description, "Line", description)
             return NxPods::getNxPodOrNull(uuid)
         end
         if type == "Url" then
@@ -117,7 +117,7 @@ class NxPods
                 description = url
             end
             NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewNxPod(uuid, description, "Url", url)
+            NxPdFileSystemAdapter::makeNewNxPod(uuid, description, "Url", url)
             return NxPods::getNxPodOrNull(uuid)
         end
         if type == "Text" then
@@ -127,7 +127,7 @@ class NxPods
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
             NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewNxPod(uuid, description, "Text", text)
+            NxPdFileSystemAdapter::makeNewNxPod(uuid, description, "Text", text)
             return NxPods::getNxPodOrNull(uuid)
         end
         if type == "UniqueFileClickable" then
@@ -142,7 +142,7 @@ class NxPods
             return nil if description == ""
 
             NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewNxPod(uuid, description, "UniqueFileClickable", filepath)
+            NxPdFileSystemAdapter::makeNewNxPod(uuid, description, "UniqueFileClickable", filepath)
             return NxPods::getNxPodOrNull(uuid)
         end
         if type == "FSLocation" then
@@ -157,7 +157,7 @@ class NxPods
             return nil if description == ""
 
             NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-            FileSystemAdapter::makeNewNxPod(uuid, description, "FSLocation", location)
+            NxPdFileSystemAdapter::makeNewNxPod(uuid, description, "FSLocation", location)
             return NxPods::getNxPodOrNull(uuid)
         end
         if type == "FSUniqueString" then
@@ -168,9 +168,9 @@ class NxPods
 
     # NxPods::accessEdit(nxpod)
     def self.accessEdit(nxpod)
-        type = FileSystemAdapter::getNxPodType(nxpod["uuid"])
+        type = NxPdFileSystemAdapter::getNxPodType(nxpod["uuid"])
 
-        nxpodFolderPath = FileSystemAdapter::getNxPodFolderpathByUUID(nxpod["uuid"])
+        nxpodFolderPath = NxPdFileSystemAdapter::getNxPodFolderpathByUUID(nxpod["uuid"])
 
         if type == "Line" then
             puts "line: #{NxPods::toString(nxpod)}"
@@ -315,7 +315,7 @@ class NxPods
             })
 
             mx.item("transmute".yellow, lambda { 
-                FileSystemAdapter::transmute(nxpod["uuid"])
+                NxPdFileSystemAdapter::transmute(nxpod["uuid"])
             })
 
             mx.item("json object".yellow, lambda { 
@@ -346,14 +346,14 @@ class NxPods
 
     # --------------------------------------------------------------------
 
-    # NxPods::sx19s()
-    def self.sx19s()
+    # NxPods::mx19s()
+    def self.mx19s()
         NxPods::getNxPods()
             .map{|nxpod|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
                     "announce" => "#{volatileuuid} #{NxPods::toString(nxpod)}",
-                    "sx15"     => {
+                    "mx15"     => {
                         "type"    => "nxpod",
                         "payload" => nxpod
                     }

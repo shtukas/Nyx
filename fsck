@@ -6,6 +6,6 @@ require_relative "Libs/loader.rb"
 
 NxPods::getNxPods().each{|nxpod|
     puts nxpod["uuid"]
-    FileSystemAdapter::fsckNxPod(nxpod["uuid"])
+    NxPdFileSystemAdapter::fsckNxPod(nxpod["uuid"])
 }
 puts "All good!".green

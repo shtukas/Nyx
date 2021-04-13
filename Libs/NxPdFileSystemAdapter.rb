@@ -1,19 +1,19 @@
 
 # encoding: UTF-8
 
-class FileSystemAdapter
+class NxPdFileSystemAdapter
 
-    # FileSystemAdapter::nxpodsRepositoryFolderPath()
+    # NxPdFileSystemAdapter::nxpodsRepositoryFolderPath()
     def self.nxpodsRepositoryFolderPath()
         "/Users/pascal/Galaxy/Documents/NxPods"
     end
 
-    # FileSystemAdapter::getNxPodFolderpathByUUID(uuid) : Folderpath
+    # NxPdFileSystemAdapter::getNxPodFolderpathByUUID(uuid) : Folderpath
     def self.getNxPodFolderpathByUUID(uuid)
-        "#{FileSystemAdapter::nxpodsRepositoryFolderPath()}/#{uuid}"
+        "#{NxPdFileSystemAdapter::nxpodsRepositoryFolderPath()}/#{uuid}"
     end
 
-    # FileSystemAdapter::makeNewNxPod(uuid, description, type, content)
+    # NxPdFileSystemAdapter::makeNewNxPod(uuid, description, type, content)
     # Here is what the content is per type
     # "Line"                : the description, in this case the line is aligned with the description
     # "Url"                 : the url
@@ -24,7 +24,7 @@ class FileSystemAdapter
     def self.makeNewNxPod(uuid, description, type, contentInstruction)
         raise "217a6dd1-ba91-45de-857b-b806d0c7d377" if !["Line", "Url", "Text", "UniqueFileClickable", "FSLocation", "FSUniqueString"].include?(type)
 
-        nyxNxPodFolderpath = FileSystemAdapter::getNxPodFolderpathByUUID(uuid)
+        nyxNxPodFolderpath = NxPdFileSystemAdapter::getNxPodFolderpathByUUID(uuid)
 
         FileUtils.mkpath(nyxNxPodFolderpath)
 
@@ -64,35 +64,35 @@ class FileSystemAdapter
         end
     end
 
-    # FileSystemAdapter::setNxPodDescription(uuid, description)
+    # NxPdFileSystemAdapter::setNxPodDescription(uuid, description)
     def self.setNxPodDescription(uuid, description)
         # This updates the database and the nxpod on nxpod folder
-        folderpath = FileSystemAdapter::getNxPodFolderpathByUUID(uuid)
+        folderpath = NxPdFileSystemAdapter::getNxPodFolderpathByUUID(uuid)
         File.open("#{folderpath}/description.txt", "w") {|f| f.write(description)}
     end
 
-    # FileSystemAdapter::getNxPodType(uuid) : Folderpath
+    # NxPdFileSystemAdapter::getNxPodType(uuid) : Folderpath
     def self.getNxPodType(uuid)
-        folderpath = FileSystemAdapter::getNxPodFolderpathByUUID(uuid)
+        folderpath = NxPdFileSystemAdapter::getNxPodFolderpathByUUID(uuid)
         filepath = "#{folderpath}/type.txt"
         raise "error: 8e0c51fa-89f7-4ef8-a1ef-b9ccf8f0588b ; could not find the type file (#{filepath}) for uuid: #{uuid}" if !File.exist?(filepath)
         IO.read(filepath)
     end
 
-    # FileSystemAdapter::getNxPodContentDataOrNull(uuid)
+    # NxPdFileSystemAdapter::getNxPodContentDataOrNull(uuid)
     def self.getNxPodContentDataOrNull(uuid)
         # This only returns data for "Line", "Url", "FSUniqueString" otherwise raise an error
-        folderpath = FileSystemAdapter::getNxPodFolderpathByUUID(uuid)
-        type = FileSystemAdapter::getNxPodType(uuid)
+        folderpath = NxPdFileSystemAdapter::getNxPodFolderpathByUUID(uuid)
+        type = NxPdFileSystemAdapter::getNxPodType(uuid)
         raise "error: 32257b83-4473-494d-9d32-937db29767bf ; trying to extract content data for a non supported type" if !["Line", "Url", "FSUniqueString"].include?(type)
         IO.read("#{folderpath}/manifest.txt")
     end
 
-    # FileSystemAdapter::getNxPodContentFilepathOrNull(uuid)
+    # NxPdFileSystemAdapter::getNxPodContentFilepathOrNull(uuid)
     def self.getNxPodContentFilepathOrNull(uuid)
         # This only returns data for "Text", "UniqueFileClickable", "FSLocation"
-        folderpath = FileSystemAdapter::getNxPodFolderpathByUUID(uuid)
-        type = FileSystemAdapter::getNxPodType(uuid)
+        folderpath = NxPdFileSystemAdapter::getNxPodFolderpathByUUID(uuid)
+        type = NxPdFileSystemAdapter::getNxPodType(uuid)
         raise "error: 781cc900-35ae-4b69-b0f4-bc6f0fa420f7 ; trying to extract content path for a non supported type" if !["Text", "UniqueFileClickable", "FSLocation"].include?(type)
         
         if type == "Text" then
@@ -111,9 +111,9 @@ class FileSystemAdapter
         end
     end
 
-    # FileSystemAdapter::fsckNxPod(uuid)
+    # NxPdFileSystemAdapter::fsckNxPod(uuid)
     def self.fsckNxPod(uuid)
-        nxpodFolderpath = FileSystemAdapter::getNxPodFolderpathByUUID(uuid)
+        nxpodFolderpath = NxPdFileSystemAdapter::getNxPodFolderpathByUUID(uuid)
         if !File.exists?(nxpodFolderpath) then
             raise "fsck fail: did not find nxpod folderpath for uuid: #{uuid}"
         end
@@ -134,12 +134,12 @@ class FileSystemAdapter
             raise "fsck fail: non standard type (found '#{type}') for uuid: #{uuid}"
         end
         if ["Line", "Url", "FSUniqueString"].include?(type) then
-            if FileSystemAdapter::getNxPodContentDataOrNull(uuid).nil? then
+            if NxPdFileSystemAdapter::getNxPodContentDataOrNull(uuid).nil? then
                 raise "fsck fail: could not find content data for uuid: #{uuid}"
             end
         end
         if ["Text", "UniqueFileClickable", "FSLocation"].include?(type) then
-            if FileSystemAdapter::getNxPodContentFilepathOrNull(uuid).nil? then
+            if NxPdFileSystemAdapter::getNxPodContentFilepathOrNull(uuid).nil? then
                 raise "fsck fail: could not find content filepath for uuid: #{uuid}"
             end
         end
@@ -147,16 +147,16 @@ class FileSystemAdapter
 
     # ----------------------------------------------------------------------------------------
 
-    # FileSystemAdapter::transmute(uuid)
+    # NxPdFileSystemAdapter::transmute(uuid)
     def self.transmute(uuid)
         raise "Transmutation has not been implemented yet"
     end
 
     # ----------------------------------------------------------------------------------------
 
-    # FileSystemAdapter::destroyNxPodOnDisk(uuid)
+    # NxPdFileSystemAdapter::destroyNxPodOnDisk(uuid)
     def self.destroyNxPodOnDisk(uuid)
-        folderpath = FileSystemAdapter::getNxPodFolderpathByUUID(uuid)
+        folderpath = NxPdFileSystemAdapter::getNxPodFolderpathByUUID(uuid)
         raise "error: 40cbbc29-6e16-43d7-98e6-eaec68f762a7 ; could not find folderpath '#{folderpath}' for uuid: #{uuid}" if !File.exists?(folderpath)
         puts "Delete folder '#{folderpath}'"
         LucilleCore::removeFileSystemLocation(folderpath)

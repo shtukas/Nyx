@@ -167,14 +167,14 @@ class Tags
         }
     end
 
-    # Tags::sx19s()
-    def self.sx19s()
+    # Tags::mx19s()
+    def self.mx19s()
         Tags::getDistinctTags()
             .map{|tag|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
                     "announce" => "#{volatileuuid} [***] #{tag}",
-                    "sx15"  => {
+                    "mx15"  => {
                         "type"    => "tag",
                         "payload" => tag
                     }

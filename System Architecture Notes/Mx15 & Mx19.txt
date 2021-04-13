@@ -1,10 +1,10 @@
 
-Sx15 {
+Mx15 {
     "type"    : "nxpod" | "tag"
     "payload" : NxPod | String
 }
 
-Sx19 {
+Mx19 {
     "announce" : String
-    "sx15"     : Sx15
+    "mx15"     : Mx15
 }

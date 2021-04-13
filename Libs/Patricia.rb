@@ -10,9 +10,9 @@ class Patricia
 
     # -------------------------------------------------------
 
-    # Patricia::selectOneSx19OrNull()
-    def self.selectOneSx19OrNull()
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(Patricia::sx19s(), lambda{|item| item["announce"] })
+    # Patricia::selectOneMx19OrNull()
+    def self.selectOneMx19OrNull()
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(Patricia::mx19s(), lambda{|item| item["announce"] })
     end
 
     # -------------------------------------------------------
@@ -22,11 +22,11 @@ class Patricia
         NxPods::getNxPods().sort{|n1, n2| n1["unixtime"]<=>n2["unixtime"] }
     end
 
-    # Patricia::sx19s()
-    def self.sx19s()
+    # Patricia::mx19s()
+    def self.mx19s()
         searchItems = [
-            Tags::sx19s(),
-            NxPods::sx19s(),
+            Tags::mx19s(),
+            NxPods::mx19s(),
         ]
         .flatten
     end
@@ -34,13 +34,13 @@ class Patricia
     # Patricia::generalSearchLoop()
     def self.generalSearchLoop()
         loop {
-            sx19 = Patricia::selectOneSx19OrNull()
-            break if sx19.nil? 
-            if sx19["sx15"]["type"] == "nxpod" then
-                NxPods::landing(sx19["sx15"]["payload"])
+            mx19 = Patricia::selectOneMx19OrNull()
+            break if mx19.nil? 
+            if mx19["mx15"]["type"] == "nxpod" then
+                NxPods::landing(mx19["mx15"]["payload"])
             end
-            if sx19["sx15"]["type"] == "tag" then
-                Tags::landing(sx19["sx15"]["payload"])
+            if mx19["mx15"]["type"] == "tag" then
+                Tags::landing(mx19["mx15"]["payload"])
             end
         }
     end
