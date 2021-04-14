@@ -1,0 +1,34 @@
+
+
+Attribute files are text files used as both key value stores and key/array stores. For instance the following file
+
+------------------------
+id: 123456789
+name: Pascal
+place: London
+place: New York
+------------------------ 
+
+Indicates values for the `id` and the `name` and to values for `place`. 
+
+For instance `getOrNull("id")` would return "123456789" whereas `getArray("place")` returns `["London", "New York"]`.
+
+Note that the fact that `place` is an array of values is not a property of the attribute in the file itself, but known by the thing querying the file. To illustrate that, in the following file, for instance, 
+
+------------------------
+id: 123456789
+name: Pascal
+place: London
+------------------------ 
+
+... it is not immediately apparent that `place` is an array. When an attribute is known to be an array, then `getArray(attributeName)` allays return an array, possibly empty. In the case of `getOrNull(attributeName)` we return null if the value is missing. If the value is mandatory call `getMandatory(attributeName)` and in this last case a missing value results in an error.
+
+Missing files are automaticaly created when setting values against them. Querying a missing file results in null values or emty arrays.
+
+Values can be empty. Example:
+
+------------------------
+message: 
+------------------------ 
+
+.. to represent an empty message.
