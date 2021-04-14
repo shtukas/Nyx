@@ -1,0 +1,2 @@
+
+NxNavs are nodes of the Nyx Network (aka Space). They are used only for navigation, at opposition to NxPods which are data carriers.

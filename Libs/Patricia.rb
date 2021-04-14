@@ -3,11 +3,6 @@
 
 class Patricia
 
-    # Patricia::isNxPods(nxpod)
-    def self.isNxPods(nxpod)
-        !nxpod["payload"].nil?
-    end
-
     # -------------------------------------------------------
 
     # Patricia::selectOneMx19OrNull()

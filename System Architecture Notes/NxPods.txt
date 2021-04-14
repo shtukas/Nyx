@@ -1,9 +1,23 @@
-Filename: NxPods.sqlite3
 
-sqlite> create table _datacarrier_ (_uuid_ text, _unixtime_ real, _description_ text);
+NxPods exists as folders on the file system.
 
-NxPod {
-    "uuid"          : String
-    "unixtime"      : Float
-    "description"   : String
-}
+The folder name is the nxpod uuid (which has to be a uuid, not any random string)
+
+Each folder then has the following files
+    - uuid.txt        : which contains the uuid of the nxpod
+    - unixtime.txt    : the associated unixtime
+    - description.txt : The description
+    - type.txt        : which contains the type "Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"
+    - manifest.txt    : which, depending on the type, contains
+        - "Line"                : (empty) (the entire content is the description)
+        - "Url"                 : The url
+        - "Text"                : The file name of the text file (which is in the same folder)
+        - "UniqueFileClickable" : The filename of the clikable file (which is in the same folder)
+        - "FSLocation"          : The foldername of the directory (which is in the same folder)
+        - "FSUniqueString"      : The unique string
+
+Glosarry:
+    - The record in the database , record
+    - The nxpod json object      , nxpod object
+    - The nxpod filepath         , nxpod filepath
+    - The content location       , content location

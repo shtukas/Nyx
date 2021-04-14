@@ -1,81 +1,71 @@
 
 # encoding: UTF-8
 
+class NxPod
+
+    def initialize(id)
+        raise "09fed5b4-d479-4b00-b4fa-1ccceae5c897; #{id}" if !Space::idIsUsed(id)
+        @id = id
+    end
+
+    # -- Nx Common --------------------------------------------------------
+
+    def id()
+        @id
+    end
+
+    def folderpath()
+        "#{Space::spaceFolderPath()}/#{@id}"
+    end
+
+    def unixtime()
+        IO.read("#{folderpath()}/unixtime.txt").to_i
+    end
+
+    def description()
+        IO.read("#{folderpath()}/description.txt")
+    end
+
+    def nxType()
+        "NxPod"
+    end
+
+    def isStillAlive()
+        Space::idIsUsed(id)
+    end
+
+    # -- NxPods --------------------------------------------------------
+
+    def contentType()
+        IO.read("#{folderpath()}/type.txt").strip
+    end
+end
+
 class NxPods
-
-    # NxPods::databaseFilepath()
-    def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Nyx/NxPods.sqlite3"
-    end
-
-    # NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-    def self.commitNxPodAttributesToDatabase(uuid, unixtime, description)
-        db = SQLite3::Database.new(NxPods::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _datacarrier_ where _uuid_=?", [uuid]
-        db.execute "insert into _datacarrier_ (_uuid_, _unixtime_, _description_) values (?,?,?)", [uuid, unixtime, description]
-        db.commit 
-        db.close
-    end
-
-    # NxPods::commitNxPodToDatabase(nxpod)
-    def self.commitNxPodToDatabase(nxpod)
-        NxPods::commitNxPodAttributesToDatabase(nxpod["uuid"], nxpod["unixtime"], nxpod["description"])
-    end
 
     # NxPods::getNxPods()
     def self.getNxPods()
-        db = SQLite3::Database.new(NxPods::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _datacarrier_", []) do |row|
-            answer << {
-                "uuid"        => row['_uuid_'], 
-                "unixtime"    => row['_unixtime_'],
-                "description" => row['_description_']
-            }
-        end
-        db.close
-        answer
+        Space::nxPodIds().map{|id| NxPod.new(id)}
     end
 
-    # NxPods::getNxPodOrNull(uuid)
-    def self.getNxPodOrNull(uuid)
-        db = SQLite3::Database.new(NxPods::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = nil
-        db.execute("select * from _datacarrier_ where _uuid_=?", [uuid]) do |row|
-            answer = {
-                "uuid"        => row['_uuid_'], 
-                "unixtime"    => row['_unixtime_'],
-                "description" => row['_description_'],
-                "type"        => row['_type_'],
-                "payload"     => row['_payload_']
-            }
-        end
-        db.close
-        answer
+    # NxPods::getNxPodOrNull(id)
+    def self.getNxPodOrNull(id)
+        return nil if !Space::idIsUsed(id)
+        NxPod.new(id)
     end
 
     # NxPods::destroyNxPod(uuid)
     def self.destroyNxPod(uuid)
-        NxPdFileSystemAdapter::destroyNxPodOnDisk(uuid)
+        puts "NxPod destruction has not been implemented yet"
+        exit
+    end
 
-        puts "Destroy database record for nxpod uuid '#{uuid}'"
-
-        db = SQLite3::Database.new(NxPods::databaseFilepath())
-        db.busy_timeout = 117  
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _datacarrier_ where _uuid_=?", [uuid]
-        db.commit 
-        db.close
+    # NxPods::commitAttributeFileContentAtFolder(id, filename, data)
+    def self.commitAttributeFileContentAtFolder(id, filename, data)
+        folderpath = "#{Space::spaceFolderPath()}/#{id}"
+        raise "c2847136-5f61-4dd3-88f8-404608a3bc1d ; #{id}" if !File.exists?(folderpath)
+        filepath = "#{folderpath}/#{filename}"
+        File.open(filepath, "w"){|f| f.write(data) }
     end
 
     # --------------------------------------------------------------------
@@ -90,75 +80,88 @@ class NxPods
             "FSLocation" => "loc",
             "FSUniqueString" => "ust"
         }
-        "[#{map[NxPdFileSystemAdapter::getNxPodType(nxpod["uuid"])]}] #{nxpod["description"]}"
+        "[#{map[nxpod.contentType()]}] #{nxpod.description()}"
     end
 
     # NxPods::interactivelyIssueNewNxPodOrNull()
     def self.interactivelyIssueNewNxPodOrNull()
+        id = Space::issueNewId("NxPod")
+
+        NxPods::commitAttributeFileContentAtFolder(id, "uuid.txt", id)
+        NxPods::commitAttributeFileContentAtFolder(id, "unixtime.txt", Time.new.to_i)
+
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        if description == "" then
+            Space::destroyFolderIfExists(id)
+            return nil 
+        end
+
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"])
-        return nil if type.nil?
+
+        if type.nil? then
+            Space::destroyFolderIfExists(id)
+            return nil
+        end
+
+        NxPods::commitAttributeFileContentAtFolder(id, "type.txt", type)
+
         if type == "Line" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            return nil if description == ""
-            payload = ""
-            NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-            NxPdFileSystemAdapter::makeNewNxPod(uuid, description, "Line", description)
-            return NxPods::getNxPodOrNull(uuid)
+            NxPods::commitAttributeFileContentAtFolder(id, "manifest.txt", "")
+            return NxPod.new(id)
         end
+
         if type == "Url" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
-            url = LucilleCore::askQuestionAnswerAsString("url: ")
-            return nil if url == ""
-            description = LucilleCore::askQuestionAnswerAsString("description (optional): ")
-            if description == "" then
-                description = url
+            url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
+            if url == "" then
+                Space::destroyFolderIfExists(id)
+                return nil
             end
-            NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-            NxPdFileSystemAdapter::makeNewNxPod(uuid, description, "Url", url)
-            return NxPods::getNxPodOrNull(uuid)
+            NxPods::commitAttributeFileContentAtFolder(id, "manifest.txt", url)
+            return NxPod.new(id)
         end
+
         if type == "Text" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
             text = Utils::editTextSynchronously("")
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return nil if description == ""
-            NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-            NxPdFileSystemAdapter::makeNewNxPod(uuid, description, "Text", text)
-            return NxPods::getNxPodOrNull(uuid)
+            filename = "#{SecureRandom.hex(4)}.txt"
+            File.open("#{Space::spaceFolderPath()}/#{id}/#{filename}", "w") {|f| f.write(text)}
+            NxPods::commitAttributeFileContentAtFolder(id, "manifest.txt", filename)
+            return NxPod.new(id)
         end
         if type == "UniqueFileClickable" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
-
-            filenameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("filename (on Desktop): ")
-            filepath = "/Users/pascal/Desktop/#{filenameOnTheDesktop}"
-            return nil if !File.exists?(filepath)
-
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return nil if description == ""
-
-            NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-            NxPdFileSystemAdapter::makeNewNxPod(uuid, description, "UniqueFileClickable", filepath)
-            return NxPods::getNxPodOrNull(uuid)
+            filename = LucilleCore::askQuestionAnswerAsString("filename (on Desktop) (empty to abort): ")
+            if filename == "" then
+                Space::destroyFolderIfExists(id)
+                return nil
+            end
+            filepath = "/Users/pascal/Desktop/#{filename}"
+            if !File.exists?(filepath) then
+                Space::destroyFolderIfExists(id)
+                return nil
+            end
+            filename2 = "#{SecureRandom.hex(4)}#{File.extname(filepath)}"
+            filepath2 = "#{Space::spaceFolderPath()}/#{id}/#{filename2}"
+            FileUtils.cp(filepath, filepath2)
+            NxPods::commitAttributeFileContentAtFolder(id, "manifest.txt", filename2)
+            return NxPod.new(id)
         end
         if type == "FSLocation" then
-            uuid = SecureRandom.uuid
-            unixtime = Time.new.to_i
+            locationname = LucilleCore::askQuestionAnswerAsString("location name (on Desktop) (empty to abort): ")
+            if locationname == "" then
+                Space::destroyFolderIfExists(id)
+                return nil
+            end
+            location = "/Users/pascal/Desktop/#{locationname}"
+            if !File.exists?(filepath) then
+                Space::destroyFolderIfExists(id)
+                return nil
+            end
 
-            locationNameOnTheDesktop = LucilleCore::askQuestionAnswerAsString("location name (on Desktop): ")
-            location = "/Users/pascal/Desktop/#{locationNameOnTheDesktop}"
-            return nil if !File.exists?(location)
-
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return nil if description == ""
-
-            NxPods::commitNxPodAttributesToDatabase(uuid, unixtime, description)
-            NxPdFileSystemAdapter::makeNewNxPod(uuid, description, "FSLocation", location)
-            return NxPods::getNxPodOrNull(uuid)
+            foldername2 = SecureRandom.hex(4)
+            folderpath2 = "#{Space::spaceFolderPath()}/#{id}/#{foldername2}"
+            FileUtils.mkdir(folderpath2) # We always create a folder regardless of whether it was a file or a directory 
+            FileUtils.mv(location, folderpath2) # We always move the thing (file or directory) into the folder
+            NxPods::commitAttributeFileContentAtFolder(id, "manifest.txt", foldername2)
+            return NxPod.new(id)
         end
         if type == "FSUniqueString" then
             raise "FSUniqueString not implemented yet"
@@ -168,91 +171,85 @@ class NxPods
 
     # NxPods::accessEdit(nxpod)
     def self.accessEdit(nxpod)
-        type = NxPdFileSystemAdapter::getNxPodType(nxpod["uuid"])
-
-        nxpodFolderPath = NxPdFileSystemAdapter::getNxPodFolderpathByUUID(nxpod["uuid"])
+        type = nxpod.contentType()
 
         if type == "Line" then
-            puts "line: #{NxPods::toString(nxpod)}"
+            puts "line: #{nxpod.description()}"
             if LucilleCore::askQuestionAnswerAsBoolean("edit ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(nxpod["description"])
+                description = Utils::editTextSynchronously(nxpod.description())
                 return if description == ""
-                nxpod["description"] = description
-                NxPods::commitNxPodToDatabase(nxpod)
-                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
+                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "description.txt", description)
 
                 # Update Manifest
-                File.open("#{nxpodFolderPath}/manifest.txt", "w") {|f| f.write(description)}
+                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "manifest.txt", "")
             end
         end
 
         if type == "Url" then
-            puts "descrition: #{NxPods::toString(nxpod)}"
-            puts "url: #{IO.read("#{nxpodFolderPath}/manifest.txt")}"
-            system("open '#{IO.read("#{nxpodFolderPath}/manifest.txt")}'")
+            puts "description: #{nxpod.description()}"
+            url = IO.read("#{nxpod.folderpath()}/manifest.txt").strip
+            puts "url: #{url}"
+            Utils::openUrl(url)
             if LucilleCore::askQuestionAnswerAsBoolean("edit ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(nxpod["description"])
+                description = Utils::editTextSynchronously(nxpod.description())
                 return if description == ""
-                nxpod["description"] = description
-                NxPods::commitNxPodToDatabase(nxpod)
-                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
+                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "description.txt", description)
 
                 # Update Manifest
-                url = Utils::editTextSynchronously(IO.read("#{nxpodFolderPath}/manifest.txt"))
-                File.open("#{nyxNxPodFolderpath}/manifest.txt", "w") {|f| f.write(url)}
+                url = Utils::editTextSynchronously(IO.read("#{nxpod.folderpath()}/manifest.txt"))
+                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "manifest.txt", url)
             end
         end
 
         if type == "Text" then
-            system("open '#{nxpodFolderPath}/#{IO.read("#{nxpodFolderPath}/manifest.txt")}'")
-            if LucilleCore::askQuestionAnswerAsBoolean("edit description ? : ", false) then
+            filename = IO.read("#{nxpod.folderpath()}/manifest.txt")
+            system("open '#{nxpod.folderpath()}/#{filename}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("edit (description) ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(nxpod["description"])
+                description = Utils::editTextSynchronously(nxpod.description())
                 return if description == ""
-                nxpod["description"] = description
-                NxPods::commitNxPodToDatabase(nxpod)
-                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
+                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "description.txt", description)
             end
         end
 
         if type == "UniqueFileClickable" then
-            system("open '#{nxpodFolderPath}/#{IO.read("#{nxpodFolderPath}/manifest.txt")}'")
+            puts "description: #{nxpod.description()}"
+            filename = IO.read("#{nxpod.folderpath()}/manifest.txt")
+            system("open '#{nxpod.folderpath()}/#{filename}'")
             if LucilleCore::askQuestionAnswerAsBoolean("edit description ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(nxpod["description"])
+                description = Utils::editTextSynchronously(nxpod.description())
                 return if description == ""
-                nxpod["description"] = description
-                NxPods::commitNxPodToDatabase(nxpod)
-                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
+                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "description.txt", description)
             end
             if LucilleCore::askQuestionAnswerAsBoolean("edit file ? : ", false) then
-                system("open '#{nxpodFolderPath}'")
+                system("open '#{nxpod.folderpath()}'")
             end
         end
 
         if type == "FSLocation" then
-            puts "FSLocation: #{NxPods::toString(nxpod)}"
-            system("open '#{nxpodFolderPath}/#{IO.read("#{nxpodFolderPath}/manifest.txt")}'")
-            if LucilleCore::askQuestionAnswerAsBoolean("edit (description) ? : ", false) then
+            puts "description: #{nxpod.description()}"
+            foldername = IO.read("#{nxpod.folderpath()}/manifest.txt")
+            system("open '#{nxpod.folderpath()}/#{foldername}'")
+            if LucilleCore::askQuestionAnswerAsBoolean("edit description ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(nxpod["description"])
+                description = Utils::editTextSynchronously(nxpod.description())
                 return if description == ""
-                nxpod["description"] = description
-                NxPods::commitNxPodToDatabase(nxpod)
-                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
+                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "description.txt", description)
             end
         end
 
         if type == "FSUniqueString" then
-            puts "FSUniqueString: #{NxPods::toString(nxpod)}"
-            location = `atlas locate '#{IO.read("#{nxpodFolderPath}/manifest.txt")}'`
+            puts "description: #{nxpod.description()}"
+            uniquestring = IO.read("#{nxpod.folderpath()}/manifest.txt")
+            location = `atlas locate '#{uniquestring}'`
             if location.size > 0 then
                 puts location
                 LucilleCore::pressEnterToContinue()
@@ -260,17 +257,20 @@ class NxPods
             if LucilleCore::askQuestionAnswerAsBoolean("edit ? : ", false) then
 
                 # Update Description
-                description = Utils::editTextSynchronously(nxpod["description"])
+                description = Utils::editTextSynchronously(nxpod.description())
                 return if description == ""
-                nxpod["description"] = description
-                NxPods::commitNxPodToDatabase(nxpod)
-                File.open("#{nxpodFolderPath}/description.txt", "w") {|f| f.write(description)}
+                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "description.txt", description)
 
                 # Update Manifest
-                uniquestring = Utils::editTextSynchronously(IO.read("#{nxpodFolderPath}/manifest.txt"))
-                File.open("#{nyxNxPodFolderpath}/manifest.txt", "w") {|f| f.write(uniquestring)}
+                uniquestring = Utils::editTextSynchronously(IO.read("#{nxpod.folderpath()}/manifest.txt"))
+                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "manifest.txt", uniquestring)
             end
         end
+    end
+
+    # NxPods::transmute(id)
+    def self.transmute()
+        puts "NxPod transmute has not been implemented yet"
     end
 
     # NxPods::landing(nxpod)
@@ -278,14 +278,13 @@ class NxPods
 
         loop {
 
-            nxpod = NxPods::getNxPodOrNull(nxpod["uuid"]) # could have been deleted or transmuted in the previous loop
-            return if nxpod.nil?
+            return if !nxpod.isStillAlive()
 
             puts "-- NxPod -----------------------------"
 
             puts NxPods::toString(nxpod).green
 
-            puts "uuid: #{nxpod["uuid"]}".yellow
+            puts "id: #{nxpod.id()}".yellow
             puts ""
 
             mx = LCoreMenuItemsNX1.new()
@@ -295,43 +294,32 @@ class NxPods
             })
 
             mx.item("update/set description".yellow, lambda {
-                description = Utils::editTextSynchronously(nxpod["description"])
+                description = Utils::editTextSynchronously(nxpod.description())
                 return if description == ""
-                nxpod["description"] = description
-                NxPods::commitNxPodToDatabase(nxpod)
+                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "description.txt", description)
             })
 
             mx.item("attach".yellow, lambda { 
-                value = Tags::architectureTagOrNull()
-                return if value.nil?
-                Tags::commitRecord(SecureRandom.hex, nxpod["uuid"], value)
+                puts "Not implemented yet"
             })
 
             mx.item("detach".yellow, lambda {
-                values = Tags::pointUUIDToTags(nxpod["uuid"])
-                value = LucilleCore::selectEntityFromListOfEntitiesOrNull("classification value", values)
-                return if value.nil?
-                Tags::deleteRecordsByPointUUIDAndTag(nxpod["uuid"], value)
+                puts "Not implemented yet"
             })
 
-            mx.item("transmute".yellow, lambda { 
-                NxPdFileSystemAdapter::transmute(nxpod["uuid"])
-            })
-
-            mx.item("json object".yellow, lambda { 
-                puts JSON.pretty_generate(nxpod)
-                LucilleCore::pressEnterToContinue()
+            mx.item("transmute".yellow, lambda {
+                NxPods::transmute(nxpod.id())
             })
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    NxPods::destroyNxPod(nxpod["uuid"])
+                    NxPods::destroyNxPod(nxpod.id())
                 end
             })
 
             puts ""
 
-            Tags::pointUUIDToTags(nxpod["uuid"]).each{|tag|
+            Tags::pointUUIDToTags(nxpod.id()).each{|tag|
                 mx.item("[*] #{tag}", lambda { 
                     Tags::landing(tag)
                 })
@@ -360,4 +348,51 @@ class NxPods
                 }
             }
     end
+
+    # --------------------------------------------------------------------
+
+    # NxPods::fsckNxPod(id)
+    def self.fsckNxPod(id)
+        folderpath = "#{Space::spaceFolderPath()}/#{id}"
+        if !File.exists?(folderpath) then
+            raise "fsck fail: did not find nxpod folderpath for id: #{id}"
+        end
+        if !File.exists?("#{folderpath}/uuid.txt") then
+            raise "fsck fail: did not find file uuid.txt for id: #{id}"
+        end
+        if id != IO.read("#{folderpath}/uuid.txt").strip then
+            raise "fsck fail: did not validate uuid in uuid.txt for id: #{id}"
+        end
+        if !File.exists?("#{folderpath}/description.txt") then
+            raise "fsck fail: did not find file description.txt for id: #{id}"
+        end
+        if !File.exists?("#{folderpath}/type.txt") then
+            raise "fsck fail: did not find file type.txt for id: #{id}"
+        end
+        if !File.exists?("#{folderpath}/manifest.txt") then
+            raise "fsck fail: did not find file manifest.txt for id: #{id}"
+        end
+        contentType = IO.read("#{folderpath}/type.txt")
+        if !["Line", "Url", "Text", "UniqueFileClickable", "FSLocation", "FSUniqueString"].include?(contentType) then
+            raise "fsck fail: non standard type (found '#{contentType}') for id: #{id}"
+        end
+        if ["Line"].include?(contentType) then
+            # Nothing
+        end
+        if ["Url", "FSUniqueString"].include?(contentType) then
+            if IO.read("#{folderpath}/manifest.txt").strip.size == 0 then
+                raise "fsck fail: empty manifest file for id: #{id}"
+            end
+        end
+        if ["Text", "UniqueFileClickable", "FSLocation"].include?(contentType) then
+            if IO.read("#{folderpath}/manifest.txt").strip.size == 0 then
+                raise "fsck fail: empty manifest file for id: #{id}"
+            end
+            filename = IO.read("#{folderpath}/manifest.txt")
+            if !File.exists?("#{folderpath}/#{filename}") then
+                raise "fsck fail: missing manifest target for id: #{id}"
+            end
+        end
+    end
+
 end

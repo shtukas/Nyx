@@ -22,8 +22,7 @@ loop {
     end
     if operation == "Nodes Listing" then
         loop {
-            nxpods = Patricia::networkNodesInOrder()
-            nxpod = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxpod", nxpods, lambda{|e| NxPods::toString(e) })
+            nxpod = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxpod", NxPods::getNxPods(), lambda{|e| NxPods::toString(e) })
             break if nxpod.nil?
             NxPods::landing(nxpod)
         }
