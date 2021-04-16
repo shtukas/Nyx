@@ -15,7 +15,7 @@ Each folder then has the following files
         - "UniqueFileClickable" : The filename of the clikable file (which is in the same folder)
         - "FSLocation"          : The foldername of the directory (which is in the same folder)
         - "FSUniqueString"      : The unique string
-    - links.txt       : list of Ids that the NxPod is connected too (one per line).
+    - links.json      : Array of Space Ids (JSON generated)
 
 Glosarry:
     - The record in the database , record

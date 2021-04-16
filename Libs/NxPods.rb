@@ -34,6 +34,22 @@ class NxPod
         Space::idIsUsed(id)
     end
 
+    def getConnectedIds()
+        filepath = "#{folderpath()}/links.json"
+        return [] if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    def addConnectedId(id)
+        ids = (getConnectedIds() + [id]).uniq.sort
+        File.open("#{folderpath()}/links.json", "w"){|f| f.puts(JSON.generate(ids)) }
+    end
+
+    def removeConnectedId(id)
+        ids = getConnectedIds() - [id]
+        File.open("#{folderpath()}/links.json", "w"){|f| f.puts(JSON.generate(ids)) }
+    end
+
     # -- NxPods --------------------------------------------------------
 
     def contentType()
@@ -394,5 +410,4 @@ class NxPods
             end
         end
     end
-
 end
