@@ -63,17 +63,48 @@ class AttributesFiles
     end
 
     # -------------------------------------------------------------
-    # Setters
+    # Setters (Unique Values)
 
-   # AttributesFiles::set(filepath, attrName, value)
+    # AttributesFiles::set(filepath, attrName, value: String or Null)
+    # If value is set to null, then this removes the attrbute from the file
     def self.set(filepath, attrName, value)
         instructions = AttributesFiles::loadInstructions(filepath)
         instructions = instructions.reject{|instr| instr["name"] == attrName }
+        if value then
+            instruction = {
+                "name" => attrName,
+                "value" => value
+            }
+            instructions = instructions + [ instruction ]
+        end
+        AttributesFiles::commitInstructions(filepath, instructions)
+    end
+
+    # -------------------------------------------------------------
+    # Setters/Getter (Array Values)
+
+    # AttributesFiles::add(filepath, attrName, value)
+    # This function treats the attribute as as an array of values and add it, without redundancies
+    # so technically the array acts like set.
+    def self.add(filepath, attrName, value)
+        instructions = AttributesFiles::loadInstructions(filepath)
         instruction = {
             "name" => attrName,
             "value" => value
         }
         instructions = instructions + [ instruction ]
+
+        instructions = instructions.uniq {|item| "#{item["name"]}:#{item["value"]}" }
+
+        AttributesFiles::commitInstructions(filepath, instructions)
+    end
+
+    # AttributesFiles::remove(filepath, attrName, value)
+    # This function treats the attribute as as an array of values and add it, without redundancies
+    # so technically the array acts like set.
+    def self.remove(filepath, attrName, value)
+        instructions = AttributesFiles::loadInstructions(filepath)
+        instructions = instructions.reject {|item| (item["name"] == attrName) and (item["value"] == value)}
         AttributesFiles::commitInstructions(filepath, instructions)
     end
 end
