@@ -11,28 +11,27 @@ loop {
 
     ops = [
         "Search",
-        "Nodes Listing",
-        "Tags Listing",
+        "NxPods Listing",
+        "NxNavs Listing",
         "Make new NxPod",
     ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
     break if operation.nil?
     if operation == "Search" then
-        Patricia::generalSearchLoop()
+        Space::generalSearchLoop()
     end
-    if operation == "Nodes Listing" then
+    if operation == "NxPods Listing" then
         loop {
             nxpod = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxpod", NxPods::getNxPods(), lambda{|e| NxPods::toString(e) })
             break if nxpod.nil?
             NxPods::landing(nxpod)
         }
     end
-    if operation == "Tags Listing" then
+    if operation == "NxNavs Listing" then
         loop {
-            values = Tags::getDistinctTags().sort
-            value = LucilleCore::selectEntityFromListOfEntitiesOrNull("value", values)
-            break if value.nil?
-            Tags::landing(value)
+            nxnav = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxnav", NxNavs::getNxNavs(), lambda{|e| NxNavs::toString(e) })
+            break if nxnav.nil?
+            NxNavs::landing(nxnav)
         }
     end
     if operation == "Make new NxPod" then

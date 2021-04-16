@@ -130,12 +130,7 @@ require_relative "AttributesFiles.rb"
 
 require_relative "NxPods.rb"
 require_relative "NxNavs.rb"
-
-require_relative "Patricia.rb"
-
 require_relative "Space.rb"
-
-require_relative "Tags.rb"
 
 require_relative "Utils.rb"
 

@@ -123,4 +123,35 @@ class Space
         return if !File.exists?(location)
         LucilleCore::removeFileSystemLocation(location)
     end
+
+
+    # Search
+
+    # Space::selectOneMx19OrNull()
+    def self.selectOneMx19OrNull()
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(Space::mx19s(), lambda{|item| item["announce"] })
+    end
+
+    # Space::mx19s()
+    def self.mx19s()
+        searchItems = [
+            NxNavs::mx19s(),
+            NxPods::mx19s(),
+        ]
+        .flatten
+    end
+
+    # Space::generalSearchLoop()
+    def self.generalSearchLoop()
+        loop {
+            mx19 = Space::selectOneMx19OrNull()
+            break if mx19.nil? 
+            if mx19["mx15"]["type"] == "nxpod" then
+                NxPods::landing(mx19["mx15"]["payload"])
+            end
+            if mx19["mx15"]["type"] == "nxnav" then
+                NxNavs::landing(mx19["mx15"]["payload"])
+            end
+        }
+    end
 end
