@@ -71,6 +71,17 @@ class Space
     # -------------------------------------------------------
     # Space Probe
 
+    # Space::idToNxPointOrNull(id)
+    def self.idToNxPointOrNull(id)
+        if id[-2, 2] == "01" then
+            return NxPods::getNxPodOrNull(id)
+        end
+        if id[-2, 2] == "02" then
+            return NxNavs::getNxNavOrNull(id)
+        end
+        raise "0141b15c-4c00-4102-9c36-81cbaae47b2c ; #{id}"
+    end
+
     # Space::nxFolderpaths()
     def self.nxFolderpaths()
         LucilleCore::locationsAtFolder(Space::spaceFolderPath())
@@ -100,7 +111,7 @@ class Space
         Space::nxPodsFolderpaths().map{|folderpath| File.basename(folderpath) }
     end
 
-    # Space::nxPodIds()
+    # Space::nxNavIds()
     def self.nxNavIds()
         Space::nxNavsFolderpaths().map{|folderpath| File.basename(folderpath) }
     end

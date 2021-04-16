@@ -1,10 +1,13 @@
+NxPoint is the common name of NxPod and NxNav
+
+### NxPods
 
 NxPods exists as folders on the file system.
 
-The folder name is the nxpod uuid (which has to be a uuid, not any random string)
+The folder name is the NxPod Space Id.
 
-Each folder then has the following files
-    - uuid.txt        : which contains the uuid of the nxpod
+Each folder has the following files:
+    - uuid.txt        : which contains the NxPod Space Id
     - unixtime.txt    : the associated unixtime
     - description.txt : The description
     - type.txt        : which contains the type "Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"
@@ -17,8 +20,13 @@ Each folder then has the following files
         - "FSUniqueString"      : The unique string
     - links.json      : Array of Space Ids (JSON generated)
 
-Glosarry:
-    - The record in the database , record
-    - The nxpod json object      , nxpod object
-    - The nxpod filepath         , nxpod filepath
-    - The content location       , content location
+### NxNavs
+
+NxNavs are nodes of the Nyx Network (aka Space). They are used only for navigation, at opposition to NxPods which are data carriers.
+
+Each folder has the following files:
+    - uuid.txt        : which contains the NxNav Space Id
+    - unixtime.txt    : the associated unixtime
+    - description.txt : The description
+    - links.json      : Array of Space Ids (JSON generated)
+

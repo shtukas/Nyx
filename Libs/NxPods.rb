@@ -4,7 +4,7 @@
 class NxPod
 
     def initialize(id)
-        raise "09fed5b4-d479-4b00-b4fa-1ccceae5c897; #{id}" if !Space::idIsUsed(id)
+        raise "09fed5b4-d479-4b00-b4fa-1ccceae5c897 ; #{id}" if !Space::idIsUsed(id)
         @id = id
     end
 
@@ -50,6 +50,10 @@ class NxPod
         File.open("#{folderpath()}/links.json", "w"){|f| f.puts(JSON.generate(ids)) }
     end
 
+    def landing()
+        NxPods::landing(self)
+    end
+
     # -- NxPods --------------------------------------------------------
 
     def contentType()
@@ -66,6 +70,7 @@ class NxPods
 
     # NxPods::getNxPodOrNull(id)
     def self.getNxPodOrNull(id)
+        raise "5e991b84-6084-438a-b6ad-16ccf2629648 ; #{id}" if id[-2, 2] != "01"
         return nil if !Space::idIsUsed(id)
         NxPod.new(id)
     end
@@ -335,9 +340,10 @@ class NxPods
 
             puts ""
 
-            Tags::pointUUIDToTags(nxpod.id()).each{|tag|
-                mx.item("[*] #{tag}", lambda { 
-                    Tags::landing(tag)
+            nxnav.getConnectedIds().each{|id|
+                nxPoint = Space::idToNxPointOrNull(id)
+                mx.item(nxPoint.description(), lambda { 
+                    nxPoint.landing()
                 })
             }
 
@@ -369,6 +375,7 @@ class NxPods
 
     # NxPods::fsckNxPod(id)
     def self.fsckNxPod(id)
+        raise "3c517e92-09a1-4f6b-92a3-063a68fbbbfe ; #{id}" if id[-2, 2] != "01"
         folderpath = "#{Space::spaceFolderPath()}/#{id}"
         if !File.exists?(folderpath) then
             raise "fsck fail: did not find nxpod folderpath for id: #{id}"
