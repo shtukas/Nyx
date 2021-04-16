@@ -19,11 +19,11 @@ class NxNav
     end
 
     def unixtime()
-        IO.read("#{folderpath()}/unixtime.txt").to_i
+        IO.read("#{folderpath()}/unixtime.txt").strip.to_i
     end
 
     def description()
-        IO.read("#{folderpath()}/description.txt")
+        IO.read("#{folderpath()}/description.txt").strip
     end
 
     def nxType()
@@ -42,12 +42,12 @@ class NxNav
 
     def addConnectedId(id)
         ids = (getConnectedIds() + [id]).uniq.sort
-        File.open("#{folderpath()}/links.json", "w"){|f| f.puts(JSON.generate(ids)) }
+        File.open("#{folderpath()}/links.json", "w"){|f| f.puts(JSON.pretty_generate(ids)) }
     end
 
     def removeConnectedId(id)
         ids = getConnectedIds() - [id]
-        File.open("#{folderpath()}/links.json", "w"){|f| f.puts(JSON.generate(ids)) }
+        File.open("#{folderpath()}/links.json", "w"){|f| f.puts(JSON.pretty_generate(ids)) }
     end
 
     def landing()
@@ -195,9 +195,6 @@ class NxNavs
         end
         if !File.exists?("#{folderpath}/description.txt") then
             raise "fsck fail: did not find file description.txt for id: #{id}"
-        end
-        if !File.exists?("#{folderpath}/type.txt") then
-            raise "fsck fail: did not find file type.txt for id: #{id}"
         end
     end
 end

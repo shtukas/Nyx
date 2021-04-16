@@ -59,6 +59,7 @@ class Space
 
     # Space::issueNewId(nodeType)
     def self.issueNewId(nodeType)
+        raise "c20aa94c-6689-4a68-b5d3-20160a15b98e : #{nodeType}" if !Space::nodeTypes()
         # This function could possibly not terminate
         # But if it doesn't, we have a much bigger problem anyway 
         loop {
