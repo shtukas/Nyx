@@ -26,6 +26,10 @@ class NxNav
         IO.read("#{folderpath()}/description.txt").strip
     end
 
+    def toString()
+        "[***] #{description()}"
+    end
+
     def nxType()
         "NxNav"
     end
@@ -48,10 +52,6 @@ class NxNav
     def removeConnectedId(id)
         ids = getConnectedIds() - [id]
         File.open("#{folderpath()}/links.json", "w"){|f| f.puts(JSON.pretty_generate(ids)) }
-    end
-
-    def landing()
-        NxNavs::landing(self)
     end
 
     # -- NxNav --------------------------------------------------------
@@ -88,11 +88,6 @@ class NxNavs
 
     # --------------------------------------------------------------------
 
-    # NxNavs::toString(nxnav)
-    def self.toString(nxnav)
-        "[***] #{nxnav.description()}"
-    end
-
     # NxNavs::interactivelyIssueNewNxNavOrNull()
     def self.interactivelyIssueNewNxNavOrNull()
         id = Space::issueNewId("NxNav")
@@ -109,58 +104,6 @@ class NxNavs
         NxNav.new(id)
     end
 
-    # NxNavs::landing(nxnav)
-    def self.landing(nxnav)
-
-        loop {
-
-            return if !nxnav.isStillAlive()
-
-            puts "-- NxNav -----------------------------"
-
-            puts NxNavs::toString(nxnav).green
-
-            puts "id: #{nxnav.id()}".yellow
-            puts ""
-
-            mx = LCoreMenuItemsNX1.new()
-
-            mx.item("update/set description".yellow, lambda {
-                description = Utils::editTextSynchronously(nxnav.description())
-                return if description == ""
-                NxNavs::commitAttributeFileContentAtFolder(nxnav.id(), "description.txt", description)
-            })
-
-            mx.item("attach".yellow, lambda { 
-                puts "Not implemented yet"
-            })
-
-            mx.item("detach".yellow, lambda {
-                puts "Not implemented yet"
-            })
-
-            mx.item("destroy".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    NxNavs::destroyNxNav(nxnav.id())
-                end
-            })
-
-            puts ""
-
-            nxnav.getConnectedIds().each{|id|
-                nxPoint = Space::idToNxPointOrNull(id)
-                mx.item(nxPoint.description(), lambda { 
-                    nxPoint.landing()
-                })
-            }
-
-            puts ""
-
-            status = mx.promptAndRunSandbox()
-            break if !status
-        }
-    end
-
     # --------------------------------------------------------------------
 
     # NxNavs::mx19s()
@@ -169,7 +112,7 @@ class NxNavs
             .map{|nxnav|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{NxNavs::toString(nxnav)}",
+                    "announce" => "#{volatileuuid} #{nxnav.toString()}",
                     "mx15"     => {
                         "type"    => "nxnav",
                         "payload" => nxnav

@@ -26,6 +26,18 @@ class NxPod
         IO.read("#{folderpath()}/description.txt").strip
     end
 
+    def toString()
+        map = {
+            "Line" => "lne",
+            "Url"  => "url",
+            "Text" => "txt",
+            "UniqueFileClickable" => "clk",
+            "FSLocation" => "loc",
+            "FSUniqueString" => "ust"
+        }
+        "[#{map[contentType()]}] #{description()}"
+    end
+
     def nxType()
         "NxPod"
     end
@@ -48,10 +60,6 @@ class NxPod
     def removeConnectedId(id)
         ids = getConnectedIds() - [id]
         File.open("#{folderpath()}/links.json", "w"){|f| f.puts(JSON.pretty_generate(ids)) }
-    end
-
-    def landing()
-        NxPods::landing(self)
     end
 
     # -- NxPods --------------------------------------------------------
@@ -90,19 +98,6 @@ class NxPods
     end
 
     # --------------------------------------------------------------------
-
-    # NxPods::toString(nxpod)
-    def self.toString(nxpod)
-        map = {
-            "Line" => "lne",
-            "Url"  => "url",
-            "Text" => "txt",
-            "UniqueFileClickable" => "clk",
-            "FSLocation" => "loc",
-            "FSUniqueString" => "ust"
-        }
-        "[#{map[nxpod.contentType()]}] #{nxpod.description()}"
-    end
 
     # NxPods::interactivelyIssueNewNxPodOrNull()
     def self.interactivelyIssueNewNxPodOrNull()
@@ -294,66 +289,6 @@ class NxPods
         puts "NxPod transmute has not been implemented yet"
     end
 
-    # NxPods::landing(nxpod)
-    def self.landing(nxpod)
-
-        loop {
-
-            return if !nxpod.isStillAlive()
-
-            puts "-- NxPod -----------------------------"
-
-            puts NxPods::toString(nxpod).green
-
-            puts "id: #{nxpod.id()}".yellow
-            puts ""
-
-            mx = LCoreMenuItemsNX1.new()
-
-            mx.item("access (edit)".yellow, lambda {
-                NxPods::accessEdit(nxpod)
-            })
-
-            mx.item("update/set description".yellow, lambda {
-                description = Utils::editTextSynchronously(nxpod.description())
-                return if description == ""
-                NxPods::commitAttributeFileContentAtFolder(nxpod.id(), "description.txt", description)
-            })
-
-            mx.item("attach".yellow, lambda { 
-                puts "Not implemented yet"
-            })
-
-            mx.item("detach".yellow, lambda {
-                puts "Not implemented yet"
-            })
-
-            mx.item("transmute".yellow, lambda {
-                NxPods::transmute(nxpod.id())
-            })
-
-            mx.item("destroy".yellow, lambda { 
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    NxPods::destroyNxPod(nxpod.id())
-                end
-            })
-
-            puts ""
-
-            nxnav.getConnectedIds().each{|id|
-                nxPoint = Space::idToNxPointOrNull(id)
-                mx.item(nxPoint.description(), lambda { 
-                    nxPoint.landing()
-                })
-            }
-
-            puts ""
-
-            status = mx.promptAndRunSandbox()
-            break if !status
-        }
-    end
-
     # --------------------------------------------------------------------
 
     # NxPods::mx19s()
@@ -362,7 +297,7 @@ class NxPods
             .map{|nxpod|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{NxPods::toString(nxpod)}",
+                    "announce" => "#{volatileuuid} #{nxpod.toString()}",
                     "mx15"     => {
                         "type"    => "nxpod",
                         "payload" => nxpod

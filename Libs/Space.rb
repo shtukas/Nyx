@@ -70,18 +70,7 @@ class Space
     end
 
     # -------------------------------------------------------
-    # Space Probe
-
-    # Space::idToNxPointOrNull(id)
-    def self.idToNxPointOrNull(id)
-        if id[-2, 2] == "01" then
-            return NxPods::getNxPodOrNull(id)
-        end
-        if id[-2, 2] == "02" then
-            return NxNavs::getNxNavOrNull(id)
-        end
-        raise "0141b15c-4c00-4102-9c36-81cbaae47b2c ; #{id}"
-    end
+    # Enumerations
 
     # Space::nxFolderpaths()
     def self.nxFolderpaths()
@@ -117,6 +106,25 @@ class Space
         Space::nxNavsFolderpaths().map{|folderpath| File.basename(folderpath) }
     end
 
+    # Space::getNxPoints()
+    def self.getNxPoints()
+        Space::nxIds().map{|id| NxNav.new(id)}
+    end
+
+    # -------------------------------------------------------
+    # NxPoints
+
+    # Space::idToNxPointOrNull(id)
+    def self.idToNxPointOrNull(id)
+        if id[-2, 2] == "01" then
+            return NxPods::getNxPodOrNull(id)
+        end
+        if id[-2, 2] == "02" then
+            return NxNavs::getNxNavOrNull(id)
+        end
+        raise "0141b15c-4c00-4102-9c36-81cbaae47b2c ; #{id}"
+    end
+
     # Space::destroyFolderIfExists(id)
     def self.destroyFolderIfExists(id)
         location = "#{pace::spaceFolderPath()}/#{id}"
@@ -124,7 +132,112 @@ class Space
         LucilleCore::removeFileSystemLocation(location)
     end
 
+    # Space::issueLink(id1, id2)
+    def self.issueLink(id1, id2)
+        nxpoint1 = Space::idToNxPointOrNull(id1)
+        return if nxpoint1.nil?
+        nxpoint2 = Space::idToNxPointOrNull(id2)
+        return if nxpoint2.nil?
+        nxpoint1.addConnectedId(id2)
+        nxpoint2.addConnectedId(id1)
+    end
 
+    # Space::unlink(id1, id2)
+    def self.unlink(id1, id2)
+        nxpoint1 = Space::idToNxPointOrNull(id1)
+        return if nxpoint1.nil?
+        nxpoint2 = Space::idToNxPointOrNull(id2)
+        return if nxpoint2.nil?
+        nxpoint1.removeConnectedId(id2)
+        nxpoint2.removeConnectedId(id1)
+    end
+
+    # Space::landing(nxpoint)
+    def self.landing(nxpoint)
+        loop {
+            system("clear")
+
+            return if !nxpoint.isStillAlive()
+
+            nxPoints = IdStack::getIds().map{|id| Space::idToNxPointOrNull(id) }.compact
+            nxPoints.each{|nxpoint|
+                puts nxpoint.toString().yellow
+            }
+            puts ""
+
+            puts "-- #{nxpoint.nxType()} -----------------------------"
+
+            puts nxpoint.description().green
+
+            puts "id: #{nxpoint.id()}".yellow
+            puts ""
+
+            mx = LCoreMenuItemsNX1.new()
+
+            if nxpoint.nxType() == "NxPod" then
+                mx.item("access (edit)".yellow, lambda {
+                    NxPods::accessEdit(nxpoint)
+                })
+            end
+
+            mx.item("update/set description".yellow, lambda {
+                description = Utils::editTextSynchronously(nxpoint.description())
+                return if description == ""
+                NxPods::commitAttributeFileContentAtFolder(nxpoint.id(), "description.txt", description)
+            })
+
+            mx.item("attach".yellow, lambda { 
+                ids = IdStack::getIds()
+                return if ids.empty?
+                Space::issueLink(nxpoint.id(), ids.first)
+            })
+
+            mx.item("detach".yellow, lambda {
+                ns = nxpoint.getConnectedIds().map{|idx| Space::idToNxPointOrNull(idx) }.compact
+                n = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxPoint", ns, lambda{|n| n.description() })
+                return if n.nil?
+                Space::unlink(nxpoint.id(), n.id())
+            })
+
+            mx.item("stack [this]".yellow, lambda { 
+                IdStack::stack(nxpoint.id())
+            })
+
+            mx.item("unstack".yellow, lambda { 
+                IdStack::unStackOrNull()
+            })
+
+            if nxpoint.nxType() == "NxPod" then
+                mx.item("transmute".yellow, lambda {
+                    NxPods::transmute(nxpoint.id())
+                })
+            end
+
+
+            mx.item("destroy".yellow, lambda { 
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
+                    NxPods::destroyNxPod(nxpoint.id())
+                end
+            })
+
+            puts ""
+
+            nxpoint.getConnectedIds().each{|id|
+                nx = Space::idToNxPointOrNull(id)
+                next if nx.nil?
+                mx.item(nx.toString(), lambda { 
+                    Space::landing(nx)
+                })
+            }
+
+            puts ""
+
+            status = mx.promptAndRunSandbox()
+            break if !status
+        }
+    end
+
+    # -------------------------------------------------------
     # Search
 
     # Space::selectOneMx19OrNull()
@@ -146,12 +259,7 @@ class Space
         loop {
             mx19 = Space::selectOneMx19OrNull()
             break if mx19.nil? 
-            if mx19["mx15"]["type"] == "nxpod" then
-                NxPods::landing(mx19["mx15"]["payload"])
-            end
-            if mx19["mx15"]["type"] == "nxnav" then
-                NxNavs::landing(mx19["mx15"]["payload"])
-            end
+            Space::landing(mx19["mx15"]["payload"])
         }
     end
 end

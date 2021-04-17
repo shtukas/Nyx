@@ -6,13 +6,36 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
+if ARGV[0] == "stack" and ARGV[1] then
+    id = ARGV[1]
+    if !Space::idIsUsed(id) then
+        puts "error: the provided id '#{id}' is not used"
+        exit
+    end
+    puts "stacking '#{Space::idToNxPointOrNull(id).description()}'"
+    IdStack::stack(id)
+    exit
+end
+
+if ARGV[0] == "unstack" then
+    IdStack::unStackOrNull()
+    exit
+end
+
 loop {
+    system("clear")
+
+    nxPoints = IdStack::getIds().map{|id| Space::idToNxPointOrNull(id) }.compact
+    nxPoints.each{|nxpoint|
+        puts nxpoint.toString().yellow
+    }
+    puts ""
+
     puts "-- Nyx 🗺 -----------------------------"
 
     ops = [
         "Search",
-        "NxPods Listing",
-        "NxNavs Listing",
+        "NxPoints Listing",
         "Make new NxPod",
     ]
     operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
@@ -20,23 +43,16 @@ loop {
     if operation == "Search" then
         Space::generalSearchLoop()
     end
-    if operation == "NxPods Listing" then
+    if operation == "NxPoints Listing" then
         loop {
-            nxpod = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxpod", NxPods::getNxPods(), lambda{|e| NxPods::toString(e) })
-            break if nxpod.nil?
-            NxPods::landing(nxpod)
-        }
-    end
-    if operation == "NxNavs Listing" then
-        loop {
-            nxnav = LucilleCore::selectEntityFromListOfEntitiesOrNull("nxnav", NxNavs::getNxNavs(), lambda{|e| NxNavs::toString(e) })
-            break if nxnav.nil?
-            NxNavs::landing(nxnav)
+            nxpoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxPoint", Space::getNxPoints(), lambda{|e| e.toString() })
+            break if nxpoint.nil?
+            Space::landing(nxpoint)
         }
     end
     if operation == "Make new NxPod" then
         nxpod = NxPods::interactivelyIssueNewNxPodOrNull()
         next if nxpod.nil?
-        NxPods::landing(nxpod)
+        Space::landing(nxpod)
     end
 }
