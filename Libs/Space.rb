@@ -167,13 +167,15 @@ class Space
 
             mx = LCoreMenuItemsNX1.new()
 
-            nxpoint.getConnectedIds().each{|id|
-                nx = Space::idToNxPointOrNull(id)
-                next if nx.nil?
-                mx.item(nx.toString(), lambda { 
-                    Space::landing(nx)
-                })
-            }
+            nxpoint.getConnectedIds()
+                .map{|id| Space::idToNxPointOrNull(id) }
+                .compact
+                .sort{|nx1, nx2| nx1.unixtime() <=> nx2.unixtime() }
+                .each{|nx|
+                    mx.item(nx.toString(), lambda {
+                        Space::landing(nx)
+                    })
+                }
 
             puts ""
 
