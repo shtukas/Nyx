@@ -21,34 +21,9 @@ if ARGV[0] == "listing" then
 end
 
 if ARGV[0] == "make" then
-    a = nxpoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxType", ["NxPod", "NxNav"])
-    exit if a.nil?
-    if a == "NxPod" then
-        nxpod = NxPods::interactivelyIssueNewNxPodOrNull()
-        exit if nxpod.nil?
-        Space::landing(nxpod)
-    end
-    if a == "NxNav" then
-        nxnav = NxNavs::interactivelyIssueNewNxNavOrNull()
-        exit if nxnav.nil?
-        Space::landing(nxnav)
-    end
-    exit
-end
-
-if ARGV[0] == "stack" and ARGV[1] then
-    id = ARGV[1]
-    if !Space::idIsUsed(id) then
-        puts "error: the provided id '#{id}' is not used"
-        exit
-    end
-    puts "stacking '#{Space::idToNxPointOrNull(id).description()}'"
-    IdStack::stack(id)
-    exit
-end
-
-if ARGV[0] == "unstack" then
-    IdStack::unStackOrNull()
+    nxpoint = Space::interactivelyMakeNewNxPointOrNull()
+    exit if nxpoint.nil?
+    Space::landing(nxpoint)
     exit
 end
 
@@ -74,10 +49,7 @@ str = <<HELP
 usage:
     nyx search
     nyx listing
-    nyx make-new-NxPod
-    nyx make-new-NxNav
-    nyx stack <NxId>
-    nyx unstack 
+    nyx make
     nyx unique-string # Generates a unique string for type FSUniqueString
     nyx fsck
     nyx help # help display

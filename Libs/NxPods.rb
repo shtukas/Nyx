@@ -353,10 +353,7 @@ class NxPods
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
                     "announce" => "#{volatileuuid} #{nxpod.toString()}",
-                    "mx15"     => {
-                        "type"    => "nxpod",
-                        "payload" => nxpod
-                    }
+                    "nxpoint"     => nxpod
                 }
             }
     end

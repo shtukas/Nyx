@@ -100,8 +100,9 @@ class NxNavs
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         if description == "" then
             Space::destroyFolderIfExists(id)
-            return nil 
+            return nil
         end
+        NxPods::commitAttributeFileContentAtFolder(id, "description.txt", description)
 
         NxNav.new(id)
     end
@@ -115,10 +116,7 @@ class NxNavs
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
                     "announce" => "#{volatileuuid} #{nxnav.toString()}",
-                    "mx15"     => {
-                        "type"    => "nxnav",
-                        "payload" => nxnav
-                    }
+                    "nxpoint"  => nxnav
                 }
             }
     end

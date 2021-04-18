@@ -128,8 +128,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 require_relative "AttributesFiles.rb"
 
-require_relative "IdStack.rb"
-
 require_relative "NxPods.rb"
 require_relative "NxNavs.rb"
 require_relative "Space.rb"

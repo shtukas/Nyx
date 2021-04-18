@@ -132,8 +132,8 @@ class Space
         LucilleCore::removeFileSystemLocation(location)
     end
 
-    # Space::issueLink(id1, id2)
-    def self.issueLink(id1, id2)
+    # Space::link(id1, id2)
+    def self.link(id1, id2)
         nxpoint1 = Space::idToNxPointOrNull(id1)
         return if nxpoint1.nil?
         nxpoint2 = Space::idToNxPointOrNull(id2)
@@ -159,12 +159,6 @@ class Space
 
             return if !nxpoint.isStillAlive()
 
-            nxPoints = IdStack::getIds().map{|id| Space::idToNxPointOrNull(id) }.compact
-            nxPoints.each{|nxpoint|
-                puts nxpoint.toString().yellow
-            }
-            puts ""
-
             puts "-- #{nxpoint.nxType()} -----------------------------"
 
             puts nxpoint.description().green
@@ -173,6 +167,16 @@ class Space
             puts ""
 
             mx = LCoreMenuItemsNX1.new()
+
+            nxpoint.getConnectedIds().each{|id|
+                nx = Space::idToNxPointOrNull(id)
+                next if nx.nil?
+                mx.item(nx.toString(), lambda { 
+                    Space::landing(nx)
+                })
+            }
+
+            puts ""
 
             if nxpoint.nxType() == "NxPod" then
                 mx.item("access".yellow, lambda {
@@ -190,9 +194,9 @@ class Space
             })
 
             mx.item("attach".yellow, lambda { 
-                ids = IdStack::getIds()
-                return if ids.empty?
-                Space::issueLink(nxpoint.id(), ids.first)
+                target = Space::architectOneNxPointOrNull()
+                return if target.nil?
+                Space::link(target.id(), nxpoint.id())
             })
 
             mx.item("detach".yellow, lambda {
@@ -202,12 +206,20 @@ class Space
                 Space::unlink(nxpoint.id(), n.id())
             })
 
-            mx.item("stack [this]".yellow, lambda { 
-                IdStack::stack(nxpoint.id())
-            })
+            mx.item("relocate (move a selection of connected points somewhere else)".yellow, lambda {
+                puts "(1) target selection ; (2) moving points selection"
+                target = Space::architectOneNxPointOrNull()
+                return if target.nil?
 
-            mx.item("unstack".yellow, lambda { 
-                IdStack::unStackOrNull()
+                connected = nxpoint.getConnectedIds().map{|idx| Space::idToNxPointOrNull(idx) }.compact
+
+                selected, unselected = LucilleCore::selectZeroOrMore("NxPoints", [], connected, lambda{|n| n.toString() })
+                selected.each{|n|
+                    puts "Connecting   : #{target.description()}, #{n.description()}"
+                    Space::link(target.id(), n.id())
+                    puts "Disconnecting: #{nxpoint.description()}, #{n.description()}"
+                    Space::unlink(nxpoint.id(), n.id())
+                }
             })
 
             if nxpoint.nxType() == "NxPod" then
@@ -225,16 +237,6 @@ class Space
 
             puts ""
 
-            nxpoint.getConnectedIds().each{|id|
-                nx = Space::idToNxPointOrNull(id)
-                next if nx.nil?
-                mx.item(nx.toString(), lambda { 
-                    Space::landing(nx)
-                })
-            }
-
-            puts ""
-
             status = mx.promptAndRunSandbox()
             break if !status
         }
@@ -242,11 +244,6 @@ class Space
 
     # -------------------------------------------------------
     # Search
-
-    # Space::selectOneMx19OrNull()
-    def self.selectOneMx19OrNull()
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(Space::mx19s(), lambda{|item| item["announce"] })
-    end
 
     # Space::mx19s()
     def self.mx19s()
@@ -257,12 +254,43 @@ class Space
         .flatten
     end
 
+    # Space::selectOneMx19OrNull()
+    def self.selectOneMx19OrNull()
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(Space::mx19s(), lambda{|item| item["announce"] })
+    end
+
+    # Space::selectOneNxPointOrNull()
+    def self.selectOneNxPointOrNull()
+        mx19 = Space::selectOneMx19OrNull()
+        return if mx19.nil?
+        mx19["nxpoint"]
+    end
+
+    # Space::interactivelyMakeNewNxPointOrNull()
+    def self.interactivelyMakeNewNxPointOrNull()
+        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxType", ["NxPod", "NxNav"])
+        return nil if nxType.nil?
+        if nxType == "NxPod" then
+            return NxPods::interactivelyIssueNewNxPodOrNull()
+        end
+        if nxType == "NxNav" then
+            return NxNavs::interactivelyIssueNewNxNavOrNull()
+        end
+    end
+
+    # Space::architectOneNxPointOrNull()
+    def self.architectOneNxPointOrNull()
+        nxpoint = Space::selectOneNxPointOrNull()
+        return nxpoint if nxpoint
+        Space::interactivelyMakeNewNxPointOrNull()
+    end
+
     # Space::generalSearchLoop()
     def self.generalSearchLoop()
         loop {
             mx19 = Space::selectOneMx19OrNull()
             break if mx19.nil? 
-            Space::landing(mx19["mx15"]["payload"])
+            Space::landing(mx19["nxpoint"])
         }
     end
 end
