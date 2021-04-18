@@ -161,9 +161,8 @@ class Space
 
             puts "-- #{nxpoint.nxType()} -----------------------------"
 
-            puts nxpoint.description().green
-
-            puts "id: #{nxpoint.id()}".yellow
+            puts "#{nxpoint.description().green}"
+            puts "(id: #{nxpoint.id()}, datetime: #{Time.at(nxpoint.unixtime()).utc.iso8601})"
             puts ""
 
             mx = LCoreMenuItemsNX1.new()
@@ -191,6 +190,12 @@ class Space
                 description = Utils::editTextSynchronously(nxpoint.description())
                 return if description == ""
                 NxPods::commitAttributeFileContentAtFolder(nxpoint.id(), "description.txt", description)
+            })
+
+            mx.item("edit datetime".yellow, lambda {
+                datetime = Utils::editTextSynchronously(Time.at(nxpoint.unixtime()).utc.iso8601)
+                return if !Utils::isDateTime_UTC_ISO8601(datetime)
+                NxPods::commitAttributeFileContentAtFolder(nxpoint.id(), "unixtime.txt", DateTime.parse(datetime).to_time.to_i)
             })
 
             mx.item("attach".yellow, lambda { 
