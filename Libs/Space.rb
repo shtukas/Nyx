@@ -108,7 +108,7 @@ class Space
 
     # Space::getNxPoints()
     def self.getNxPoints()
-        Space::nxIds().map{|id| NxNav.new(id)}
+        Space::nxNavIds().map{|id| NxNav.new(id)} + Space::nxPodIds().map{|id| NxPod.new(id)}
     end
 
     # -------------------------------------------------------
@@ -175,8 +175,11 @@ class Space
             mx = LCoreMenuItemsNX1.new()
 
             if nxpoint.nxType() == "NxPod" then
-                mx.item("access (edit)".yellow, lambda {
-                    NxPods::accessEdit(nxpoint)
+                mx.item("access".yellow, lambda {
+                    NxPods::access(nxpoint)
+                })
+                mx.item("edit".yellow, lambda {
+                    NxPods::edit(nxpod)
                 })
             end
 

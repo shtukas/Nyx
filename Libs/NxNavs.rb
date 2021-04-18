@@ -27,7 +27,7 @@ class NxNav
     end
 
     def toString()
-        "[***] #{description()}"
+        "[   ] #{description()}"
     end
 
     def nxType()
@@ -91,6 +91,8 @@ class NxNavs
     # NxNavs::interactivelyIssueNewNxNavOrNull()
     def self.interactivelyIssueNewNxNavOrNull()
         id = Space::issueNewId("NxNav")
+
+        FileUtils.mkdir("#{Space::spaceFolderPath()}/#{id}")
 
         NxNavs::commitAttributeFileContentAtFolder(id, "uuid.txt", id)
         NxNavs::commitAttributeFileContentAtFolder(id, "unixtime.txt", Time.new.to_i)

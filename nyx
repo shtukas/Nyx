@@ -20,10 +20,19 @@ if ARGV[0] == "listing" then
     exit
 end
 
-if ARGV[0] == "make-new-NxPod" then
-    nxpod = NxPods::interactivelyIssueNewNxPodOrNull()
-    exit if nxpod.nil?
-    Space::landing(nxpod)
+if ARGV[0] == "make" then
+    a = nxpoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxType", ["NxPod", "NxNav"])
+    exit if a.nil?
+    if a == "NxPod" then
+        nxpod = NxPods::interactivelyIssueNewNxPodOrNull()
+        exit if nxpod.nil?
+        Space::landing(nxpod)
+    end
+    if a == "NxNav" then
+        nxnav = NxNavs::interactivelyIssueNewNxNavOrNull()
+        exit if nxnav.nil?
+        Space::landing(nxnav)
+    end
     exit
 end
 
@@ -43,12 +52,34 @@ if ARGV[0] == "unstack" then
     exit
 end
 
+if ARGV[0] == "unique-string" then
+    puts SecureRandom.hex(6)
+    exit
+end
+
+if ARGV[0] == "fsck" then
+    NxPods::getNxPods().each{|nxpod|
+        puts nxpod.id()
+        NxPods::fsckNxPod(nxpod.id())
+    }
+    NxNavs::getNxNavs().each{|nxnav|
+        puts nxnav.id()
+        NxNavs::fsckNxNav(nxnav.id())
+    }
+    puts "All good!".green
+    exit
+end
+
 str = <<HELP
 usage:
     nyx search
     nyx listing
+    nyx make-new-NxPod
+    nyx make-new-NxNav
     nyx stack <NxId>
     nyx unstack 
+    nyx unique-string # Generates a unique string for type FSUniqueString
+    nyx fsck
     nyx help # help display
 HELP
 puts str
