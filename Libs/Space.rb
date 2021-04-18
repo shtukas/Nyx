@@ -238,7 +238,10 @@ class Space
 
             mx.item("destroy".yellow, lambda { 
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ") then
-                    NxPods::destroyNxPod(nxpoint.id())
+                    code = SecureRandom.hex(2)
+                    input = LucilleCore::askQuestionAnswerAsString("Special protocol. Enter this string: '#{code}' : ")
+                    return if input != code
+                    Space::destroyNxPoint(nxpoint.id())
                 end
             })
 
@@ -247,6 +250,13 @@ class Space
             status = mx.promptAndRunSandbox()
             break if !status
         }
+    end
+
+    # Space::destroyNxPoint(id)
+    def self.destroyNxPoint(id)
+        location = "#{Space::spaceFolderPath()}/#{id}"
+        return if !File.exists?(location)
+        LucilleCore::removeFileSystemLocation(location)
     end
 
     # -------------------------------------------------------

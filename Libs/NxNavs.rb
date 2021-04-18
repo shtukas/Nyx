@@ -72,12 +72,6 @@ class NxNavs
         NxNav.new(id)
     end
 
-    # NxNavs::destroyNxNav(uuid)
-    def self.destroyNxNav(uuid)
-        puts "NxNav destruction has not been implemented yet"
-        exit
-    end
-
     # NxNavs::commitAttributeFileContentAtFolder(id, filename, data)
     def self.commitAttributeFileContentAtFolder(id, filename, data)
         folderpath = "#{Space::spaceFolderPath()}/#{id}"

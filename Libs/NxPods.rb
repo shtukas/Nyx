@@ -83,12 +83,6 @@ class NxPods
         NxPod.new(id)
     end
 
-    # NxPods::destroyNxPod(uuid)
-    def self.destroyNxPod(uuid)
-        puts "NxPod destruction has not been implemented yet"
-        exit
-    end
-
     # NxPods::commitAttributeFileContentAtFolder(id, filename, data)
     def self.commitAttributeFileContentAtFolder(id, filename, data)
         folderpath = "#{Space::spaceFolderPath()}/#{id}"
