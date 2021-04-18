@@ -6,6 +6,27 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
+if ARGV[0] == "search" then
+    Space::generalSearchLoop()
+    exit
+end
+
+if ARGV[0] == "listing" then
+    loop {
+        nxpoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxPoint", Space::getNxPoints(), lambda{|e| e.toString() })
+        break if nxpoint.nil?
+        Space::landing(nxpoint)
+    }
+    exit
+end
+
+if ARGV[0] == "make-new-NxPod" then
+    nxpod = NxPods::interactivelyIssueNewNxPodOrNull()
+    exit if nxpod.nil?
+    Space::landing(nxpod)
+    exit
+end
+
 if ARGV[0] == "stack" and ARGV[1] then
     id = ARGV[1]
     if !Space::idIsUsed(id) then
@@ -22,37 +43,13 @@ if ARGV[0] == "unstack" then
     exit
 end
 
-loop {
-    system("clear")
+str = <<HELP
+usage:
+    nyx search
+    nyx listing
+    nyx stack <NxId>
+    nyx unstack 
+    nyx help # help display
+HELP
+puts str
 
-    nxPoints = IdStack::getIds().map{|id| Space::idToNxPointOrNull(id) }.compact
-    nxPoints.each{|nxpoint|
-        puts nxpoint.toString().yellow
-    }
-    puts ""
-
-    puts "-- Nyx 🗺 -----------------------------"
-
-    ops = [
-        "Search",
-        "NxPoints Listing",
-        "Make new NxPod",
-    ]
-    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ops)
-    break if operation.nil?
-    if operation == "Search" then
-        Space::generalSearchLoop()
-    end
-    if operation == "NxPoints Listing" then
-        loop {
-            nxpoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxPoint", Space::getNxPoints(), lambda{|e| e.toString() })
-            break if nxpoint.nil?
-            Space::landing(nxpoint)
-        }
-    end
-    if operation == "Make new NxPod" then
-        nxpod = NxPods::interactivelyIssueNewNxPodOrNull()
-        next if nxpod.nil?
-        Space::landing(nxpod)
-    end
-}
