@@ -164,7 +164,7 @@ class NxPods
                 return nil
             end
             location = "/Users/pascal/Desktop/#{locationname}"
-            if !File.exists?(filepath) then
+            if !File.exists?(location) then
                 Space::destroyFolderIfExists(id)
                 return nil
             end
