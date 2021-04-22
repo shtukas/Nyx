@@ -124,9 +124,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNullForClient(channel, clientId)
 =end
 
-# ------------------------------------------------------------
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Marble.rb"
 
-require_relative "AttributesFiles.rb"
+# ------------------------------------------------------------
 
 require_relative "NxPods.rb"
 require_relative "NxNavs.rb"
