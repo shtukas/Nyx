@@ -128,8 +128,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Marble.rb"
 
 # ------------------------------------------------------------
 
-require_relative "NxPods.rb"
-require_relative "NxNavs.rb"
 require_relative "Space.rb"
 
 require_relative "Utils.rb"

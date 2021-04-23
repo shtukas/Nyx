@@ -13,17 +13,17 @@ end
 
 if ARGV[0] == "listing" then
     loop {
-        nxpoint = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxPoint", Space::getNxPoints(), lambda{|e| e.toString() })
-        break if nxpoint.nil?
-        Space::landing(nxpoint)
+        filepath = LucilleCore::selectEntityFromListOfEntitiesOrNull("Asteroid", Space::ids(), lambda{|id| Space::description(id) })
+        break if filepath.nil?
+        Space::landing(id)
     }
     exit
 end
 
 if ARGV[0] == "make" then
-    nxpoint = Space::interactivelyMakeNewNxPointOrNull()
-    exit if nxpoint.nil?
-    Space::landing(nxpoint)
+    filepath = Space::interactivelyMakeNewAsteroidOrNull()
+    exit if filepath.nil?
+    Space::landing(id)
     exit
 end
 
@@ -33,13 +33,9 @@ if ARGV[0] == "unique-string" then
 end
 
 if ARGV[0] == "fsck" then
-    NxPods::getNxPods().each{|nxpod|
-        puts nxpod.id()
-        NxPods::fsckNxPod(nxpod.id())
-    }
-    NxNavs::getNxNavs().each{|nxnav|
-        puts nxnav.id()
-        NxNavs::fsckNxNav(nxnav.id())
+    Space::ids().each{|id|
+        puts "fsck: #{id}"
+        Space::fsck(id)
     }
     puts "All good!".green
     exit

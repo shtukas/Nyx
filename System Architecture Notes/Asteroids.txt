@@ -1,6 +1,17 @@
-NxPoints are nodes of the Nyx Network. They are marbles on disk.
 
-NxPoint (Common)
+---------------------------------------------------------------------
+Nyx Space ids have the schema: "<p1>-<p2>" (example: "183455452046-07")
+
+p1: a 12-long string of digits
+p2: a 2-long string of digits
+
+Nyx Space ids have therefore length 15.
+
+---------------------------------------------------------------------
+
+Asteroids are nodes of the Nyx Network. They are marbles on disk.
+
+Asteroid (Common)
     - uuid            : String
     - unixtime        : Integer
     - nxType          : "NxNav" | "Line" | "Url" | "Text" | "UniqueFileClickable" | "FSLocation" | "FSUniqueString"
@@ -33,18 +44,3 @@ NxFSLocation:
 NxFSUniqueString:
     - nxType       : "FSUniqueString"
     - uniquestring : String
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
