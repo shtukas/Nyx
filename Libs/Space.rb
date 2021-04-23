@@ -135,13 +135,13 @@ class Space
                 Space::destroy(id)
                 return nil
             end
-            filepath = "/Users/pascal/Desktop/#{filename}"
-            if !File.exists?(filepath) then
+            fp1 = "/Users/pascal/Desktop/#{filename}"
+            if !File.exists?(fp1) then
                 Space::destroy(id)
                 return nil
             end
-            operator = MarblesElizabeth.new(Space::filepathOrNull(id))
-            nhash = AionCore::commitLocationReturnHash(operator, filepath)
+            operator = MarblesElizabeth.new(filepath)
+            nhash = AionCore::commitLocationReturnHash(operator, fp1)
             Marbles::set(filepath, "nhash", nhash)
             return id
         end
@@ -425,13 +425,13 @@ class Space
                 Space::setUnixtime(id, unixtime)
             })
 
-            mx.item("attach".yellow, lambda { 
+            mx.item("link".yellow, lambda { 
                 idx = Space::architect()
                 return if idx.nil?
                 Space::link(id, idx)
             })
 
-            mx.item("detach".yellow, lambda {
+            mx.item("unlink".yellow, lambda {
                 idx = LucilleCore::selectEntityFromListOfEntitiesOrNull("Asteroid", Space::connected2(id), lambda{|idx| Space::description(idx) })
                 return if idx.nil?
                 Space::unlink(id, idx)

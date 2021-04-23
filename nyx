@@ -13,16 +13,16 @@ end
 
 if ARGV[0] == "listing" then
     loop {
-        filepath = LucilleCore::selectEntityFromListOfEntitiesOrNull("Asteroid", Space::ids(), lambda{|id| Space::description(id) })
-        break if filepath.nil?
+        id = LucilleCore::selectEntityFromListOfEntitiesOrNull("Asteroid", Space::ids(), lambda{|id| Space::description(id) })
+        break if id.nil?
         Space::landing(id)
     }
     exit
 end
 
 if ARGV[0] == "make" then
-    filepath = Space::interactivelyMakeNewAsteroidOrNull()
-    exit if filepath.nil?
+    id = Space::interactivelyMakeNewAsteroidOrNull()
+    exit if id.nil?
     Space::landing(id)
     exit
 end
