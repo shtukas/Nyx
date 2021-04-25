@@ -11,6 +11,11 @@ class Network
         "/Users/pascal/Galaxy/Nyx/Nodes"
     end
 
+    # Network::stdFSTrees()
+    def self.stdFSTrees()
+        "/Users/pascal/Galaxy/Nyx/StdFSTrees"
+    end
+
     # Network::networkTypes()
     def self.networkTypes()
         ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString"] 
@@ -55,8 +60,8 @@ class Network
     # -------------------------------------------------------
     # Network General
 
-    # Network::filepaths()
-    def self.filepaths()
+    # Network::nodesFilepaths()
+    def self.nodesFilepaths()
         LucilleCore::locationsAtFolder(Network::nodesFolderpath())
             .map{|location| File.basename(location)}
             .select{|s| s[-7, 7] == ".marble"}
@@ -64,7 +69,12 @@ class Network
 
     # Network::networkIds()
     def self.networkIds()
-        Network::filepaths().map{|filepath| File.basename(filepath)[0, 15] }
+        Network::nodesFilepaths().map{|filepath| File.basename(filepath)[0, 15] }
+    end
+
+    # Network::stdFSTreeFolderpath(id)
+    def self.stdFSTreeFolderpath(id)
+        "#{Network::stdFSTrees()}/#{id}"
     end
 
     # Network::link(id1, id2)
@@ -157,7 +167,7 @@ class Network
                 return nil
             end
 
-            folderpath2 = "#{Network::nodesFolderpath()}/#{id}"
+            folderpath2 = Network::stdFSTreeFolderpath(id)
 
             FileUtils.mkdir(folderpath2) # We always create a folder regardless of whether it was a file or a directory 
             FileUtils.mv(location, folderpath2) # We always move the thing (file or directory) into the folder
@@ -200,10 +210,10 @@ class Network
     # Network::destroy(id)
     def self.destroy(id)
         filepath = "#{Network::nodesFolderpath()}/#{id}.marble"
-        folderpath = "#{Network::nodesFolderpath()}/#{id}"
         if File.exists?(filepath) then
             LucilleCore::removeFileSystemLocation(filepath)
         end
+        folderpath = Network::stdFSTreeFolderpath(id)
         if File.exists?(folderpath) then
             LucilleCore::removeFileSystemLocation(folderpath)
         end
@@ -297,7 +307,7 @@ class Network
 
         if Network::nxType(id) == "StdFSTree" then
             puts "description: #{Network::description(id)}"
-            system("open '#{Network::nodesFolderpath()}/#{id}'")
+            system("open '#{Network::stdFSTreeFolderpath(id)}'")
             LucilleCore::pressEnterToContinue()
         end
 
@@ -365,7 +375,7 @@ class Network
 
         if Network::nxType(id) == "StdFSTree" then
             puts "description: #{Network::description(id)}"
-            system("open '#{Network::nodesFolderpath()}/#{id}'")
+            system("open '#{Network::stdFSTreeFolderpath(id)}'")
             LucilleCore::pressEnterToContinue()
         end
 
@@ -521,7 +531,7 @@ class Network
         end
 
         if nxType == "StdFSTree" then
-            if !File.exists?("#{Network::nodesFolderpath()}/#{id}") then
+            if !File.exists?("#{Network::stdFSTreeFolderpath(id)}") then
                 raise "fsck fail: missing folder target for id: #{id}"
             end
         end
