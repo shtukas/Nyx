@@ -1,11 +1,11 @@
 
 ---------------------------------------------------------------------
-Network ids have the schema: "<p1>-<p2>" (example: "183455452046-07")
+Node ids have the schema: "<p1>-<p2>" (example: "183455452046-07")
 
 p1: a 12-long string of digits
 p2: a 2-long string of digits
 
-Network ids have therefore length 15.
+Node ids have therefore length 15.
 
 ---------------------------------------------------------------------
 
