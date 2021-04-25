@@ -1,9 +1,0 @@
-
-# The below only runs the thing without building the executable
-$ go run nyx.go
-
-# This builds and creates the file "nyx"
-
-$ go build nyx.go
-$ ./nyx
-

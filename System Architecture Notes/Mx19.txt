@@ -1,5 +1,5 @@
 
 Mx19 {
     "announce" : String
-    "id"       : SpaceId
+    "id"       : NetworkId
 }

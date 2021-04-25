@@ -7,23 +7,23 @@ require_relative "Libs/loader.rb"
 # ----------------------------------------------------------------------------
 
 if ARGV[0] == "search" then
-    Space::generalSearchLoop()
+    Network::generalSearchLoop()
     exit
 end
 
 if ARGV[0] == "listing" then
     loop {
-        id = LucilleCore::selectEntityFromListOfEntitiesOrNull("Asteroid", Space::ids(), lambda{|id| Space::description(id) })
+        id = LucilleCore::selectEntityFromListOfEntitiesOrNull("Asteroid", Network::ids(), lambda{|id| Network::description(id) })
         break if id.nil?
-        Space::landing(id)
+        Network::landing(id)
     }
     exit
 end
 
 if ARGV[0] == "make" then
-    id = Space::interactivelyMakeNewAsteroidOrNull()
+    id = Network::interactivelyMakeNewNodeOrNull()
     exit if id.nil?
-    Space::landing(id)
+    Network::landing(id)
     exit
 end
 
@@ -33,9 +33,9 @@ if ARGV[0] == "unique-string" then
 end
 
 if ARGV[0] == "fsck" then
-    Space::ids().each{|id|
+    Network::ids().each{|id|
         puts "fsck: #{id}"
-        Space::fsck(id)
+        Network::fsck(id)
     }
     puts "All good!".green
     exit
