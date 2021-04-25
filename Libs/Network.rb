@@ -13,7 +13,7 @@ class Network
 
     # Network::networkTypes()
     def self.networkTypes()
-        ["NxTag", "Url", "Text", "UniqueFileClickable", "FSLocation", "FSUniqueString"] 
+        ["NxTag", "Url", "Text", "UniqueFile", "FSLocation", "FSUniqueString"] 
     end
 
     # -------------------------------------------------------
@@ -101,7 +101,7 @@ class Network
         end
         Marbles::set(filepath, "description", description)
 
-        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "UniqueFileClickable", "FSLocation", "FSUniqueString"])
+        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "UniqueFile", "FSLocation", "FSUniqueString"])
 
         if nxType.nil? then
             Network::destroy(id)
@@ -129,7 +129,7 @@ class Network
             Marbles::set(filepath, "text", text)
             return id
         end
-        if nxType == "UniqueFileClickable" then
+        if nxType == "UniqueFile" then
             filename = LucilleCore::askQuestionAnswerAsString("filename (on Desktop) (empty to abort): ")
             if filename == "" then
                 Network::destroy(id)
@@ -286,7 +286,7 @@ class Network
             LucilleCore::pressEnterToContinue()
         end
 
-        if Network::nxType(id) == "UniqueFileClickable" then
+        if Network::nxType(id) == "UniqueFile" then
             puts "description: #{Network::description(id)}"
             nhash = Marbles::get(Network::filepathOrNull(id), "nhash")
             operator = MarblesElizabeth.new(Network::filepathOrNull(id))
@@ -351,7 +351,7 @@ class Network
             Marbles::set(Network::filepathOrNull(id), "text", text)
         end
 
-        if Network::nxType(id) == "UniqueFileClickable" then
+        if Network::nxType(id) == "UniqueFile" then
             puts "description: #{Network::description(id)}"
             nhash = Marbles::get(Network::filepathOrNull(id), "nhash")
             operator = MarblesElizabeth.new(Network::filepathOrNull(id))
@@ -488,7 +488,7 @@ class Network
 
         nxType = Marbles::get(filepath, "nxType")
 
-        if !["NxTag", "Url", "Text", "UniqueFileClickable", "FSLocation", "FSUniqueString"].include?(nxType) then
+        if !["NxTag", "Url", "Text", "UniqueFile", "FSLocation", "FSUniqueString"].include?(nxType) then
             raise "fsck unsupported nxType for id: #{id} (found: #{nxType})"
         end
 
@@ -508,7 +508,7 @@ class Network
             end
         end
 
-        if nxType == "UniqueFileClickable" then
+        if nxType == "UniqueFile" then
             if Marbles::getOrNull(filepath, "nhash").nil? then
                 raise "fsck fail: no nhash found for id: #{id}"
             end
