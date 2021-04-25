@@ -13,7 +13,7 @@ class Network
 
     # Network::networkTypes()
     def self.networkTypes()
-        ["NxTag", "Url", "Text", "UniqueFile", "FSLocation", "FSUniqueString"] 
+        ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString"] 
     end
 
     # -------------------------------------------------------
@@ -101,7 +101,7 @@ class Network
         end
         Marbles::set(filepath, "description", description)
 
-        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "UniqueFile", "FSLocation", "FSUniqueString"])
+        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString"])
 
         if nxType.nil? then
             Network::destroy(id)
@@ -145,7 +145,7 @@ class Network
             Marbles::set(filepath, "nhash", nhash)
             return id
         end
-        if nxType == "FSLocation" then
+        if nxType == "StdFSTree" then
             locationname = LucilleCore::askQuestionAnswerAsString("location name (on Desktop) (empty to abort): ")
             if locationname == "" then
                 Network::destroy(id)
@@ -295,7 +295,7 @@ class Network
             LucilleCore::pressEnterToContinue()
         end
 
-        if Network::nxType(id) == "FSLocation" then
+        if Network::nxType(id) == "StdFSTree" then
             puts "description: #{Network::description(id)}"
             system("open '#{Network::folderpath()}/#{id}'")
             LucilleCore::pressEnterToContinue()
@@ -363,7 +363,7 @@ class Network
             end
         end
 
-        if Network::nxType(id) == "FSLocation" then
+        if Network::nxType(id) == "StdFSTree" then
             puts "description: #{Network::description(id)}"
             system("open '#{Network::folderpath()}/#{id}'")
             LucilleCore::pressEnterToContinue()
@@ -488,7 +488,7 @@ class Network
 
         nxType = Marbles::get(filepath, "nxType")
 
-        if !["NxTag", "Url", "Text", "UniqueFile", "FSLocation", "FSUniqueString"].include?(nxType) then
+        if !["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString"].include?(nxType) then
             raise "fsck unsupported nxType for id: #{id} (found: #{nxType})"
         end
 
@@ -520,7 +520,7 @@ class Network
             end
         end
 
-        if nxType == "FSLocation" then
+        if nxType == "StdFSTree" then
             if !File.exists?("#{Network::folderpath()}/#{id}") then
                 raise "fsck fail: missing folder target for id: #{id}"
             end

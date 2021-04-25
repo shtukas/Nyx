@@ -14,7 +14,7 @@ The Nyx Network is made of Nodes. They are marbles on disk.
 Node (Common)
     - uuid            : String
     - unixtime        : Integer
-    - nxType          : "NxTag" | "NxTag" | "Url" | "Text" | "UniqueFile" | "FSLocation" | "FSUniqueString"
+    - nxType          : "NxTag" | "NxTag" | "Url" | "Text" | "UniqueFile" | "StdFSTree" | "FSUniqueString"
     - description     : String
     - links           : Array[NetworkId] 
                             # setid = "links:b645d07ddd5"
@@ -35,8 +35,8 @@ UniqueFile:
     - nxType : "UniqueFile"
     - nhash  : String # AionPoint (one file)
 
-FSLocation:
-    - nxType : "FSLocation"
+StdFSTree:
+    - nxType : "StdFSTree"
 
 FSUniqueString:
     - nxType       : "FSUniqueString"
