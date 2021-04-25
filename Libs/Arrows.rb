@@ -27,9 +27,11 @@ class Arrows
         db.close
     end
 
-    # Bank::sourceIds(targetId)
-    def self.sourceIds(targetId)
-        db = SQLite3::Database.new(Bank::databaseFilepath())
+    # -----------------------------------------
+
+    # Arrows::parentsIds(targetId)
+    def self.parentsIds(targetId)
+        db = SQLite3::Database.new(Arrows::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -41,9 +43,9 @@ class Arrows
         answer.uniq
     end
 
-    # Bank::targetIds(sourceId)
-    def self.targetIds(sourceId)
-        db = SQLite3::Database.new(Bank::databaseFilepath())
+    # Arrows::childrenIds(sourceId)
+    def self.childrenIds(sourceId)
+        db = SQLite3::Database.new(Arrows::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -53,5 +55,19 @@ class Arrows
         end
         db.close
         answer.uniq
+    end
+
+    # -----------------------------------------
+
+    # Arrows::parentsIds2(targetId)
+    def self.parentsIds2(targetId)
+        Arrows::parentsIds(targetId)
+            .select{|id| Nodes::exists?(id) }
+    end
+
+    # Arrows::childrenIds2(sourceId)
+    def self.childrenIds2(sourceId)
+        Arrows::childrenIds(sourceId)
+            .select{|id| Nodes::exists?(id) }
     end
 end

@@ -16,9 +16,6 @@ Node (Common)
     - unixtime        : Integer
     - nxType          : "NxTag" | "NxTag" | "Url" | "Text" | "UniqueFile" | "StdFSTree" | "FSUniqueString"
     - description     : String
-    - links           : Array[NetworkId] 
-                            # setid = "links:b645d07ddd5"
-                            # Marbles::addSetData(filepath, "links:b645d07ddd5", link, link)
 
 NxTag:
     - nxType : "NxTag"

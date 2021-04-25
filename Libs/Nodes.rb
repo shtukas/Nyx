@@ -77,22 +77,6 @@ class Nodes
         "#{Nodes::stdFSTrees()}/#{id}"
     end
 
-    # Nodes::link(id1, id2)
-    def self.link(id1, id2)
-        return if Nodes::filepathOrNull(id1).nil?
-        return if Nodes::filepathOrNull(id2).nil?
-        Marbles::addSetData(Nodes::filepathOrNull(id1), "links:b645d07ddd5", id2, id2)
-        Marbles::addSetData(Nodes::filepathOrNull(id2), "links:b645d07ddd5", id1, id1)
-    end
-
-    # Nodes::unlink(id1, id2)
-    def self.unlink(id1, id2)
-        return if Nodes::filepathOrNull(id1).nil?
-        return if Nodes::filepathOrNull(id2).nil?
-        Marbles::removeSetData(Nodes::filepathOrNull(id1), "links:b645d07ddd5", id2, id2)
-        Marbles::removeSetData(Nodes::filepathOrNull(id2), "links:b645d07ddd5", id1, id1)
-    end
-
     # Nodes::interactivelyMakeNewNodeOrNull()
     def self.interactivelyMakeNewNodeOrNull()
         id = Nodes::issueNewId()
@@ -187,13 +171,13 @@ class Nodes
 
     # Nodes::architect()
     def self.architect()
-        filepath = Nodes::selectOneAsteroidOrNull()
+        filepath = Nodes::selectOneNodeOrNull()
         return filepath if filepath
         Nodes::interactivelyMakeNewNodeOrNull()
     end
 
     # -------------------------------------------------------
-    # Asteroids
+    # Nodes Instrospection
 
     # Nodes::filepathOrNull(id)
     def self.filepathOrNull(id)
@@ -226,13 +210,6 @@ class Nodes
         Marbles::get(filepath, "description")
     end
 
-    # Nodes::setDescription(id, description)
-    def self.setDescription(id, description)
-        filepath = Nodes::filepathOrNull(id)
-        raise "e61c8efd-41a1-4c8e-b981-740f2f80db95" if filepath.nil?
-        Marbles::set(filepath, "description", description)
-    end
-
     # Nodes::nxType(id)
     def self.nxType(id)
         filepath = Nodes::filepathOrNull(id)
@@ -247,6 +224,26 @@ class Nodes
         Marbles::get(filepath, "unixtime").to_i
     end
 
+    # Nodes::datetime(id)
+    def self.datetime(id)
+        Time.at(Nodes::unixtime(id)).utc.iso8601
+    end
+
+    # Nodes::connectedNodesIds2(id)
+    def self.connectedNodesIds2(id)
+        Arrows::parentsIds2(id) + Arrows::childrenIds2(id)
+    end
+
+    # -------------------------------------------------------
+    # Nodes Metadata update
+
+    # Nodes::setDescription(id, description)
+    def self.setDescription(id, description)
+        filepath = Nodes::filepathOrNull(id)
+        raise "e61c8efd-41a1-4c8e-b981-740f2f80db95" if filepath.nil?
+        Marbles::set(filepath, "description", description)
+    end
+
     # Nodes::setUnixtime(id, unixtime)
     def self.setUnixtime(id, unixtime)
         filepath = Nodes::filepathOrNull(id)
@@ -254,26 +251,8 @@ class Nodes
         Marbles::set(filepath, "description", description)
     end
 
-    # Nodes::datetime(id)
-    def self.datetime(id)
-        Time.at(Nodes::unixtime(id)).utc.iso8601
-    end
-
-    # Nodes::connected(id)
-    def self.connected(id)
-        filepath = Nodes::filepathOrNull(id)
-        raise "a6bb1f94-e1c4-439e-9196-03b5742a142c" if filepath.nil?
-        Marbles::getSet(filepath, "links:b645d07ddd5")
-    end
-
-    # Nodes::connected2(id)
-    def self.connected2(id)
-        Nodes::connected(id)
-            .select{|id| Nodes::exists?(id) }
-    end
-
     # -------------------------------------------------------
-    # Asteroid Ops
+    # Node Ops
 
     # Nodes::access(id)
     def self.access(id)
@@ -403,10 +382,20 @@ class Nodes
 
             mx = LCoreMenuItemsNX1.new()
 
-            Nodes::connected2(id)
+            Arrows::parentsIds2(id)
                 .sort{|idx1, idx2| Nodes::unixtime(idx1) <=> Nodes::unixtime(idx2) }
                 .each{|idx|
-                    mx.item(Nodes::description(idx), lambda {
+                    mx.item("parent: #{Nodes::description(idx)}", lambda {
+                        Nodes::landing(idx)
+                    })
+                }
+
+            puts ""
+
+            Arrows::childrenIds2(id)
+                .sort{|idx1, idx2| Nodes::unixtime(idx1) <=> Nodes::unixtime(idx2) }
+                .each{|idx|
+                    mx.item("child : #{Nodes::description(idx)}", lambda {
                         Nodes::landing(idx)
                     })
                 }
@@ -433,29 +422,41 @@ class Nodes
                 Nodes::setUnixtime(id, unixtime)
             })
 
-            mx.item("link".yellow, lambda { 
+            mx.item("link parent".yellow, lambda { 
                 idx = Nodes::architect()
                 return if idx.nil?
-                Nodes::link(id, idx)
+                Arrows::link(idx, id)
             })
 
-            mx.item("unlink".yellow, lambda {
-                idx = LucilleCore::selectEntityFromListOfEntitiesOrNull("Asteroid", Nodes::connected2(id), lambda{|idx| Nodes::description(idx) })
+            mx.item("link child".yellow, lambda { 
+                idx = Nodes::architect()
                 return if idx.nil?
-                Nodes::unlink(id, idx)
+                Arrows::link(id, idx)
             })
 
-            mx.item("relocate (move a selection of connected points somewhere else)".yellow, lambda {
-                puts "(1) target selection ; (2) moving points selection"
+            mx.item("unlink parent".yellow, lambda {
+                idx = LucilleCore::selectEntityFromListOfEntitiesOrNull("Node", Arrows::parentsIds2(id), lambda{|idx| Nodes::description(idx) })
+                return if idx.nil?
+                Arrows::unlink(idx, id)
+            })
+
+            mx.item("unlink child".yellow, lambda {
+                idx = LucilleCore::selectEntityFromListOfEntitiesOrNull("Node", Arrows::childrenIds2(id), lambda{|idx| Nodes::description(idx) })
+                return if idx.nil?
+                Arrows::unlink(id, idx)
+            })
+
+            mx.item("relocate (move a selection of children somewhere else)".yellow, lambda {
+                puts "(1) new parent selection ; (2) moving children selection"
                 id1 = Nodes::architect()
                 return if id1.nil?
 
-                selected, unselected = LucilleCore::selectZeroOrMore("Asteroids", [], Nodes::connected2(id), lambda{|idx| Nodes::description(idx) })
+                selected, unselected = LucilleCore::selectZeroOrMore("Nodes", [], Nodes::connectedNodesIds2(id), lambda{|idx| Nodes::description(idx) })
                 selected.each{|idx|
                     puts "Connecting   : #{Nodes::description(id1)}, #{Nodes::description(idx)}"
-                    Nodes::link(id1, idx)
+                    Arrows::link(id1, idx)
                     puts "Disconnecting: #{Nodes::description(id)}, #{Nodes::description(idx)}"
-                    Nodes::unlink(id, idx)
+                    Arrows::unlink(id, idx)
                 }
             })
 
@@ -564,8 +565,8 @@ class Nodes
         Utils::selectOneObjectOrNullUsingInteractiveInterface(Nodes::mx19s(), lambda{|item| item["announce"] })
     end
 
-    # Nodes::selectOneAsteroidOrNull()
-    def self.selectOneAsteroidOrNull()
+    # Nodes::selectOneNodeOrNull()
+    def self.selectOneNodeOrNull()
         mx19 = Nodes::selectOneMx19OrNull()
         return if mx19.nil?
         mx19["id"]
