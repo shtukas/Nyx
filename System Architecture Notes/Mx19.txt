@@ -1,5 +1,8 @@
 
-Mx19 {
+Mx19 
+
+{
     "announce" : String
+    "type"     : "node"
     "id"       : NodeId
 }

@@ -7,7 +7,7 @@ require_relative "Libs/loader.rb"
 # ----------------------------------------------------------------------------
 
 if ARGV[0] == "search" then
-    Nodes::generalSearchLoop()
+    Search::generalSearchLoop()
     exit
 end
 
@@ -21,7 +21,7 @@ if ARGV[0] == "listing" then
 end
 
 if ARGV[0] == "make" then
-    id = Nodes::interactivelyMakeNewNodeOrNull()
+    id = Nodes::interactivelyMakeNewNodeReturnIdOrNull()
     exit if id.nil?
     Nodes::landing(id)
     exit

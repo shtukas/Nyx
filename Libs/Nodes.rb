@@ -77,8 +77,8 @@ class Nodes
         "#{Nodes::stdFSTrees()}/#{id}"
     end
 
-    # Nodes::interactivelyMakeNewNodeOrNull()
-    def self.interactivelyMakeNewNodeOrNull()
+    # Nodes::interactivelyMakeNewNodeReturnIdOrNull()
+    def self.interactivelyMakeNewNodeReturnIdOrNull()
         id = Nodes::issueNewId()
 
         filepath = "#{Nodes::nodesFolderpath()}/#{id}.marble"
@@ -169,11 +169,11 @@ class Nodes
         nil
     end
 
-    # Nodes::architect()
-    def self.architect()
-        filepath = Nodes::selectOneNodeOrNull()
-        return filepath if filepath
-        Nodes::interactivelyMakeNewNodeOrNull()
+    # Nodes::architectId()
+    def self.architectId()
+        id = Search::selectOneNodeIdOrNull()
+        return id if id
+        Nodes::interactivelyMakeNewNodeReturnIdOrNull()
     end
 
     # -------------------------------------------------------
@@ -423,13 +423,13 @@ class Nodes
             })
 
             mx.item("link parent".yellow, lambda { 
-                idx = Nodes::architect()
+                idx = Nodes::architectId()
                 return if idx.nil?
                 Arrows::link(idx, id)
             })
 
             mx.item("link child".yellow, lambda { 
-                idx = Nodes::architect()
+                idx = Nodes::architectId()
                 return if idx.nil?
                 Arrows::link(id, idx)
             })
@@ -448,7 +448,7 @@ class Nodes
 
             mx.item("relocate (move a selection of children somewhere else)".yellow, lambda {
                 puts "(1) new parent selection ; (2) moving children selection"
-                id1 = Nodes::architect()
+                id1 = Nodes::architectId()
                 return if id1.nil?
 
                 selected, unselected = LucilleCore::selectZeroOrMore("Nodes", [], Nodes::connectedNodesIds2(id), lambda{|idx| Nodes::description(idx) })
@@ -543,41 +543,5 @@ class Nodes
             end
         end
 
-    end
-
-    # -------------------------------------------------------
-    # Search
-
-    # Nodes::mx19s()
-    def self.mx19s()
-        Nodes::ids()
-            .map{|id|
-                volatileuuid = SecureRandom.hex[0, 8]
-                {
-                    "announce" => "#{volatileuuid} #{Nodes::description(id)}",
-                    "id"       => id
-                }
-            }
-    end
-
-    # Nodes::selectOneMx19OrNull()
-    def self.selectOneMx19OrNull()
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(Nodes::mx19s(), lambda{|item| item["announce"] })
-    end
-
-    # Nodes::selectOneNodeOrNull()
-    def self.selectOneNodeOrNull()
-        mx19 = Nodes::selectOneMx19OrNull()
-        return if mx19.nil?
-        mx19["id"]
-    end
-
-    # Nodes::generalSearchLoop()
-    def self.generalSearchLoop()
-        loop {
-            mx19 = Nodes::selectOneMx19OrNull()
-            break if mx19.nil? 
-            Nodes::landing(mx19["id"])
-        }
     end
 end
