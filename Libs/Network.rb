@@ -6,9 +6,9 @@ class Network
     # -------------------------------------------------------
     # Config
 
-    # Network::folderpath()
-    def self.folderpath()
-        "/Users/pascal/Galaxy/Nyx"
+    # Network::nodesFolderpath()
+    def self.nodesFolderpath()
+        "/Users/pascal/Galaxy/Nyx/Nodes"
     end
 
     # Network::networkTypes()
@@ -37,7 +37,7 @@ class Network
 
     # Network::ids()
     def self.ids()
-        LucilleCore::locationsAtFolder(Network::folderpath())
+        LucilleCore::locationsAtFolder(Network::nodesFolderpath())
             .map{|location| File.basename(location) }
             .select{|s| s[-7, 7] == ".marble" }
             .map{|s| s[0, 15] }
@@ -57,7 +57,7 @@ class Network
 
     # Network::filepaths()
     def self.filepaths()
-        LucilleCore::locationsAtFolder(Network::folderpath())
+        LucilleCore::locationsAtFolder(Network::nodesFolderpath())
             .map{|location| File.basename(location)}
             .select{|s| s[-7, 7] == ".marble"}
     end
@@ -87,7 +87,7 @@ class Network
     def self.interactivelyMakeNewNodeOrNull()
         id = Network::issueNewId()
 
-        filepath = "#{Network::folderpath()}/#{id}.marble"
+        filepath = "#{Network::nodesFolderpath()}/#{id}.marble"
 
         Marbles::issueNewEmptyMarbleFile(filepath)
 
@@ -157,7 +157,7 @@ class Network
                 return nil
             end
 
-            folderpath2 = "#{Network::folderpath()}/#{id}"
+            folderpath2 = "#{Network::nodesFolderpath()}/#{id}"
 
             FileUtils.mkdir(folderpath2) # We always create a folder regardless of whether it was a file or a directory 
             FileUtils.mv(location, folderpath2) # We always move the thing (file or directory) into the folder
@@ -187,20 +187,20 @@ class Network
 
     # Network::filepathOrNull(id)
     def self.filepathOrNull(id)
-        filepath = "#{Network::folderpath()}/#{id}.marble"
+        filepath = "#{Network::nodesFolderpath()}/#{id}.marble"
         return nil if !File.exists?(filepath)
         filepath
     end
 
     # Network::exists?(id)
     def self.exists?(id)
-        File.exists?("#{Network::folderpath()}/#{id}.marble")
+        File.exists?("#{Network::nodesFolderpath()}/#{id}.marble")
     end
 
     # Network::destroy(id)
     def self.destroy(id)
-        filepath = "#{Network::folderpath()}/#{id}.marble"
-        folderpath = "#{Network::folderpath()}/#{id}"
+        filepath = "#{Network::nodesFolderpath()}/#{id}.marble"
+        folderpath = "#{Network::nodesFolderpath()}/#{id}"
         if File.exists?(filepath) then
             LucilleCore::removeFileSystemLocation(filepath)
         end
@@ -297,7 +297,7 @@ class Network
 
         if Network::nxType(id) == "StdFSTree" then
             puts "description: #{Network::description(id)}"
-            system("open '#{Network::folderpath()}/#{id}'")
+            system("open '#{Network::nodesFolderpath()}/#{id}'")
             LucilleCore::pressEnterToContinue()
         end
 
@@ -365,7 +365,7 @@ class Network
 
         if Network::nxType(id) == "StdFSTree" then
             puts "description: #{Network::description(id)}"
-            system("open '#{Network::folderpath()}/#{id}'")
+            system("open '#{Network::nodesFolderpath()}/#{id}'")
             LucilleCore::pressEnterToContinue()
         end
 
@@ -521,7 +521,7 @@ class Network
         end
 
         if nxType == "StdFSTree" then
-            if !File.exists?("#{Network::folderpath()}/#{id}") then
+            if !File.exists?("#{Network::nodesFolderpath()}/#{id}") then
                 raise "fsck fail: missing folder target for id: #{id}"
             end
         end
