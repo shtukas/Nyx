@@ -9,7 +9,7 @@ class Search
             .map{|id|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{Nodes::description(id)}",
+                    "announce" => "#{volatileuuid} #{Nodes::toString(id)}",
                     "type"     => "node",
                     "id"       => id
                 }

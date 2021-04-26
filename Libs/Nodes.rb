@@ -16,8 +16,8 @@ class Nodes
         "/Users/pascal/Galaxy/Nyx/StdFSTrees"
     end
 
-    # Nodes::networkTypes()
-    def self.networkTypes()
+    # Nodes::nodeTypes()
+    def self.nodeTypes()
         ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString"] 
     end
 
@@ -36,7 +36,7 @@ class Nodes
 
     # Nodes::forgeNewId()
     def self.forgeNewId()
-        raise "ed679236-713a-41e9-bed0-b19d4b65986d" if !Nodes::networkTypes()
+        raise "ed679236-713a-41e9-bed0-b19d4b65986d" if !Nodes::nodeTypes()
         "#{Nodes::randomId(12)}-#{Nodes::randomId(2)}"
     end
 
@@ -234,6 +234,13 @@ class Nodes
         Arrows::parentsIds2(id) + Arrows::childrenIds2(id)
     end
 
+    # Nodes::toString(id)
+    def self.toString(id)
+        type = Nodes::nxType(id)
+        padding = Nodes::nodeTypes().map{|t| t.size}.max
+        "[#{type.ljust(padding)}] #{Nodes::description(id)}"
+    end
+
     # -------------------------------------------------------
     # Nodes Metadata update
 
@@ -385,7 +392,7 @@ class Nodes
             Arrows::parentsIds2(id)
                 .sort{|idx1, idx2| Nodes::unixtime(idx1) <=> Nodes::unixtime(idx2) }
                 .each{|idx|
-                    mx.item("parent: #{Nodes::description(idx)}", lambda {
+                    mx.item("parent: #{Nodes::toString(idx)}", lambda {
                         Nodes::landing(idx)
                     })
                 }
@@ -395,7 +402,7 @@ class Nodes
             Arrows::childrenIds2(id)
                 .sort{|idx1, idx2| Nodes::unixtime(idx1) <=> Nodes::unixtime(idx2) }
                 .each{|idx|
-                    mx.item("child : #{Nodes::description(idx)}", lambda {
+                    mx.item("child : #{Nodes::toString(idx)}", lambda {
                         Nodes::landing(idx)
                     })
                 }
@@ -434,16 +441,18 @@ class Nodes
                 Arrows::link(id, idx)
             })
 
-            mx.item("unlink parent".yellow, lambda {
-                idx = LucilleCore::selectEntityFromListOfEntitiesOrNull("Node", Arrows::parentsIds2(id), lambda{|idx| Nodes::description(idx) })
-                return if idx.nil?
-                Arrows::unlink(idx, id)
+            mx.item("unlink parents".yellow, lambda {
+                idxs, _ = LucilleCore::selectZeroOrMore("parents", [], Arrows::parentsIds2(id), lambda{|idx| Nodes::description(idx) })
+                idxs.each{|idx|
+                    Arrows::unlink(idx, id)
+                }
             })
 
-            mx.item("unlink child".yellow, lambda {
-                idx = LucilleCore::selectEntityFromListOfEntitiesOrNull("Node", Arrows::childrenIds2(id), lambda{|idx| Nodes::description(idx) })
-                return if idx.nil?
-                Arrows::unlink(id, idx)
+            mx.item("unlink childs".yellow, lambda {
+                idxs, _ = LucilleCore::selectZeroOrMore("childrens", [], Arrows::childrenIds2(id), lambda{|idx| Nodes::description(idx) })
+                idxs.each{|idx|
+                    Arrows::unlink(id, idx)
+                }
             })
 
             mx.item("relocate (move a selection of children somewhere else)".yellow, lambda {
