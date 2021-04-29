@@ -34,7 +34,7 @@ class Search
             mx19 = Search::selectOneNodeMx19OrNull()
             break if mx19.nil?
             if mx19["type"] == "node" then
-                Nodes::landing(mx19["id"])
+                Nodes::preLandingAirSpaceController(mx19["id"])
             end
         }
     end

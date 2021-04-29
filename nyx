@@ -15,7 +15,7 @@ if ARGV[0] == "listing" then
     loop {
         id = LucilleCore::selectEntityFromListOfEntitiesOrNull("Node", Nodes::ids(), lambda{|id| Nodes::description(id) })
         break if id.nil?
-        Nodes::landing(id)
+        Nodes::preLandingAirSpaceController(id)
     }
     exit
 end
@@ -23,7 +23,7 @@ end
 if ARGV[0] == "make" then
     id = Nodes::interactivelyMakeNewNodeReturnIdOrNull()
     exit if id.nil?
-    Nodes::landing(id)
+    Nodes::preLandingAirSpaceController(id)
     exit
 end
 
