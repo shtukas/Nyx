@@ -171,7 +171,7 @@ class Nodes
 
     # Nodes::architectId()
     def self.architectId()
-        id = Search::selectOneNodeIdOrNull()
+        id = Nodes::selectOneNodeIdOrNull()
         return id if id
         Nodes::interactivelyMakeNewNodeReturnIdOrNull()
     end
@@ -515,6 +515,36 @@ class Nodes
             status = mx.promptAndRunSandbox()
             break if !status
         }
+    end
+
+
+
+    # ---------------------------------------------------
+    # Special Circumstances
+
+    # Nodes::nodesMx19s()
+    def self.nodesMx19s()
+        Nodes::ids()
+            .map{|id|
+                volatileuuid = SecureRandom.hex[0, 8]
+                {
+                    "announce" => "#{volatileuuid} #{Nodes::toString(id)}",
+                    "type"     => "node",
+                    "id"       => id
+                }
+            }
+    end
+
+    # Nodes::selectOneNodeMx19OrNull()
+    def self.selectOneNodeMx19OrNull()
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(Nodes::nodesMx19s(), lambda{|item| item["announce"] })
+    end
+
+    # Nodes::selectOneNodeIdOrNull()
+    def self.selectOneNodeIdOrNull()
+        mx19 = Nodes::selectOneNodeMx19OrNull()
+        return if mx19.nil?
+        mx19["id"]
     end
 
     # Nodes::fsck(id)

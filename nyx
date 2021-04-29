@@ -7,7 +7,12 @@ require_relative "Libs/loader.rb"
 # ----------------------------------------------------------------------------
 
 if ARGV[0] == "search" then
-    Search::generalSearchLoop()
+    Search::nodesSearchLoop()
+    exit
+end
+
+if ARGV[0] == "deep-search" then
+    Search::deepSearchLoop()
     exit
 end
 
@@ -44,6 +49,7 @@ end
 str = <<HELP
 usage:
     nyx search
+    nyx deep-search
     nyx listing
     nyx make
     nyx unique-string # Generates a unique string for type FSUniqueString

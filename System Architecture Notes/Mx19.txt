@@ -6,3 +6,9 @@ Mx19
     "type"     : "node"
     "id"       : NodeId
 }
+
+{
+    "announce" : String
+    "type"     : "galaxy-location"
+    "location" : String
+}

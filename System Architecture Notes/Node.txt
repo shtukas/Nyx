@@ -9,7 +9,7 @@ Node ids have therefore length 15.
 
 ---------------------------------------------------------------------
 
-The Nyx Network is made of Nodes. They are marbles on disk.
+The Nyx Network is made of Nodes. They are Marbles on disk.
 
 Node (Common)
     - uuid            : String

@@ -3,38 +3,40 @@
 
 class Search
 
-    # Search::nodesMx19s()
-    def self.nodesMx19s()
-        Nodes::ids()
-            .map{|id|
-                volatileuuid = SecureRandom.hex[0, 8]
-                {
-                    "announce" => "#{volatileuuid} #{Nodes::toString(id)}",
-                    "type"     => "node",
-                    "id"       => id
-                }
-            }
+    # Search::selectOneMx19OrNull()
+    def self.selectOneMx19OrNull()
+        mx19s = Nodes::nodesMx19s() + Galaxy::galaxyFileHierarchiesMx19s()
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(mx19s, lambda{|item| item["announce"] })
     end
 
-    # Search::selectOneNodeMx19OrNull()
-    def self.selectOneNodeMx19OrNull()
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(Search::nodesMx19s(), lambda{|item| item["announce"] })
+    # Search::selectOneMx19OrNullUsingPreFilter(pattern)
+    def self.selectOneMx19OrNullUsingPreFilter(pattern)
+        mx19s = Nodes::nodesMx19s() + Galaxy::galaxyFileHierarchiesMx19s()
+        mx19s = mx19s.select{|mx19| mx19["announce"].downcase.include?(pattern.downcase) }
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(mx19s, lambda{|item| item["announce"] })
     end
 
-    # Search::selectOneNodeIdOrNull()
-    def self.selectOneNodeIdOrNull()
-        mx19 = Search::selectOneNodeMx19OrNull()
-        return if mx19.nil?
-        mx19["id"]
-    end
-
-    # Search::generalSearchLoop()
-    def self.generalSearchLoop()
+    # Search::nodesSearchLoop()
+    def self.nodesSearchLoop()
         loop {
-            mx19 = Search::selectOneNodeMx19OrNull()
+            mx19 = Nodes::selectOneNodeMx19OrNull()
+            break if mx19.nil?
+            Nodes::preLandingAirSpaceController(mx19["id"])
+        }
+    end
+
+    # Search::deepSearchLoop()
+    def self.deepSearchLoop()
+        loop {
+            pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
+            mx19 = Search::selectOneMx19OrNullUsingPreFilter(pattern)
             break if mx19.nil?
             if mx19["type"] == "node" then
                 Nodes::preLandingAirSpaceController(mx19["id"])
+            end
+            if mx19["type"] == "galaxy-location" then
+                puts mx19["location"]
+                LucilleCore::pressEnterToContinue()
             end
         }
     end
