@@ -448,7 +448,7 @@ class Nodes
                 }
             })
 
-            mx.item("unlink childs".yellow, lambda {
+            mx.item("unlink childrens".yellow, lambda {
                 idxs, _ = LucilleCore::selectZeroOrMore("childrens", [], Arrows::childrenIds2(id), lambda{|idx| Nodes::description(idx) })
                 idxs.each{|idx|
                     Arrows::unlink(id, idx)
