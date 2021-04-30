@@ -416,7 +416,10 @@ class Nodes
             return if !Nodes::exists?(id)
 
             puts Nodes::description(id)
-            puts "(#{Nodes::nxType(id)}, id: #{id}, datetime: #{Nodes::datetime(id)})"
+            puts "#{Nodes::nxType(id)}, id: #{id}, datetime: #{Nodes::datetime(id)}"
+            if Nodes::nxType(id) == "Url" then
+                puts "url: #{Marbles::get(Nodes::filepathOrNull(id), "url")}"
+            end
             puts ""
 
             mx = LCoreMenuItemsNX1.new()
@@ -613,6 +616,5 @@ class Nodes
                 raise "fsck fail: no uniquestring found for id: #{id}"
             end
         end
-
     end
 end
