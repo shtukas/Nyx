@@ -259,7 +259,75 @@ class Nodes
     end
 
     # -------------------------------------------------------
-    # Node Ops
+    # Nodes Notes
+
+    # Nodes::interactivelyIssueNoteOrNothing(id)
+    def self.interactivelyIssueNoteOrNothing(id)
+        filepath = Nodes::filepathOrNull(id)
+        return if filepath.nil?
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["line", "url", "aion-point"])
+        return if type.nil?
+        if type == "line" then
+            line = LucilleCore::askQuestionAnswerAsString("line (empty for abort): ")
+            return if line == ""
+            note = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "type"        => "line",
+                "description" => line
+            }
+        end
+        if type == "url" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
+            return if description == ""
+            url = LucilleCore::askQuestionAnswerAsString("url (empty for abort): ")
+            return if url == ""
+            note = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "type"        => "url",
+                "description" => description,
+                "data"        => url
+            }
+        end
+        if type == "aion-point" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
+            return if description == ""
+            location = LucilleCore::askQuestionAnswerAsString("location on desktop (empty for abort): ")
+            return if location == ""
+            operator = MarblesElizabeth.new(filepath)
+            nhash = AionCore::commitLocationReturnHash(operator, location)
+            note = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "type"        => "url",
+                "description" => description,
+                "data"        => nhash
+            }
+        end
+        Marbles::addSetData(filepath, "notes:d39ca9d6644694abc4235e105a64a59b", note["uuid"], JSON.generate(note))
+    end
+
+    # Nodes::notes(id)
+    def self.notes(id)
+        filepath = Nodes::filepathOrNull(id)
+        raise "78b404cf-d825-4557-afd1-3b699dbe7a70" if filepath.nil?
+        Marbles::getSet(filepath, "notes:d39ca9d6644694abc4235e105a64a59b").map{|note| JSON.parse(note) }
+    end
+
+    # Nodes::nodeToString(note)
+    def self.nodeToString(note)
+        note.to_s
+    end
+
+    # Nodes::accessNote(note)
+    def self.accessNote(note)
+        puts note.to_s
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # -------------------------------------------------------
+    # Nodes Ops
 
     # Nodes::access(id)
     def self.access(id)
@@ -420,9 +488,16 @@ class Nodes
             if Nodes::nxType(id) == "Url" then
                 puts "url: #{Marbles::get(Nodes::filepathOrNull(id), "url")}"
             end
-            puts ""
 
             mx = LCoreMenuItemsNX1.new()
+
+            Nodes::notes(id).each{|note|
+                mx.item("note: #{Nodes::nodeToString(note)}", lambda {
+                    Nodes::accessNote(note)
+                })
+            }
+
+            puts ""
 
             Arrows::parentsIds2(id)
                 .sort{|idx1, idx2| Nodes::unixtime(idx1) <=> Nodes::unixtime(idx2) }
@@ -462,6 +537,17 @@ class Nodes
                 return if !Utils::isDateTime_UTC_ISO8601(datetime)
                 unixtime = DateTime.parse(datetime).to_time.to_i
                 Nodes::setUnixtime(id, unixtime)
+            })
+
+            mx.item("add note".yellow, lambda {
+                Nodes::interactivelyIssueNoteOrNothing(id)
+            })
+
+            mx.item("remove note".yellow, lambda {
+                filepath = Nodes::filepathOrNull(id)
+                note = LucilleCore::selectEntityFromListOfEntitiesOrNull("note", Nodes::notes(id), lambda{|note| Nodes::nodeToString(note) })
+                return if note.nil?
+                Marbles::removeSetData(filepath, "notes:d39ca9d6644694abc4235e105a64a59b", note["uuid"])
             })
 
             mx.item("link parent".yellow, lambda { 

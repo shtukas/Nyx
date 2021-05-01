@@ -1,18 +1,8 @@
 
----------------------------------------------------------------------
-Node ids have the schema: "<p1>-<p2>" (example: "183455452046-07")
-
-p1: a 12-long string of digits
-p2: a 2-long string of digits
-
-Node ids have therefore length 15.
-
----------------------------------------------------------------------
-
 The Nyx Network is made of Nodes. They are Marbles on disk.
 
 Node (Common)
-    - uuid            : String
+    - uuid            : NodeId
     - unixtime        : Integer
     - nxType          : "NxTag" | "NxTag" | "Url" | "Text" | "UniqueFile" | "StdFSTree" | "FSUniqueString"
     - description     : String
