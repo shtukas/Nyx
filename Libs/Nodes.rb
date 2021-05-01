@@ -229,11 +229,6 @@ class Nodes
         Time.at(Nodes::unixtime(id)).utc.iso8601
     end
 
-    # Nodes::connectedNodesIds2(id)
-    def self.connectedNodesIds2(id)
-        Arrows::parentsIds2(id) + Arrows::childrenIds2(id)
-    end
-
     # Nodes::toString(id)
     def self.toString(id)
         type = Nodes::nxType(id)
@@ -499,6 +494,14 @@ class Nodes
 
             puts ""
 
+            Links::linkedIds2(id).each{|idx|
+                mx.item("related: #{Nodes::toString(idx)}", lambda {
+                    Nodes::preLandingAirSpaceController(idx)
+                })
+            }
+
+            puts ""
+
             Arrows::parentsIds2(id)
                 .sort{|idx1, idx2| Nodes::unixtime(idx1) <=> Nodes::unixtime(idx2) }
                 .each{|idx|
@@ -550,6 +553,12 @@ class Nodes
                 Marbles::removeSetData(filepath, "notes:d39ca9d6644694abc4235e105a64a59b", note["uuid"])
             })
 
+            mx.item("link related".yellow, lambda { 
+                idx = Nodes::architectId()
+                return if idx.nil?
+                Links::link(id, idx)
+            })
+
             mx.item("link parent".yellow, lambda { 
                 idx = Nodes::architectId()
                 return if idx.nil?
@@ -560,6 +569,13 @@ class Nodes
                 idx = Nodes::architectId()
                 return if idx.nil?
                 Arrows::link(id, idx)
+            })
+
+            mx.item("unlink related".yellow, lambda {
+                idxs, _ = LucilleCore::selectZeroOrMore("related", [], Links::linkedIds2(id), lambda{|idx| Nodes::description(idx) })
+                idxs.each{|idx|
+                    Links::unlink(id, idx)
+                }
             })
 
             mx.item("unlink parents".yellow, lambda {
@@ -581,7 +597,7 @@ class Nodes
                 id1 = Nodes::architectId()
                 return if id1.nil?
 
-                selected, unselected = LucilleCore::selectZeroOrMore("Nodes", [], Nodes::connectedNodesIds2(id), lambda{|idx| Nodes::description(idx) })
+                selected, unselected = LucilleCore::selectZeroOrMore("Nodes", [], Arrows::childrenIds2(id), lambda{|idx| Nodes::description(idx) })
                 selected.each{|idx|
                     puts "Connecting   : #{Nodes::description(id1)}, #{Nodes::description(idx)}"
                     Arrows::link(id1, idx)
@@ -605,8 +621,6 @@ class Nodes
             break if !status
         }
     end
-
-
 
     # ---------------------------------------------------
     # Special Circumstances

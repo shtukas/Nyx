@@ -132,6 +132,8 @@ require_relative "Arrows.rb"
 
 require_relative "Galaxy.rb"
 
+require_relative "Links.rb"
+
 require_relative "Nodes.rb"
 
 require_relative "Search.rb"
