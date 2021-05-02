@@ -525,6 +525,14 @@ class Nodes
             mx.item("access".yellow, lambda {
                 Nodes::access(id)
             })
+
+            if Nodes::nxType(id) == "StdFSTree" then
+                mx.item("interactively search contents".yellow, lambda {
+                    folderpath = Nodes::stdFSTreeFolderpath(id)
+                    Search::searchLoopFileHierarchyAtFolder(folderpath)
+                })
+            end
+
             mx.item("edit".yellow, lambda {
                 Nodes::edit(id)
             })
@@ -625,8 +633,8 @@ class Nodes
     # ---------------------------------------------------
     # Special Circumstances
 
-    # Nodes::nodesMx19s()
-    def self.nodesMx19s()
+    # Nodes::mx19s()
+    def self.mx19s()
         Nodes::ids()
             .map{|id|
                 volatileuuid = SecureRandom.hex[0, 8]
@@ -638,9 +646,25 @@ class Nodes
             }
     end
 
+    # Nodes::mx20s()
+    def self.mx20s()
+        Nodes::ids()
+            .map{|id|
+                volatileuuid = SecureRandom.hex[0, 8]
+                tostring = Nodes::toString(id)
+                {
+                    "announce"         => "#{volatileuuid} #{tostring}",
+                    "deep-searcheable" => tostring,
+                    "type"             => "node",
+                    "id"               => id
+                }
+            }
+    end
+
+
     # Nodes::selectOneNodeMx19OrNull()
     def self.selectOneNodeMx19OrNull()
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(Nodes::nodesMx19s(), lambda{|item| item["announce"] })
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(Nodes::mx19s(), lambda{|item| item["announce"] })
     end
 
     # Nodes::selectOneNodeIdOrNull()

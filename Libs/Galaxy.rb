@@ -3,18 +3,14 @@
 
 class Galaxy
 
-    # Galaxy::roots()
-    def self.roots()
-        ["/Users/pascal/Galaxy/Nyx/StdFSTrees"]
-    end
-
-    # Galaxy::locationEnumerator()
-    def self.locationEnumerator()
+    # Galaxy::locationEnumerator(roots)
+    def self.locationEnumerator(roots)
         Enumerator.new do |filepaths|
-            Galaxy::roots().each{|root|
+            roots.each{|root|
                 if File.exists?(root) then
                     begin
                         Find.find(root) do |path|
+                            next if File.basename(path)[0, 1] == "."
                             next if path.include?("target")
                             next if path.include?("project")
                             next if path.include?("node_modules")
@@ -28,13 +24,26 @@ class Galaxy
         end
     end
 
-    # Galaxy::galaxyFileHierarchiesMx19s()
-    def self.galaxyFileHierarchiesMx19s()
-        Galaxy::locationEnumerator().map{|location|
+    # Galaxy::mx19sAtRoot(root)
+    def self.mx19sAtRoot(root)
+        Galaxy::locationEnumerator([root]).map{|location|
             {
-                "announce" => location[51, location.size] || "",
+                "announce" => "#{File.basename(location)}",
                 "type"     => "galaxy-location",
                 "location" => location
+            }
+        }
+    end
+
+    # Galaxy::mx20s()
+    def self.mx20s()
+        root = "/Users/pascal/Galaxy/Nyx/StdFSTrees"
+        Galaxy::locationEnumerator([root]).map{|location|
+            {
+                "announce"         => "[location] #{File.basename(location)} (#{File.dirname(location)[-60, 60]})",
+                "deep-searcheable" => "#{File.basename(location)}",
+                "type"             => "galaxy-location",
+                "location"         => location
             }
         }
     end

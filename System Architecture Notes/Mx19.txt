@@ -1,5 +1,5 @@
 
-Mx19 
+Mx19
 
 {
     "announce" : String
@@ -11,4 +11,20 @@ Mx19
     "announce" : String
     "type"     : "galaxy-location"
     "location" : String
+}
+
+Mx20
+
+{
+    "announce"         => String,
+    "deep-searcheable" => String,
+    "type"             => "node",
+    "id"               => id
+}
+
+{
+    "announce"         => String,
+    "deep-searcheable" => String,
+    "type"             => "galaxy-location",
+    "location"         => location
 }

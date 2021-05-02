@@ -3,21 +3,22 @@
 
 class Search
 
-    # Search::selectOneMx19OrNull()
-    def self.selectOneMx19OrNull()
-        mx19s = Nodes::nodesMx19s() + Galaxy::galaxyFileHierarchiesMx19s()
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(mx19s, lambda{|item| item["announce"] })
+    # Search::mx19Landing(mx19)
+    def self.mx19Landing(mx19)
+        if mx19["type"] == "node" then
+            Nodes::preLandingAirSpaceController(mx19["id"])
+            return
+        end
+        if mx19["type"] == "galaxy-location" then
+            puts mx19["location"]
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        raise "3a35f700-153a-484b-b4ac-c9489982b52b"
     end
 
-    # Search::selectOneMx19OrNullUsingPreFilter(pattern)
-    def self.selectOneMx19OrNullUsingPreFilter(pattern)
-        mx19s = Nodes::nodesMx19s() + Galaxy::galaxyFileHierarchiesMx19s()
-        mx19s = mx19s.select{|mx19| mx19["announce"].downcase.include?(pattern.downcase) }
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(mx19s, lambda{|item| item["announce"] })
-    end
-
-    # Search::nodesSearchLoop()
-    def self.nodesSearchLoop()
+    # Search::searchLoopNetworkNodes()
+    def self.searchLoopNetworkNodes()
         loop {
             mx19 = Nodes::selectOneNodeMx19OrNull()
             break if mx19.nil?
@@ -25,19 +26,28 @@ class Search
         }
     end
 
-    # Search::deepSearchLoop()
-    def self.deepSearchLoop()
+    # Search::searchLoopFileHierarchyAtFolder(folderpath)
+    def self.searchLoopFileHierarchyAtFolder(folderpath)
+        mx19s = Galaxy::mx19sAtRoot(folderpath)
         loop {
-            pattern = LucilleCore::askQuestionAnswerAsString("pattern: ")
-            mx19 = Search::selectOneMx19OrNullUsingPreFilter(pattern)
-            break if mx19.nil?
-            if mx19["type"] == "node" then
-                Nodes::preLandingAirSpaceController(mx19["id"])
-            end
-            if mx19["type"] == "galaxy-location" then
-                puts mx19["location"]
-                LucilleCore::pressEnterToContinue()
-            end
+            mx19 = Utils::selectOneObjectOrNullUsingInteractiveInterface(mx19s, lambda{|item| item["announce"] })
+            return if mx19.nil?
+            Search::mx19Landing(mx19)
+        }
+    end
+
+    # Search::deepSearch()
+    def self.deepSearch()
+        loop {
+            pattern = LucilleCore::askQuestionAnswerAsString("pattern (empty to exit): ")
+            return if pattern == ""
+            mx20s = Nodes::mx20s() + Galaxy::mx20s()
+            mx20s = mx20s.select{|mx20| mx20["deep-searcheable"].downcase.include?(pattern.downcase) }
+            loop {
+                mx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("mx20", mx20s, lambda{|mx20| mx20["announce"] })
+                break if mx20.nil?
+                Search::mx19Landing(mx20)
+            }
         }
     end
 end
