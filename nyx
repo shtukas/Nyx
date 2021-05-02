@@ -7,12 +7,12 @@ require_relative "Libs/loader.rb"
 # ----------------------------------------------------------------------------
 
 if ARGV[0] == "search" then
-    Search::nodesSearchLoop()
+    Search::searchLoopNetworkNodes()
     exit
 end
 
 if ARGV[0] == "deep-search" then
-    Search::deepSearchLoop()
+    Search::deepSearch()
     exit
 end
 
