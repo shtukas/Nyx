@@ -436,40 +436,8 @@ class Nodes
         end
     end
 
-    # Nodes::preLandingAirSpaceController(id)
-    def self.preLandingAirSpaceController(id)
-        if Nodes::nxType(id) == "NxTag" then
-            Nodes::preLandingNxTag(id)
-            return
-        end
-        Nodes::fullLanding(id)
-    end
-
-    # Nodes::preLandingNxTag(id)
-    def self.preLandingNxTag(id)
-        fullLandingTrigger = SecureRandom.hex
-        fullLandingObject = {
-            "id"       => fullLandingTrigger,
-            "announce" => "NxTag Metadata"
-        }
-        collection = Arrows::childrenIds2(id).map{|idx|  
-            {
-                "id" => idx,
-                "announce" => Nodes::description(idx)
-            }
-        }
-        collection = [fullLandingObject] + collection
-        obj = Utils::selectOneObjectOrNullUsingInteractiveInterface(collection, lambda{|obj| obj["announce"] })
-        return if obj.nil?
-        if obj["id"] == fullLandingTrigger then
-            Nodes::fullLanding(id)
-            return
-        end
-        Nodes::preLandingAirSpaceController(obj["id"])
-    end
-
-    # Nodes::fullLanding(id)
-    def self.fullLanding(id)
+    # Nodes::landing(id)
+    def self.landing(id)
 
         filepath = Nodes::filepathOrNull(id)
 
@@ -496,7 +464,7 @@ class Nodes
 
             Links::linkedIds2(id).each{|idx|
                 mx.item("related: #{Nodes::toString(idx)}", lambda {
-                    Nodes::preLandingAirSpaceController(idx)
+                    Nodes::landing(idx)
                 })
             }
 
@@ -506,7 +474,7 @@ class Nodes
                 .sort{|idx1, idx2| Nodes::unixtime(idx1) <=> Nodes::unixtime(idx2) }
                 .each{|idx|
                     mx.item("parent: #{Nodes::toString(idx)}", lambda {
-                        Nodes::preLandingAirSpaceController(idx)
+                        Nodes::landing(idx)
                     })
                 }
 
@@ -516,7 +484,7 @@ class Nodes
                 .sort{|idx1, idx2| Nodes::unixtime(idx1) <=> Nodes::unixtime(idx2) }
                 .each{|idx|
                     mx.item("child : #{Nodes::toString(idx)}", lambda {
-                        Nodes::preLandingAirSpaceController(idx)
+                        Nodes::landing(idx)
                     })
                 }
 

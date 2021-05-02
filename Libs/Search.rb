@@ -6,7 +6,7 @@ class Search
     # Search::mx19Landing(mx19)
     def self.mx19Landing(mx19)
         if mx19["type"] == "node" then
-            Nodes::preLandingAirSpaceController(mx19["id"])
+            Nodes::landing(mx19["id"])
             return
         end
         if mx19["type"] == "galaxy-location" then
@@ -22,7 +22,7 @@ class Search
         loop {
             mx19 = Nodes::selectOneNodeMx19OrNull()
             break if mx19.nil?
-            Nodes::preLandingAirSpaceController(mx19["id"])
+            Nodes::landing(mx19["id"])
         }
     end
 
