@@ -7,10 +7,14 @@ import (
 	"strings"
 )
 
+func pathToNyxNodesFolder() string {
+	return "/Users/pascal/Galaxy/Nyx/Nodes"
+}
+
 func SpaceIds() []string {
 	// a := []string{"Pascal", "Elizabeth"}
 	// return a
-	files, err := ioutil.ReadDir("/Users/pascal/Galaxy/Documents/NyxSpace")
+	files, err := ioutil.ReadDir(pathToNyxNodesFolder())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -24,5 +28,5 @@ func SpaceIds() []string {
 }
 
 func SpaceId2MarbleFilepath(id string) string {
-	return fmt.Sprintf("/Users/pascal/Galaxy/Documents/NyxSpace/%s.marble", id)
+	return fmt.Sprintf("%s/%s.marble", pathToNyxNodesFolder(), id)
 }

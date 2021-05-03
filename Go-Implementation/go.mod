@@ -1,3 +1,3 @@
-module github.com/shtukas/nyx2
+module github.com/shtukas/nyx
 
 go 1.16

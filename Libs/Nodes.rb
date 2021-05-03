@@ -529,39 +529,39 @@ class Nodes
                 Marbles::removeSetData(filepath, "notes:d39ca9d6644694abc4235e105a64a59b", note["uuid"])
             })
 
-            mx.item("link related".yellow, lambda { 
-                idx = Nodes::architectId()
-                return if idx.nil?
-                Links::link(id, idx)
-            })
-
-            mx.item("link parent".yellow, lambda { 
+            mx.item("architecture parent".yellow, lambda { 
                 idx = Nodes::architectId()
                 return if idx.nil?
                 Arrows::link(idx, id)
             })
 
-            mx.item("link child".yellow, lambda { 
+            mx.item("architecture related".yellow, lambda { 
+                idx = Nodes::architectId()
+                return if idx.nil?
+                Links::link(id, idx)
+            })
+
+            mx.item("architecture child".yellow, lambda { 
                 idx = Nodes::architectId()
                 return if idx.nil?
                 Arrows::link(id, idx)
             })
 
-            mx.item("unlink related".yellow, lambda {
-                idxs, _ = LucilleCore::selectZeroOrMore("related", [], Links::linkedIds2(id), lambda{|idx| Nodes::description(idx) })
-                idxs.each{|idx|
-                    Links::unlink(id, idx)
-                }
-            })
-
-            mx.item("unlink parents".yellow, lambda {
+            mx.item("remove parents".yellow, lambda {
                 idxs, _ = LucilleCore::selectZeroOrMore("parents", [], Arrows::parentsIds2(id), lambda{|idx| Nodes::description(idx) })
                 idxs.each{|idx|
                     Arrows::unlink(idx, id)
                 }
             })
 
-            mx.item("unlink childrens".yellow, lambda {
+            mx.item("remove related".yellow, lambda {
+                idxs, _ = LucilleCore::selectZeroOrMore("related", [], Links::linkedIds2(id), lambda{|idx| Nodes::description(idx) })
+                idxs.each{|idx|
+                    Links::unlink(id, idx)
+                }
+            })
+
+            mx.item("remove childrens".yellow, lambda {
                 idxs, _ = LucilleCore::selectZeroOrMore("childrens", [], Arrows::childrenIds2(id), lambda{|idx| Nodes::description(idx) })
                 idxs.each{|idx|
                     Arrows::unlink(id, idx)

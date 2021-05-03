@@ -1,4 +1,4 @@
-$ go run nyx2.go
+$ go run nyx.go
 
 $ go run . # Noticed that here: https://golang.org/doc/tutorial/call-module-code
 
