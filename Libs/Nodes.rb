@@ -159,8 +159,8 @@ class Nodes
             return id
         end
         if nxType == "FSUniqueString" then
-            unique = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
-            if unique == "" then
+            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
+            if uniquestring == "" then
                 Nodes::destroy(id)
                 return nil
             end
@@ -566,6 +566,39 @@ class Nodes
                 idxs.each{|idx|
                     Arrows::unlink(id, idx)
                 }
+            })
+
+            mx.item("recast children data carriers as unique strings at folder".yellow, lambda {
+                targetfolder = LucilleCore::askQuestionAnswerAsString("target folder: ")
+                return if !File.exists?(targetfolder)
+                return if !File.directory?(targetfolder)
+                Arrows::childrenIds2(id)
+                    .each{|idx|
+                        puts "recasting: #{Nodes::toString(idx)}"
+                        if Nodes::nxType(idx) == "UniqueFile" then
+                            nhash = Marbles::get(Nodes::filepathOrNull(idx), "nhash")
+                            operator = MarblesElizabeth.new(Nodes::filepathOrNull(idx))
+                            descriptionx = Nodes::description(idx)
+                            uniquestring = Digest::SHA1.hexdigest("0479b24f-c8ab-419a-8c6b-84969ff5f213:#{idx}")[0, 12]
+                            targetFolderpath = "#{targetfolder}/#{descriptionx} [#{uniquestring}]"
+                            FileUtils.mkdir(targetFolderpath)
+                            AionCore::exportHashAtFolder(operator, nhash, targetFolderpath)
+                            Marbles::set(Nodes::filepathOrNull(idx), "nxType", "FSUniqueString")
+                            Marbles::set(Nodes::filepathOrNull(idx), "uniquestring", uniquestring)
+                        end
+                        if Nodes::nxType(idx) == "StdFSTree" then
+                            folderpathNS1 = Nodes::stdFSTreeFolderpath(idx)
+                            descriptionx = Nodes::description(idx)
+                            uniquestring = Digest::SHA1.hexdigest("0479b24f-c8ab-419a-8c6b-84969ff5f213:#{idx}")[0, 12]
+                            targetFolderpath = "#{targetfolder}/#{descriptionx} [#{uniquestring}]"
+                            FileUtils.mkdir(targetFolderpath)
+                            LucilleCore::copyContents(folderpathNS1, targetFolderpath)
+                            LucilleCore::removeFileSystemLocation(folderpathNS1)
+                            Marbles::set(Nodes::filepathOrNull(idx), "nxType", "FSUniqueString")
+                            Marbles::set(Nodes::filepathOrNull(idx), "uniquestring", uniquestring)
+                        end
+                    }
+
             })
 
             mx.item("relocate (move a selection of children somewhere else)".yellow, lambda {
