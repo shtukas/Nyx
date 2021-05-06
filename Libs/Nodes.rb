@@ -18,7 +18,7 @@ class Nodes
 
     # Nodes::nodeTypes()
     def self.nodeTypes()
-        ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString"] 
+        ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString", "NxFLog"] 
     end
 
     # -------------------------------------------------------
@@ -95,7 +95,7 @@ class Nodes
         end
         Marbles::set(filepath, "description", description)
 
-        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString"])
+        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString", "NxFLog"])
 
         if nxType.nil? then
             Nodes::destroy(id)
@@ -166,6 +166,16 @@ class Nodes
             end
             Marbles::set(filepath, "uniquestring", uniquestring)
         end
+
+        if nxType == "NxFLog" then
+            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
+            if uniquestring == "" then
+                Nodes::destroy(id)
+                return nil
+            end
+            Marbles::set(filepath, "uniquestring", uniquestring) 
+        end
+
         nil
     end
 
@@ -327,6 +337,26 @@ class Nodes
     # Nodes::access(id)
     def self.access(id)
 
+        accessUniqueString = lambda {|uniquestring|
+            location = `atlas locate '#{uniquestring}'`.strip
+            if location == "" then
+                puts "Could not locate unique string #{uniquestring}"
+                LucilleCore::pressEnterToContinue()
+            end
+            if File.directory?(location) then
+                puts location
+                if LucilleCore::askQuestionAnswerAsBoolean("open directory ? : ") then
+                    system("open '#{location}'")
+                end
+            end
+            if File.file?(location) then
+                puts location
+                if LucilleCore::askQuestionAnswerAsBoolean("open file ? : ") then
+                    system("open '#{location}'")
+                end
+            end
+        }
+
         if Nodes::nxType(id) == "NxTag" then
             puts "line: #{Nodes::description(id)}"
             LucilleCore::pressEnterToContinue()
@@ -363,23 +393,12 @@ class Nodes
         if Nodes::nxType(id) == "FSUniqueString" then
             puts "description: #{Nodes::description(id)}"
             uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
-            location = `atlas locate '#{uniquestring}'`.strip
-            if location == "" then
-                puts "Could not locate unique string #{uniquestring}"
-                LucilleCore::pressEnterToContinue()
-            end
-            if File.directory?(location) then
-                puts location
-                if LucilleCore::askQuestionAnswerAsBoolean("open directory ? : ") then
-                    system("open '#{location}'")
-                end
-            end
-            if File.file?(location) then
-                puts location
-                if LucilleCore::askQuestionAnswerAsBoolean("open file ? : ") then
-                    system("open '#{location}'")
-                end
-            end
+            accessUniqueString.call(uniquestring)
+        end
+        if Nodes::nxType(id) == "NxFLog" then
+            puts "description: #{Nodes::description(id)}"
+            uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
+            accessUniqueString.call(uniquestring)
         end
     end
 
@@ -429,6 +448,13 @@ class Nodes
         end
 
         if Nodes::nxType(id) == "FSUniqueString" then
+            puts "description: #{Nodes::description(id)}"
+            uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
+            uniquestring = Utils::editTextSynchronously(uniquestring)
+            Marbles::set(Nodes::filepathOrNull(id), "uniquestring", uniquestring)
+        end
+
+        if Nodes::nxType(id) == "NxFLog" then
             puts "description: #{Nodes::description(id)}"
             uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
             uniquestring = Utils::editTextSynchronously(uniquestring)
@@ -737,6 +763,11 @@ class Nodes
         end
 
         if nxType == "FSUniqueString" then
+            if Marbles::getOrNull(filepath, "uniquestring").nil? then
+                raise "fsck fail: no uniquestring found for id: #{id}"
+            end
+        end
+        if nxType == "NxFLog" then
             if Marbles::getOrNull(filepath, "uniquestring").nil? then
                 raise "fsck fail: no uniquestring found for id: #{id}"
             end
