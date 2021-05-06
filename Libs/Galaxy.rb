@@ -34,17 +34,4 @@ class Galaxy
             }
         }
     end
-
-    # Galaxy::mx20s()
-    def self.mx20s()
-        root = "/Users/pascal/Galaxy/Nyx/StdFSTrees"
-        Galaxy::locationEnumerator([root]).map{|location|
-            {
-                "announce"         => "[location] #{File.basename(location)} (#{File.dirname(location)[-60, 60]})",
-                "deep-searcheable" => "#{File.basename(location)}",
-                "type"             => "galaxy-location",
-                "location"         => location
-            }
-        }
-    end
 end

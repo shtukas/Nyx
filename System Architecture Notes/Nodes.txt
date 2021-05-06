@@ -4,8 +4,7 @@ The Nyx Network is made of Nodes. They are Marbles on disk.
 Node (Common)
     - uuid            : NodeId
     - unixtime        : Integer
-    - nxType          : "NxTag" | "Url" | "Text" | "AionPoint" | "StdFSTree" | "FSUniqueString"
-                        "NxSmartDirectory"
+    - nxType          : "NxTag" | "Url" | "Text" | "AionPoint" | "FSUniqueString" | "NxSmartDirectory"
     - description     : String
 
 NxTag:
@@ -22,9 +21,6 @@ Text:
 AionPoint:
     - nxType : "AionPoint"
     - nhash  : String # AionPoint (one file)
-
-StdFSTree:
-    - nxType : "StdFSTree"
 
 FSUniqueString:
     - nxType       : "FSUniqueString"

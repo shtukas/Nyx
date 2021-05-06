@@ -41,7 +41,7 @@ class Search
         loop {
             pattern = LucilleCore::askQuestionAnswerAsString("pattern (empty to exit): ")
             return if pattern == ""
-            mx20s = Nodes::mx20s() + Galaxy::mx20s()
+            mx20s = Nodes::mx20s()
             mx20s = mx20s.select{|mx20| mx20["deep-searcheable"].downcase.include?(pattern.downcase) }
             loop {
                 mx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("mx20", mx20s, lambda{|mx20| mx20["announce"] })

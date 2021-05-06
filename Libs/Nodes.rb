@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 
 class Nodes
@@ -11,14 +10,9 @@ class Nodes
         "/Users/pascal/Galaxy/Nyx/Nodes"
     end
 
-    # Nodes::stdFSTrees()
-    def self.stdFSTrees()
-        "/Users/pascal/Galaxy/Nyx/StdFSTrees"
-    end
-
     # Nodes::nodeTypes()
     def self.nodeTypes()
-        ["NxTag", "Url", "Text", "AionPoint", "StdFSTree", "FSUniqueString", "NxSmartDirectory"] 
+        ["NxTag", "Url", "Text", "AionPoint", "FSUniqueString", "NxSmartDirectory"] 
     end
 
     # -------------------------------------------------------
@@ -72,11 +66,6 @@ class Nodes
         Nodes::nodesFilepaths().map{|filepath| File.basename(filepath)[0, 15] }
     end
 
-    # Nodes::stdFSTreeFolderpath(id)
-    def self.stdFSTreeFolderpath(id)
-        "#{Nodes::stdFSTrees()}/#{id}"
-    end
-
     # Nodes::interactivelyMakeNewNodeReturnIdOrNull()
     def self.interactivelyMakeNewNodeReturnIdOrNull()
         id = Nodes::issueNewId()
@@ -95,7 +84,7 @@ class Nodes
         end
         Marbles::set(filepath, "description", description)
 
-        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "AionPoint", "StdFSTree", "FSUniqueString", "NxSmartDirectory"])
+        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "AionPoint", "FSUniqueString", "NxSmartDirectory"])
 
         if nxType.nil? then
             Nodes::destroy(id)
@@ -137,25 +126,6 @@ class Nodes
             operator = MarblesElizabeth.new(filepath)
             nhash = AionCore::commitLocationReturnHash(operator, fp1)
             Marbles::set(filepath, "nhash", nhash)
-            return id
-        end
-        if nxType == "StdFSTree" then
-            locationname = LucilleCore::askQuestionAnswerAsString("location name (on Desktop) (empty to abort): ")
-            if locationname == "" then
-                Nodes::destroy(id)
-                return nil
-            end
-            location = "/Users/pascal/Desktop/#{locationname}"
-            if !File.exists?(location) then
-                Nodes::destroy(id)
-                return nil
-            end
-
-            folderpath2 = Nodes::stdFSTreeFolderpath(id)
-
-            FileUtils.mkdir(folderpath2) # We always create a folder regardless of whether it was a file or a directory 
-            FileUtils.mv(location, folderpath2) # We always move the thing (file or directory) into the folder
-
             return id
         end
         if nxType == "FSUniqueString" then
@@ -206,10 +176,6 @@ class Nodes
         filepath = "#{Nodes::nodesFolderpath()}/#{id}.marble"
         if File.exists?(filepath) then
             LucilleCore::removeFileSystemLocation(filepath)
-        end
-        folderpath = Nodes::stdFSTreeFolderpath(id)
-        if File.exists?(folderpath) then
-            LucilleCore::removeFileSystemLocation(folderpath)
         end
     end
 
@@ -384,17 +350,12 @@ class Nodes
             LucilleCore::pressEnterToContinue()
         end
 
-        if Nodes::nxType(id) == "StdFSTree" then
-            puts "description: #{Nodes::description(id)}"
-            system("open '#{Nodes::stdFSTreeFolderpath(id)}'")
-            LucilleCore::pressEnterToContinue()
-        end
-
         if Nodes::nxType(id) == "FSUniqueString" then
             puts "description: #{Nodes::description(id)}"
             uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
             accessUniqueString.call(uniquestring)
         end
+
         if Nodes::nxType(id) == "NxSmartDirectory" then
             puts "description: #{Nodes::description(id)}"
             uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
@@ -441,12 +402,6 @@ class Nodes
             end
         end
 
-        if Nodes::nxType(id) == "StdFSTree" then
-            puts "description: #{Nodes::description(id)}"
-            system("open '#{Nodes::stdFSTreeFolderpath(id)}'")
-            LucilleCore::pressEnterToContinue()
-        end
-
         if Nodes::nxType(id) == "FSUniqueString" then
             puts "description: #{Nodes::description(id)}"
             uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
@@ -467,13 +422,74 @@ class Nodes
         type1 = Nodes::nxType(id)
 
         if type1 == "NxTag" and targetType == "NxSmartDirectory" then
-            puts "NxTag to NxSmartDirectory. I need to transform the tag into a uniquestring (root of the NxFlog)"
+            puts "NxTag to NxSmartDirectory."
+            puts "I need to transform the tag into a uniquestring (root of the NxSmartDirectory)"
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return if uniquestring == ""
             filepath = Nodes::filepathOrNull(id)
             return if filepath.nil?
             Marbles::set(filepath, "nxType", "NxSmartDirectory")
             Marbles::set(filepath, "uniquestring", uniquestring) 
+            return
+        end
+
+        if type1 == "AionPoint" and targetType == "FSUniqueString" then
+            puts "AionPoint to FSUniqueString"
+
+            filepath = Nodes::filepathOrNull(id)
+
+            puts "First, let's make sure the data is exported"
+            nhash = Marbles::get(Nodes::filepathOrNull(id), "nhash")
+            operator = MarblesElizabeth.new(filepath)
+            AionCore::exportHashAtFolder(operator, nhash, "/Users/pascal/Desktop")
+
+            uniquestring = SecureRandom.hex(6)
+            puts "AionPoint has been exported on the Desktop. Please move the folder and give it the uniquename: [#{uniquestring}]"
+            LucilleCore::pressEnterToContinue()
+
+            puts "Now transforming the AionPoint into a FSUniqueString"
+
+            Marbles::set(filepath, "uniquestring", uniquestring) 
+            Marbles::set(filepath, "nxType", "FSUniqueString")
+
+            puts "Running garbage collection"
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.execute "delete from _elizabeth_", []
+            db.execute "vacuum", []
+            db.close
+
+            return
+        end
+
+        if type1 == "AionPoint" and targetType == "NxSmartDirectory" then
+            puts "AionPoint to NxSmartDirectory."
+
+            filepath = Nodes::filepathOrNull(id)
+
+            puts "First, let's make sure the data is exported"
+            nhash = Marbles::get(Nodes::filepathOrNull(id), "nhash")
+            operator = MarblesElizabeth.new(filepath)
+            AionCore::exportHashAtFolder(operator, nhash, "/Users/pascal/Desktop")
+
+            uniquestring = SecureRandom.hex(6)
+            puts "AionPoint has been exported on the Desktop. Please move the folder and give it the uniquename: [#{uniquestring}]"
+            LucilleCore::pressEnterToContinue()
+
+            puts "Now transforming the AionPoint into a NxSmartDirectory"
+
+            Marbles::set(filepath, "uniquestring", uniquestring) 
+            Marbles::set(filepath, "nxType", "NxSmartDirectory")
+
+            puts "Running garbage collection"
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.execute "delete from _elizabeth_", []
+            db.execute "vacuum", []
+            db.close
+
             return
         end
 
@@ -538,13 +554,6 @@ class Nodes
             mx.item("access".yellow, lambda {
                 Nodes::access(id)
             })
-
-            if Nodes::nxType(id) == "StdFSTree" then
-                mx.item("interactively search contents".yellow, lambda {
-                    folderpath = Nodes::stdFSTreeFolderpath(id)
-                    Search::searchLoopFileHierarchyAtFolder(folderpath)
-                })
-            end
 
             mx.item("edit".yellow, lambda {
                 Nodes::edit(id)
@@ -637,17 +646,6 @@ class Nodes
                             Marbles::set(Nodes::filepathOrNull(idx), "nxType", "FSUniqueString")
                             Marbles::set(Nodes::filepathOrNull(idx), "uniquestring", uniquestring)
                         end
-                        if Nodes::nxType(idx) == "StdFSTree" then
-                            folderpathNS1 = Nodes::stdFSTreeFolderpath(idx)
-                            descriptionx = Nodes::description(idx)
-                            uniquestring = Digest::SHA1.hexdigest("0479b24f-c8ab-419a-8c6b-84969ff5f213:#{idx}")[0, 12]
-                            targetFolderpath = "#{targetfolder}/#{descriptionx} [#{uniquestring}]"
-                            FileUtils.mkdir(targetFolderpath)
-                            LucilleCore::copyContents(folderpathNS1, targetFolderpath)
-                            LucilleCore::removeFileSystemLocation(folderpathNS1)
-                            Marbles::set(Nodes::filepathOrNull(idx), "nxType", "FSUniqueString")
-                            Marbles::set(Nodes::filepathOrNull(idx), "uniquestring", uniquestring)
-                        end
                     }
 
             })
@@ -664,6 +662,21 @@ class Nodes
                     puts "Disconnecting: #{Nodes::description(id)}, #{Nodes::description(idx)}"
                     Arrows::unlink(id, idx)
                 }
+            })
+
+            mx.item("garbage collection".yellow, lambda { 
+                # This is mostly to flush data on nodes that used to be AionPoints but have been transmuted
+                # into "FSUniqueString" or "NxSmartDirectory"
+                return if !["FSUniqueString", "NxSmartDirectory"].include?(Nodes::nxType(id))
+
+                # Here we use priviledge knowledge from Marbles
+                filepath = Nodes::filepathOrNull(id)
+                db = SQLite3::Database.new(filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.execute "delete from _elizabeth_", []
+                db.execute "vacuum", []
+                db.close
             })
 
             mx.item("destroy".yellow, lambda { 
@@ -748,7 +761,7 @@ class Nodes
 
         nxType = Marbles::get(filepath, "nxType")
 
-        if !["NxTag", "Url", "Text", "AionPoint", "StdFSTree", "FSUniqueString"].include?(nxType) then
+        if !["NxTag", "Url", "Text", "AionPoint", "FSUniqueString", "NxSmartDirectory"].include?(nxType) then
             raise "fsck unsupported nxType for id: #{id} (found: #{nxType})"
         end
 
@@ -777,12 +790,6 @@ class Nodes
             status = AionFsck::structureCheckAionHash(operator, nhash)
             if !status then
                 raise "fsck fail: Incorrect Aion Structure for nhash: #{nhash} (id: #{id})"
-            end
-        end
-
-        if nxType == "StdFSTree" then
-            if !File.exists?("#{Nodes::stdFSTreeFolderpath(id)}") then
-                raise "fsck fail: missing folder target for id: #{id}"
             end
         end
 
