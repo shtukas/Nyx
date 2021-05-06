@@ -18,7 +18,7 @@ class Nodes
 
     # Nodes::nodeTypes()
     def self.nodeTypes()
-        ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString", "NxSmartDirectory"] 
+        ["NxTag", "Url", "Text", "AionPoint", "StdFSTree", "FSUniqueString", "NxSmartDirectory"] 
     end
 
     # -------------------------------------------------------
@@ -95,7 +95,7 @@ class Nodes
         end
         Marbles::set(filepath, "description", description)
 
-        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString", "NxSmartDirectory"])
+        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "AionPoint", "StdFSTree", "FSUniqueString", "NxSmartDirectory"])
 
         if nxType.nil? then
             Nodes::destroy(id)
@@ -123,7 +123,7 @@ class Nodes
             Marbles::set(filepath, "text", text)
             return id
         end
-        if nxType == "UniqueFile" then
+        if nxType == "AionPoint" then
             filename = LucilleCore::askQuestionAnswerAsString("filename (on Desktop) (empty to abort): ")
             if filename == "" then
                 Nodes::destroy(id)
@@ -375,7 +375,7 @@ class Nodes
             LucilleCore::pressEnterToContinue()
         end
 
-        if Nodes::nxType(id) == "UniqueFile" then
+        if Nodes::nxType(id) == "AionPoint" then
             puts "description: #{Nodes::description(id)}"
             nhash = Marbles::get(Nodes::filepathOrNull(id), "nhash")
             operator = MarblesElizabeth.new(Nodes::filepathOrNull(id))
@@ -429,7 +429,7 @@ class Nodes
             Marbles::set(Nodes::filepathOrNull(id), "text", text)
         end
 
-        if Nodes::nxType(id) == "UniqueFile" then
+        if Nodes::nxType(id) == "AionPoint" then
             puts "description: #{Nodes::description(id)}"
             nhash = Marbles::get(Nodes::filepathOrNull(id), "nhash")
             operator = MarblesElizabeth.new(Nodes::filepathOrNull(id))
@@ -626,7 +626,7 @@ class Nodes
                 Arrows::childrenIds2(id)
                     .each{|idx|
                         puts "recasting: #{Nodes::toString(idx)}"
-                        if Nodes::nxType(idx) == "UniqueFile" then
+                        if Nodes::nxType(idx) == "AionPoint" then
                             nhash = Marbles::get(Nodes::filepathOrNull(idx), "nhash")
                             operator = MarblesElizabeth.new(Nodes::filepathOrNull(idx))
                             descriptionx = Nodes::description(idx)
@@ -748,7 +748,7 @@ class Nodes
 
         nxType = Marbles::get(filepath, "nxType")
 
-        if !["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString"].include?(nxType) then
+        if !["NxTag", "Url", "Text", "AionPoint", "StdFSTree", "FSUniqueString"].include?(nxType) then
             raise "fsck unsupported nxType for id: #{id} (found: #{nxType})"
         end
 
@@ -768,7 +768,7 @@ class Nodes
             end
         end
 
-        if nxType == "UniqueFile" then
+        if nxType == "AionPoint" then
             if Marbles::getOrNull(filepath, "nhash").nil? then
                 raise "fsck fail: no nhash found for id: #{id}"
             end
