@@ -462,6 +462,25 @@ class Nodes
         end
     end
 
+    # Nodes::transmuteOrNothing(id, targetType)
+    def self.transmuteOrNothing(id, targetType)
+        type1 = Nodes::nxType(id)
+
+        if type1 == "NxTag" and targetType == "NxFLog" then
+            puts "NxTag to NxFLog. I need to transform the tag into a uniquestring (root of the NxFlog)"
+            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
+            return if uniquestring == ""
+            filepath = Nodes::filepathOrNull(id)
+            return if filepath.nil?
+            Marbles::set(filepath, "nxType", "NxFLog")
+            Marbles::set(filepath, "uniquestring", uniquestring) 
+            return
+        end
+
+        puts "I do not know how to transmute #{type1} into #{targetType}"
+        LucilleCore::pressEnterToContinue()
+    end
+
     # Nodes::landing(id)
     def self.landing(id)
 
@@ -553,6 +572,12 @@ class Nodes
                 note = LucilleCore::selectEntityFromListOfEntitiesOrNull("note", Nodes::notes(id), lambda{|note| Nodes::nodeToString(note) })
                 return if note.nil?
                 Marbles::removeSetData(filepath, "notes:d39ca9d6644694abc4235e105a64a59b", note["uuid"])
+            })
+
+            mx.item("transmute".yellow, lambda {
+                targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("targetType", Nodes::nodeTypes())
+                return if targetType.nil?
+                Nodes::transmuteOrNothing(id, targetType)
             })
 
             mx.item("architecture parent".yellow, lambda { 
@@ -687,7 +712,6 @@ class Nodes
                 }
             }
     end
-
 
     # Nodes::selectOneNodeMx19OrNull()
     def self.selectOneNodeMx19OrNull()
