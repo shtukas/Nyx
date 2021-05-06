@@ -18,7 +18,7 @@ class Nodes
 
     # Nodes::nodeTypes()
     def self.nodeTypes()
-        ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString", "NxFLog"] 
+        ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString", "NxSmartDirectory"] 
     end
 
     # -------------------------------------------------------
@@ -95,7 +95,7 @@ class Nodes
         end
         Marbles::set(filepath, "description", description)
 
-        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString", "NxFLog"])
+        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "UniqueFile", "StdFSTree", "FSUniqueString", "NxSmartDirectory"])
 
         if nxType.nil? then
             Nodes::destroy(id)
@@ -167,7 +167,7 @@ class Nodes
             Marbles::set(filepath, "uniquestring", uniquestring)
         end
 
-        if nxType == "NxFLog" then
+        if nxType == "NxSmartDirectory" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             if uniquestring == "" then
                 Nodes::destroy(id)
@@ -395,7 +395,7 @@ class Nodes
             uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
             accessUniqueString.call(uniquestring)
         end
-        if Nodes::nxType(id) == "NxFLog" then
+        if Nodes::nxType(id) == "NxSmartDirectory" then
             puts "description: #{Nodes::description(id)}"
             uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
             accessUniqueString.call(uniquestring)
@@ -454,7 +454,7 @@ class Nodes
             Marbles::set(Nodes::filepathOrNull(id), "uniquestring", uniquestring)
         end
 
-        if Nodes::nxType(id) == "NxFLog" then
+        if Nodes::nxType(id) == "NxSmartDirectory" then
             puts "description: #{Nodes::description(id)}"
             uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
             uniquestring = Utils::editTextSynchronously(uniquestring)
@@ -466,13 +466,13 @@ class Nodes
     def self.transmuteOrNothing(id, targetType)
         type1 = Nodes::nxType(id)
 
-        if type1 == "NxTag" and targetType == "NxFLog" then
-            puts "NxTag to NxFLog. I need to transform the tag into a uniquestring (root of the NxFlog)"
+        if type1 == "NxTag" and targetType == "NxSmartDirectory" then
+            puts "NxTag to NxSmartDirectory. I need to transform the tag into a uniquestring (root of the NxFlog)"
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return if uniquestring == ""
             filepath = Nodes::filepathOrNull(id)
             return if filepath.nil?
-            Marbles::set(filepath, "nxType", "NxFLog")
+            Marbles::set(filepath, "nxType", "NxSmartDirectory")
             Marbles::set(filepath, "uniquestring", uniquestring) 
             return
         end
@@ -791,7 +791,7 @@ class Nodes
                 raise "fsck fail: no uniquestring found for id: #{id}"
             end
         end
-        if nxType == "NxFLog" then
+        if nxType == "NxSmartDirectory" then
             if Marbles::getOrNull(filepath, "uniquestring").nil? then
                 raise "fsck fail: no uniquestring found for id: #{id}"
             end

@@ -5,7 +5,7 @@ Node (Common)
     - uuid            : NodeId
     - unixtime        : Integer
     - nxType          : "NxTag" | "Url" | "Text" | "UniqueFile" | "StdFSTree" | "FSUniqueString"
-                        "NxFLog"
+                        "NxSmartDirectory"
     - description     : String
 
 NxTag:
@@ -30,10 +30,10 @@ FSUniqueString:
     - nxType       : "FSUniqueString"
     - uniquestring : String
 
-NxFLog: 
+NxSmartDirectory: 
 """
-A NxFLog is a FSUniqueString, to refer to the root of the log, and each sub directory is uniquestring folder. If a child is added to the root in nyx, then that child has to be a unique string. If a folder is manually added to the folder then  new node and an arrow are added to Nyx.
+A NxSmartDirectory is a FSUniqueString, to refer to the root of the log, and each sub directory is uniquestring folder. If a child is added to the root in nyx, then that child has to be a unique string. If a folder is manually added to the folder then  new node and an arrow are added to Nyx.
 """
-    - nxType       : "NxFLog"
+    - nxType       : "NxSmartDirectory"
     - uniquestring : String
 
