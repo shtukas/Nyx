@@ -4,7 +4,7 @@
 class Arrows
     # Arrows::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/Nyx/arrows.sqlite3"
+        "#{Nodes::nyxFolderpath()}/arrows.sqlite3"
     end
 
     # Arrows::link(sourceId, targetId)

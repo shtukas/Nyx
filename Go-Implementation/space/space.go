@@ -8,7 +8,7 @@ import (
 )
 
 func pathToNyxNodesFolder() string {
-	return "/Users/pascal/Galaxy/Nyx/Nodes"
+	return "/Users/pascal/Galaxy/DataBank/Nyx/Nodes"
 }
 
 func SpaceIds() []string {

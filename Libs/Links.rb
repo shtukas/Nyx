@@ -4,7 +4,7 @@
 class Links
     # Links::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/Nyx/links.sqlite3"
+        "#{Nodes::nyxFolderpath()}/links.sqlite3"
     end
 
     # Links::link(id1, id2)
