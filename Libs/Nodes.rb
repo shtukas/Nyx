@@ -629,7 +629,11 @@ class Nodes
                 Links::link(id, idx)
             })
 
-            mx.item("architecture child".yellow, lambda { 
+            mx.item("architecture child".yellow, lambda {
+                if Nodes::nxType(id) == "NxSmartDirectory" then
+                    puts "Operation not permited on a smart directory"
+                    return
+                end
                 idx = Nodes::architectId()
                 return if idx.nil?
                 Arrows::link(id, idx)
@@ -650,6 +654,10 @@ class Nodes
             })
 
             mx.item("remove childrens".yellow, lambda {
+                if Nodes::nxType(id) == "NxSmartDirectory" then
+                    puts "Operation not permited on a smart directory"
+                    return
+                end
                 idxs, _ = LucilleCore::selectZeroOrMore("childrens", [], Arrows::childrenIds2(id), lambda{|idx| Nodes::description(idx) })
                 idxs.each{|idx|
                     Arrows::unlink(id, idx)
@@ -657,6 +665,10 @@ class Nodes
             })
 
             mx.item("recast children data carriers as unique strings at folder".yellow, lambda {
+                if Nodes::nxType(id) == "NxSmartDirectory" then
+                    puts "Operation not permited on a smart directory"
+                    return
+                end
                 targetfolder = LucilleCore::askQuestionAnswerAsString("target folder: ")
                 return if !File.exists?(targetfolder)
                 return if !File.directory?(targetfolder)
@@ -679,6 +691,10 @@ class Nodes
             })
 
             mx.item("relocate (move a selection of children somewhere else)".yellow, lambda {
+                if Nodes::nxType(id) == "NxSmartDirectory" then
+                    puts "Operation not permited on a smart directory"
+                    return
+                end
                 puts "(1) new parent selection ; (2) moving children selection"
                 id1 = Nodes::architectId()
                 return if id1.nil?
@@ -691,36 +707,6 @@ class Nodes
                     Arrows::unlink(id, idx)
                 }
             })
-
-            if Nodes::nxType(id) == "NxSmartDirectory" then
-                mx.item("convert non FSUniqueString and non NxSmartDirectory children into FSUniqueString".yellow, lambda {
-                    Arrows::childrenIds2(id).each{|idx|
-                        next if Nodes::nxType(idx) == "NxSmartDirectory"
-                        next if Nodes::nxType(idx) == "FSUniqueString"
-                        if Nodes::nxType(idx) == "Url" then
-                            uniquestring1 = Marbles::get(filepath, "uniquestring")
-                            folderpath1 = Utils::locationByUniqueStringOrNull(uniquestring1)
-                            if folderpath1.nil? then
-                                puts "Could not determine location for NxSmartDirectory '#{Nodes::description(id)}' uniquestring: #{uniquestring1}"
-                                LucilleCore::pressEnterToContinue()
-                                return
-                            end
-                            filepathx = Nodes::filepathOrNull(idx)
-                            urlx = Marbles::get(filepathx, "url")
-                            uniquestring2 = SecureRandom.hex(6)
-                            filename2 = "URL [#{uniquestring2}].txt"
-                            filepath2 = "#{folderpath1}/#{filename2}"
-                            File.open(filepath2, "w"){|f| f.puts(urlx) }
-                            # We now need to transmute the child into FSUniqueString
-                            Marbles::set(filepathx, "nxType", "FSUniqueString")
-                            Marbles::set(filepathx, "uniquestring", uniquestring2)
-                            next
-                        end
-                        puts "I do not know how to run this export operation for type #{Nodes::nxType(idx)}"
-                        LucilleCore::pressEnterToContinue()
-                    }
-                })
-            end
 
             mx.item("garbage collection".yellow, lambda { 
                 # This is mostly to flush data on nodes that used to be AionPoints but have been transmuted

@@ -59,6 +59,37 @@ class NxSmartDirectory
             return
         end
 
+
+        # We convert the arrow kids to unique strings kids with a presence on disk
+        # Note that we ca manually, in Nyx, create (non unique string kids), but we can still transmute another node type to NxSmartDirectory
+        # Resulting in possibly non arrow kids of type FSUniqueString
+        Arrows::childrenIds2(id).each{|idx|
+            next if Nodes::nxType(idx) == "NxSmartDirectory"
+            next if Nodes::nxType(idx) == "FSUniqueString"
+            if Nodes::nxType(idx) == "Url" then
+                uniquestring1 = Marbles::get(filepath, "uniquestring")
+                folderpath1 = Utils::locationByUniqueStringOrNull(uniquestring1)
+                if folderpath1.nil? then
+                    puts "Could not determine location for NxSmartDirectory '#{Nodes::description(id)}' uniquestring: #{uniquestring1}"
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
+                filepathx = Nodes::filepathOrNull(idx)
+                urlx = Marbles::get(filepathx, "url")
+                uniquestring2 = SecureRandom.hex(6)
+                filename2 = "URL [#{uniquestring2}].txt"
+                filepath2 = "#{folderpath1}/#{filename2}"
+                File.open(filepath2, "w"){|f| f.puts(urlx) }
+                # We now need to transmute the child into FSUniqueString
+                Marbles::set(filepathx, "nxType", "FSUniqueString")
+                Marbles::set(filepathx, "uniquestring", uniquestring2)
+                next
+            end
+            puts "I do not know how to run this export operation for type #{Nodes::nxType(idx)}"
+            LucilleCore::pressEnterToContinue()
+        }
+
+
         # We check that each fs child has a unique string in its filename
         status1 = LucilleCore::locationsAtFolder(folderpath).any?{|childlocation| NxSmartDirectory::getUniqueStringOrNull(File.basename(childlocation)).nil? }
         if status1 then
