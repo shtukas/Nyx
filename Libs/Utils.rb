@@ -37,6 +37,12 @@ class Utils
         system("open -a Safari '#{url}'")
     end
 
+    # Utils::locationByUniqueStringOrNull(uniquestring)
+    def self.locationByUniqueStringOrNull(uniquestring)
+        location = `atlas locate '#{uniquestring}'`.strip
+        location.size > 0 ? location : nil
+    end
+
     # ----------------------------------------------------
 
     # Utils::levenshteinDistance(s, t)

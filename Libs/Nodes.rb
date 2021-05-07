@@ -309,10 +309,11 @@ class Nodes
     def self.access(id)
 
         accessUniqueString = lambda {|uniquestring|
-            location = `atlas locate '#{uniquestring}'`.strip
-            if location == "" then
+            location = Utils::locationByUniqueStringOrNull(uniquestring)
+            if location.nil? then
                 puts "Could not locate unique string #{uniquestring}"
                 LucilleCore::pressEnterToContinue()
+                return
             end
             if File.directory?(location) then
                 puts location
@@ -644,7 +645,7 @@ class Nodes
                             nhash = Marbles::get(Nodes::filepathOrNull(idx), "nhash")
                             operator = MarblesElizabeth.new(Nodes::filepathOrNull(idx))
                             descriptionx = Nodes::description(idx)
-                            uniquestring = Digest::SHA1.hexdigest("0479b24f-c8ab-419a-8c6b-84969ff5f213:#{idx}")[0, 12]
+                            uniquestring = SecureRandom.hex(6)
                             targetFolderpath = "#{targetfolder}/#{descriptionx} [#{uniquestring}]"
                             FileUtils.mkdir(targetFolderpath)
                             AionCore::exportHashAtFolder(operator, nhash, targetFolderpath)
@@ -668,6 +669,35 @@ class Nodes
                     Arrows::unlink(id, idx)
                 }
             })
+
+            if Nodes::nxType(id) == "NxSmartDirectory" then
+                mx.item("convert non FSUniqueString and non NxSmartDirectory children into FSUniqueString".yellow, lambda {
+                    Arrows::childrenIds2(id).each{|idx|
+                        next if Nodes::nxType(idx) == "NxSmartDirectory"
+                        next if Nodes::nxType(idx) == "FSUniqueString"
+                        if Nodes::nxType(idx) == "Url" then
+                            uniquestring1 = Marbles::get(filepath, "uniquestring")
+                            folderpath1 = Utils::locationByUniqueStringOrNull(uniquestring1)
+                            if folderpath1.nil? then
+                                puts "Could not determine location for NxSmartDirectory '#{Nodes::description(id)}' uniquestring: #{uniquestring}"
+                                return
+                            end
+                            filepathx = Nodes::filepathOrNull(idx)
+                            urlx = Marbles::get(filepathx, "url")
+                            uniquestring2 = SecureRandom.hex(6)
+                            filename2 = "URL [#{uniquestring2}].txt"
+                            filepath2 = "#{folderpath1}/#{filename2}"
+                            File.open(filepath2, "w"){|f| f.puts(urlx) }
+                            # We now need to transmute the child into FSUniqueString
+                            Marbles::set(filepathx, "nxType", "FSUniqueString")
+                            Marbles::set(filepathx, "uniquestring", uniquestring2)
+                            next
+                        end
+                        puts "I do not know how to run this export operation for type #{Nodes::nxType(idx)}"
+                        LucilleCore::pressEnterToContinue()
+                    }
+                })
+            end
 
             mx.item("garbage collection".yellow, lambda { 
                 # This is mostly to flush data on nodes that used to be AionPoints but have been transmuted
@@ -800,13 +830,24 @@ class Nodes
 
         if nxType == "FSUniqueString" then
             if Marbles::getOrNull(filepath, "uniquestring").nil? then
-                raise "fsck fail: no uniquestring found for id: #{id}"
+                raise "fsck fail: no uniquestring found for FSUniqueString id: #{id}"
             end
         end
+
         if nxType == "NxSmartDirectory" then
             if Marbles::getOrNull(filepath, "uniquestring").nil? then
-                raise "fsck fail: no uniquestring found for id: #{id}"
+                raise "fsck fail: no uniquestring found for NxSmartDirectory id: #{id}"
             end
+
+            Arrows::childrenIds2(id).each{|idx|
+                filepathx = Nodes::filepathOrNull(idx)
+                if !["FSUniqueString", "NxSmartDirectory"].include?(Marbles::get(filepathx, "nxType")) then
+                    puts "NxSmartDirectory '#{Marbles::getOrNull(filepathx, "description")}' has a child that is not a FSUniqueString or a NxSmartDirectory"
+                    puts "We are going to land on it"
+                    LucilleCore::pressEnterToContinue()
+                    Nodes::landing(id)
+                end
+            }
         end
     end
 end
