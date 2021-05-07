@@ -71,6 +71,19 @@ class Nodes
         Nodes::nodesFilepaths().map{|filepath| File.basename(filepath)[0, 15] }
     end
 
+    # Nodes::makeNewFSUniqueStringNode(description, uniquestring)
+    def self.makeNewFSUniqueStringNode(description, uniquestring)
+        id = Nodes::issueNewId()
+        filepath = "#{Nodes::nodesFolderpath()}/#{id}.marble"
+        Marbles::issueNewEmptyMarbleFile(filepath)
+        Marbles::set(filepath, "uuid", id)
+        Marbles::set(filepath, "unixtime", Time.new.to_i)
+        Marbles::set(filepath, "description", description)
+        Marbles::set(filepath, "nxType", "FSUniqueString")
+        Marbles::set(filepath, "uniquestring", uniquestring)
+        id
+    end
+
     # Nodes::interactivelyMakeNewNodeReturnIdOrNull()
     def self.interactivelyMakeNewNodeReturnIdOrNull()
         id = Nodes::issueNewId()
@@ -503,6 +516,25 @@ class Nodes
         LucilleCore::pressEnterToContinue()
     end
 
+    # Nodes::getNodeIdByUniqueStringOrNull(uniquestring)
+    def self.getNodeIdByUniqueStringOrNull(uniquestring)
+        useTheForce = lambda{|uniquestring|
+            Nodes::ids().each{|id|
+                next if !["FSUniqueString", "NxSmartDirectory"].include?(Nodes::nxType(id))
+                next if Marbles::get(Nodes::filepathOrNull(id), "uniquestring") != uniquestring
+                return id
+            }
+            nil
+        }
+        id = KeyValueStore::getOrNull(nil, "453a81bf-b5e0-4cb2-9beb-8a11f74824e5:#{uniquestring}")
+        return id if id
+
+        id = useTheForce.call(uniquestring)
+        return nil if id.nil?
+        KeyValueStore::set(nil, "453a81bf-b5e0-4cb2-9beb-8a11f74824e5:#{uniquestring}", id)
+        id
+    end
+
     # Nodes::landing(id)
     def self.landing(id)
 
@@ -513,10 +545,49 @@ class Nodes
 
             return if !Nodes::exists?(id)
 
+            # If I land on a smart directory, then I need to make sure that all the elements in the folder are children of the node.
+
+            if Nodes::nxType(id) == "NxSmartDirectory" then
+                (lambda { |id, filepath|
+                    uniquestring = Marbles::get(filepath, "uniquestring")
+                    folderpath = Utils::locationByUniqueStringOrNull(uniquestring)
+                    if folderpath.nil? then
+                        puts "Could not determine location for NxSmartDirectory '#{Nodes::description(id)}' uniquestring: #{uniquestring}"
+                        LucilleCore::pressEnterToContinue()
+                        return
+                    end
+                    status1 = LucilleCore::locationsAtFolder(folderpath).any?{|childlocation| NxSmartDirectory::getUniqueStringOrNull(File.basename(childlocation)).nil? }
+                    if status1 then
+                        puts "You have file system children of this smart folder which do not have a unique string, let me send you there..."
+                        LucilleCore::pressEnterToContinue()
+                        system("open '#{folderpath}'")
+                        return
+                    end
+                    # Now we need to make sure that each fs child is an arrow child
+                    LucilleCore::locationsAtFolder(folderpath).each{|childlocation| 
+                        childuniquestring = NxSmartDirectory::getUniqueStringOrNull(File.basename(childlocation))
+                        childid = Nodes::getNodeIdByUniqueStringOrNull(childuniquestring)
+                        next if (childid and Arrows::childrenIds2(id).include?(childid))
+                        # The childid is either null or the childid is not an arrow child
+                        if childid.nil? then
+                            childdescription = NxSmartDirectory::getDescriptionFromFilename(File.basename(childlocation))
+                            puts "childuniquestring: #{childuniquestring}"
+                            puts "I am about to make a new arrow child with description: #{childdescription}"
+                            LucilleCore::pressEnterToContinue()
+                            childid = Nodes::makeNewFSUniqueStringNode(childdescription, childuniquestring)
+                        end
+                        Arrows::link(id, childid)
+                    }
+                }).call(id, filepath)
+            end
+
             puts Nodes::description(id)
             puts "#{Nodes::nxType(id)}, id: #{id}, datetime: #{Nodes::datetime(id)}"
             if Nodes::nxType(id) == "Url" then
                 puts "url: #{Marbles::get(Nodes::filepathOrNull(id), "url")}"
+            end
+            if ["FSUniqueString", "NxSmartDirectory"].include?(Nodes::nxType(id)) then
+                puts "uniquestring: #{Marbles::get(filepath, "uniquestring")}"
             end
 
             mx = LCoreMenuItemsNX1.new()
@@ -679,7 +750,8 @@ class Nodes
                             uniquestring1 = Marbles::get(filepath, "uniquestring")
                             folderpath1 = Utils::locationByUniqueStringOrNull(uniquestring1)
                             if folderpath1.nil? then
-                                puts "Could not determine location for NxSmartDirectory '#{Nodes::description(id)}' uniquestring: #{uniquestring}"
+                                puts "Could not determine location for NxSmartDirectory '#{Nodes::description(id)}' uniquestring: #{uniquestring1}"
+                                LucilleCore::pressEnterToContinue()
                                 return
                             end
                             filepathx = Nodes::filepathOrNull(idx)

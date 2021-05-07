@@ -15,6 +15,11 @@ class NxSmartDirectory
         str = str[0, str.size-1]
         str
     end
+
+    # NxSmartDirectory::getDescriptionFromFilename(filename)
+    def self.getDescriptionFromFilename(filename)
+        filename
+    end
 end
 
 raise "138f15e4-b62d-01" if NxSmartDirectory::getUniqueStringOrNull("something [1234567]") != "1234567"
