@@ -1,0 +1,15 @@
+
+There is fundamentally no restriction on theunique string referred to by `FSUniqueString` or `NxSmartDirectory`
+
+We have restrictions on the contents of a smart directory
+
+- The contents of the directory itself must all carry a unique string in their name.
+
+- The unique string must all be within square brackets. Ex: "Subjects (Academic) [1f8c1734-a79b]"
+
+- The square brackets are not part of the unique string, the just surround it.
+
+- There must not be another occurence of '[' or ']' other than the ones surrounding the unique string.
+
+- The enclosed unique string should be the last element of the file name. Ex: "Subjects (Academic) [1f8c1734-a79b]"
+
