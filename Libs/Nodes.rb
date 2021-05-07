@@ -516,29 +516,14 @@ class Nodes
         LucilleCore::pressEnterToContinue()
     end
 
-    # Nodes::getNodeIdByUniqueStringOrNull(uniquestring)
-    def self.getNodeIdByUniqueStringOrNull(uniquestring)
-        useTheForce = lambda{|uniquestring|
-            Nodes::ids().each{|id|
-                next if !["FSUniqueString", "NxSmartDirectory"].include?(Nodes::nxType(id))
-                next if Marbles::get(Nodes::filepathOrNull(id), "uniquestring") != uniquestring
-                return id
-            }
-            nil
-        }
-        id = KeyValueStore::getOrNull(nil, "453a81bf-b5e0-4cb2-9beb-8a11f74824e5:#{uniquestring}")
-        return id if id
-
-        id = useTheForce.call(uniquestring)
-        return nil if id.nil?
-        KeyValueStore::set(nil, "453a81bf-b5e0-4cb2-9beb-8a11f74824e5:#{uniquestring}", id)
-        id
-    end
-
     # Nodes::landing(id)
     def self.landing(id)
 
         filepath = Nodes::filepathOrNull(id)
+
+        if Nodes::nxType(id) == "NxSmartDirectory" then
+            NxSmartDirectory::smartDirectorySync(id, filepath)
+        end
 
         loop {
             system("clear")
@@ -546,40 +531,6 @@ class Nodes
             return if !Nodes::exists?(id)
 
             # If I land on a smart directory, then I need to make sure that all the elements in the folder are children of the node.
-
-            if Nodes::nxType(id) == "NxSmartDirectory" then
-                (lambda { |id, filepath|
-                    uniquestring = Marbles::get(filepath, "uniquestring")
-                    folderpath = Utils::locationByUniqueStringOrNull(uniquestring)
-                    if folderpath.nil? then
-                        puts "Could not determine location for NxSmartDirectory '#{Nodes::description(id)}' uniquestring: #{uniquestring}"
-                        LucilleCore::pressEnterToContinue()
-                        return
-                    end
-                    status1 = LucilleCore::locationsAtFolder(folderpath).any?{|childlocation| NxSmartDirectory::getUniqueStringOrNull(File.basename(childlocation)).nil? }
-                    if status1 then
-                        puts "You have file system children of this smart folder which do not have a unique string, let me send you there..."
-                        LucilleCore::pressEnterToContinue()
-                        system("open '#{folderpath}'")
-                        return
-                    end
-                    # Now we need to make sure that each fs child is an arrow child
-                    LucilleCore::locationsAtFolder(folderpath).each{|childlocation| 
-                        childuniquestring = NxSmartDirectory::getUniqueStringOrNull(File.basename(childlocation))
-                        childid = Nodes::getNodeIdByUniqueStringOrNull(childuniquestring)
-                        next if (childid and Arrows::childrenIds2(id).include?(childid))
-                        # The childid is either null or the childid is not an arrow child
-                        if childid.nil? then
-                            childdescription = NxSmartDirectory::getDescriptionFromFilename(File.basename(childlocation))
-                            puts "childuniquestring: #{childuniquestring}"
-                            puts "I am about to make a new arrow child with description: #{childdescription}"
-                            LucilleCore::pressEnterToContinue()
-                            childid = Nodes::makeNewFSUniqueStringNode(childdescription, childuniquestring)
-                        end
-                        Arrows::link(id, childid)
-                    }
-                }).call(id, filepath)
-            end
 
             puts Nodes::description(id)
             puts "#{Nodes::nxType(id)}, id: #{id}, datetime: #{Nodes::datetime(id)}"

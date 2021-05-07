@@ -9,7 +9,8 @@ We have restrictions on the contents of a smart directory
 
 - The square brackets are not part of the unique string, the just surround it.
 
-- There must not be another occurence of '[' or ']' other than the ones surrounding the unique string.
-
 - The enclosed unique string should be the last element of the file name. Ex: "Subjects (Academic) [1f8c1734-a79b]"
 
+- There can be other square brackets. Ex: "[128] Many URLs [22b6aaf2f072]"
+
+- All the kids of a smart directory should be either `FSUniqueString` or `NxSmartDirectory`
