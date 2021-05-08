@@ -38,4 +38,42 @@ class NxEntities
         }
     end
 
+    # NxEntities::getNxEntityByIdOrNull(id)
+    def self.getNxEntityByIdOrNull(id)
+        # We have two types of Entities: NxQuarks which are data carriers and NxListings
+        # This function returns either 
+        #    ["NxQuark", id]
+        #    ["NxListing", id, Nx21]
+        if File.exists?("#{NxQuarks::nxQuarkFolderpath()}/#{id}.marble") then
+            return ["NxQuark", id]
+        end
+        nx21 = NxListings::getListingByIdOrNull(id)
+        if nx21 then
+            return ["NxListing", id, nx21]
+        end
+        nil
+    end
+
+    # NxEntities::idIsNxQuark(id)
+    def self.idIsNxQuark(id)
+        File.exists?("#{NxQuarks::nxQuarkFolderpath()}/#{id}.marble")
+    end
+
+    # NxEntities::idIsNxListing(id)
+    def self.idIsNxListing(id)
+        !NxListings::getListingByIdOrNull(id).nil?
+    end
+
+    # NxEntities::landing(id)
+    def self.landing(id)
+        if NxEntities::idIsNxQuark(id) then
+            NxQuarks::landing(id)
+            return
+        end
+        if NxEntities::idIsNxListing(id) then
+            NxListings::landing(id)
+            return
+        end
+    end
+
 end

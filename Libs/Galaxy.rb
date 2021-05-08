@@ -29,7 +29,7 @@ class Galaxy
         Galaxy::locationEnumerator([root]).map{|location|
             {
                 "announce" => "#{File.basename(location)}",
-                "type"     => "galaxy-location",
+                "type"     => "GalaxyLocation",
                 "location" => location
             }
         }

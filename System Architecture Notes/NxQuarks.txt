@@ -4,11 +4,8 @@ The Nyx Network is made of NxQuarks. They are Marbles on disk.
 NxQuark (Common)
     - uuid            : NxQuarkId
     - unixtime        : Integer
-    - nxType          : "NxTag" | "Url" | "Text" | "AionPoint" | "FSUniqueString" | "NxSmartDirectory"
+    - nxType          : "Url" | "Text" | "AionPoint" | "FSUniqueString" | "NxSmartDirectory"
     - description     : String
-
-NxTag:
-    - nxType : "NxTag"
 
 Url:
     - nxType : "Url"

@@ -110,11 +110,6 @@ class Utils
 
     # Utils::selectLineOrNullUsingInteractiveInterface(lines) : String
     def self.selectLineOrNullUsingInteractiveInterface(lines)
-
-        # Temporary measure to remove stress on Utils::selectLinesUsingInteractiveInterface / peco after 
-        # we added the videos from video stream
-        lines = lines.reject{|line| line.include?('.mkv') }
-        
         lines = Utils::selectLinesUsingInteractiveInterface(lines)
         if lines.size == 0 then
             return nil

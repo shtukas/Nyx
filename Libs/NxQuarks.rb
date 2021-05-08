@@ -12,7 +12,7 @@ class NxQuarks
 
     # NxQuarks::nxQuarkTypes()
     def self.nxQuarkTypes()
-        ["NxTag", "Url", "Text", "AionPoint", "FSUniqueString", "NxSmartDirectory"] 
+        ["Url", "Text", "AionPoint", "FSUniqueString", "NxSmartDirectory"] 
     end
 
     # -------------------------------------------------------
@@ -61,7 +61,7 @@ class NxQuarks
         end
         Marbles::set(filepath, "description", description)
 
-        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "AionPoint", "FSUniqueString", "NxSmartDirectory"])
+        nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", NxQuarks::nxQuarkTypes())
 
         if nxType.nil? then
             NxQuarks::destroy(id)
@@ -69,10 +69,6 @@ class NxQuarks
         end
 
         Marbles::set(filepath, "nxType", nxType)
-
-        if nxType == "NxTag" then
-            return id
-        end
 
         if nxType == "Url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
@@ -301,11 +297,6 @@ class NxQuarks
             end
         }
 
-        if NxQuarks::nxType(id) == "NxTag" then
-            puts "line: #{NxQuarks::description(id)}"
-            LucilleCore::pressEnterToContinue()
-        end
-
         if NxQuarks::nxType(id) == "Url" then
             puts "description: #{NxQuarks::description(id)}"
             url = Marbles::get(NxQuarks::filepathOrNull(id), "url")
@@ -343,15 +334,6 @@ class NxQuarks
 
     # NxQuarks::edit(id)
     def self.edit(id)
-
-        if NxQuarks::nxType(id) == "NxTag" then
-            puts "line: #{NxQuarks::description(id)}"
-            # Update Description
-            description = Utils::editTextSynchronously(NxQuarks::description(id))
-            if description != "" then
-                NxQuarks::setDescription(id, description)
-            end
-        end
 
         if NxQuarks::nxType(id) == "Url" then
             puts "description: #{NxQuarks::description(id)}"
@@ -398,18 +380,6 @@ class NxQuarks
     # NxQuarks::transmuteOrNothing(id, targetType)
     def self.transmuteOrNothing(id, targetType)
         type1 = NxQuarks::nxType(id)
-
-        if type1 == "NxTag" and targetType == "NxSmartDirectory" then
-            puts "NxTag to NxSmartDirectory."
-            puts "I need to transform the tag into a uniquestring (root of the NxSmartDirectory)"
-            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
-            return if uniquestring == ""
-            filepath = NxQuarks::filepathOrNull(id)
-            return if filepath.nil?
-            Marbles::set(filepath, "nxType", "NxSmartDirectory")
-            Marbles::set(filepath, "uniquestring", uniquestring) 
-            return
-        end
 
         if type1 == "AionPoint" and targetType == "FSUniqueString" then
             puts "AionPoint to FSUniqueString"
@@ -708,35 +678,15 @@ class NxQuarks
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
                     "announce" => "#{volatileuuid} #{NxQuarks::toString(id)}",
-                    "type"     => "quark",
+                    "type"     => "NxQuark",
                     "id"       => id
                 }
             }
     end
 
-    # NxQuarks::mx20s()
-    def self.mx20s()
-        NxEntities::ids()
-            .map{|id|
-                volatileuuid = SecureRandom.hex[0, 8]
-                tostring = NxQuarks::toString(id)
-                {
-                    "announce"         => "#{volatileuuid} #{tostring}",
-                    "deep-searcheable" => tostring,
-                    "type"             => "quark",
-                    "id"               => id
-                }
-            }
-    end
-
-    # NxQuarks::selectOneNxQuarkMx19OrNull()
-    def self.selectOneNxQuarkMx19OrNull()
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(NxQuarks::mx19s(), lambda{|item| item["announce"] })
-    end
-
     # NxQuarks::selectOneNxQuarkIdOrNull()
     def self.selectOneNxQuarkIdOrNull()
-        mx19 = NxQuarks::selectOneNxQuarkMx19OrNull()
+        mx19 = Utils::selectOneObjectOrNullUsingInteractiveInterface(NxQuarks::mx19s(), lambda{|item| item["announce"] })
         return if mx19.nil?
         mx19["id"]
     end
@@ -764,14 +714,10 @@ class NxQuarks
 
         nxType = Marbles::get(filepath, "nxType")
 
-        if !["NxTag", "Url", "Text", "AionPoint", "FSUniqueString", "NxSmartDirectory"].include?(nxType) then
+        if !NxQuarks::nxQuarkTypes().include?(nxType) then
             raise "fsck unsupported nxType for id: #{id} (found: #{nxType})"
         end
 
-        if nxType == "NxTag" then
-            # Nothing
-        end
-        
         if nxType == "Url" then
             if Marbles::getOrNull(filepath, "url").nil? then
                 raise "fsck fail: no url found for id: #{id}"

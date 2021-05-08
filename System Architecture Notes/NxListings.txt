@@ -1,0 +1,7 @@
+
+CREATE TABLE _listings_ (_uuid_ text, _description_ text);
+
+Nx21 {
+    "uuid"        : String
+    "description" : String
+}

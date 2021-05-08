@@ -3,13 +3,22 @@
 
 class Search
 
+    # Search::nx19s()
+    def self.nx19s()
+        NxListings::nx19s() + NxQuarks::mx19s() # + Galaxy::mx19sAtRoot(root)
+    end
+
     # Search::mx19Landing(mx19)
     def self.mx19Landing(mx19)
-        if mx19["type"] == "quark" then
+        if mx19["type"] == "NxQuark" then
             NxQuarks::landing(mx19["id"])
             return
         end
-        if mx19["type"] == "galaxy-location" then
+        if mx19["type"] == "NxListing" then
+            NxListings::landing(mx19["id"])
+            return
+        end
+        if mx19["type"] == "GalaxyLocation" then
             puts mx19["location"]
             LucilleCore::pressEnterToContinue()
             return
@@ -17,37 +26,18 @@ class Search
         raise "3a35f700-153a-484b-b4ac-c9489982b52b"
     end
 
+    # Search::selectOneNx19OrNull()
+    def self.selectOneNx19OrNull()
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(Search::nx19s(), lambda{|item| item["announce"] })
+    end
+
     # Search::searchLoopNetworkNxQuarks()
     def self.searchLoopNetworkNxQuarks()
         loop {
-            mx19 = NxQuarks::selectOneNxQuarkMx19OrNull()
+            mx19 = Search::selectOneNx19OrNull()
             break if mx19.nil?
-            NxQuarks::landing(mx19["id"])
-        }
-    end
-
-    # Search::searchLoopFileHierarchyAtFolder(folderpath)
-    def self.searchLoopFileHierarchyAtFolder(folderpath)
-        mx19s = Galaxy::mx19sAtRoot(folderpath)
-        loop {
-            mx19 = Utils::selectOneObjectOrNullUsingInteractiveInterface(mx19s, lambda{|item| item["announce"] })
-            return if mx19.nil?
             Search::mx19Landing(mx19)
         }
     end
 
-    # Search::deepSearch()
-    def self.deepSearch()
-        loop {
-            pattern = LucilleCore::askQuestionAnswerAsString("pattern (empty to exit): ")
-            return if pattern == ""
-            mx20s = NxQuarks::mx20s()
-            mx20s = mx20s.select{|mx20| mx20["deep-searcheable"].downcase.include?(pattern.downcase) }
-            loop {
-                mx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("mx20", mx20s, lambda{|mx20| mx20["announce"] })
-                break if mx20.nil?
-                Search::mx19Landing(mx20)
-            }
-        }
-    end
 end

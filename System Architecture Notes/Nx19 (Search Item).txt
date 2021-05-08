@@ -1,0 +1,17 @@
+
+Nx19
+    {
+        "announce" : String
+        "type"     : "NxQuark"
+        "id"       : String
+    }
+    {
+        "announce" : String
+        "type"     : "NxListing"
+        "id"       : String
+    }
+    {
+        "announce" : String
+        "type"     : "GalaxyLocation"
+        "location" : String
+    }

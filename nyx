@@ -11,11 +11,6 @@ if ARGV[0] == "search" then
     exit
 end
 
-if ARGV[0] == "deep-search" then
-    Search::deepSearch()
-    exit
-end
-
 if ARGV[0] == "listing" then
     loop {
         id = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxQuark", NxEntities::ids(), lambda{|id| NxQuarks::description(id) })
@@ -49,7 +44,6 @@ end
 str = <<HELP
 usage:
     nyx search
-    nyx deep-search
     nyx listing
     nyx make
     nyx unique-string # Generates a unique string for type FSUniqueString
