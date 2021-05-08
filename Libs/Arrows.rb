@@ -62,12 +62,12 @@ class Arrows
     # Arrows::parentsIds2(targetId)
     def self.parentsIds2(targetId)
         Arrows::parentsIds(targetId)
-            .select{|id| Nodes::exists?(id) }
+            .select{|id| NxQuarks::exists?(id) }
     end
 
     # Arrows::childrenIds2(sourceId)
     def self.childrenIds2(sourceId)
         Arrows::childrenIds(sourceId)
-            .select{|id| Nodes::exists?(id) }
+            .select{|id| NxQuarks::exists?(id) }
     end
 end

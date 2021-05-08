@@ -7,7 +7,7 @@ require_relative "Libs/loader.rb"
 # ----------------------------------------------------------------------------
 
 if ARGV[0] == "search" then
-    Search::searchLoopNetworkNodes()
+    Search::searchLoopNetworkNxQuarks()
     exit
 end
 
@@ -18,17 +18,17 @@ end
 
 if ARGV[0] == "listing" then
     loop {
-        id = LucilleCore::selectEntityFromListOfEntitiesOrNull("Node", Nodes::ids(), lambda{|id| Nodes::description(id) })
+        id = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxQuark", NxQuarks::ids(), lambda{|id| NxQuarks::description(id) })
         break if id.nil?
-        Nodes::landing(id)
+        NxQuarks::landing(id)
     }
     exit
 end
 
 if ARGV[0] == "make" then
-    id = Nodes::interactivelyMakeNewNodeReturnIdOrNull()
+    id = NxQuarks::interactivelyMakeNewNxQuarkReturnIdOrNull()
     exit if id.nil?
-    Nodes::landing(id)
+    NxQuarks::landing(id)
     exit
 end
 
@@ -38,9 +38,9 @@ if ARGV[0] == "unique-string" then
 end
 
 if ARGV[0] == "fsck" then
-    Nodes::ids().each{|id|
+    NxQuarks::ids().each{|id|
         puts "fsck: #{id}"
-        Nodes::fsck(id)
+        NxQuarks::fsck(id)
     }
     puts "All good!".green
     exit

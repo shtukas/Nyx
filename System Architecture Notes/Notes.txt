@@ -24,5 +24,5 @@ A note is an object of the form
     "data"        : String # named hash
 }
 
-They are Node attachements, stored together with the node and deleted together with it. 
+They are NxQuark attachements, stored together with the quark and deleted together with it. 
 They are located in the Marble set "notes:d39ca9d6644694abc4235e105a64a59b"

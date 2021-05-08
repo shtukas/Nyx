@@ -1,75 +1,75 @@
 # encoding: UTF-8
 
-class Nodes
+class NxQuarks
 
     # -------------------------------------------------------
     # Config
 
-    # Nodes::nodesFolderpath()
-    def self.nodesFolderpath()
-        "#{Config::nyxFolderPath()}/Nodes"
+    # NxQuarks::nxQuarkFolderpath()
+    def self.nxQuarkFolderpath()
+        "#{Config::nyxFolderPath()}/NxQuarks"
     end
 
-    # Nodes::nodeTypes()
-    def self.nodeTypes()
+    # NxQuarks::nxQuarkTypes()
+    def self.nxQuarkTypes()
         ["NxTag", "Url", "Text", "AionPoint", "FSUniqueString", "NxSmartDirectory"] 
     end
 
     # -------------------------------------------------------
     # Ids (eg: 024677747775-07)
 
-    # Nodes::randomDigit()
+    # NxQuarks::randomDigit()
     def self.randomDigit()
         (0..9).to_a.sample
     end
 
-    # Nodes::randomId(length)
+    # NxQuarks::randomId(length)
     def self.randomId(length)
-        (1..length).map{|i| Nodes::randomDigit() }.join()
+        (1..length).map{|i| NxQuarks::randomDigit() }.join()
     end
 
-    # Nodes::forgeNewId()
+    # NxQuarks::forgeNewId()
     def self.forgeNewId()
-        raise "ed679236-713a-41e9-bed0-b19d4b65986d" if !Nodes::nodeTypes()
-        "#{Nodes::randomId(12)}-#{Nodes::randomId(2)}"
+        raise "ed679236-713a-41e9-bed0-b19d4b65986d" if !NxQuarks::nxQuarkTypes()
+        "#{NxQuarks::randomId(12)}-#{NxQuarks::randomId(2)}"
     end
 
-    # Nodes::ids()
+    # NxQuarks::ids()
     def self.ids()
-        LucilleCore::locationsAtFolder(Nodes::nodesFolderpath())
+        LucilleCore::locationsAtFolder(NxQuarks::nxQuarkFolderpath())
             .map{|location| File.basename(location) }
             .select{|s| s[-7, 7] == ".marble" }
             .map{|s| s[0, 15] }
     end
 
-    # Nodes::issueNewId()
+    # NxQuarks::issueNewId()
     def self.issueNewId()
         loop {
-            id = Nodes::forgeNewId()
-            next if Nodes::exists?(id)
+            id = NxQuarks::forgeNewId()
+            next if NxQuarks::exists?(id)
             return id
         }
     end
 
     # -------------------------------------------------------
-    # Nodes General
+    # NxQuarks General
 
-    # Nodes::nodesFilepaths()
-    def self.nodesFilepaths()
-        LucilleCore::locationsAtFolder(Nodes::nodesFolderpath())
+    # NxQuarks::nxQuarksFilepaths()
+    def self.nxQuarksFilepaths()
+        LucilleCore::locationsAtFolder(NxQuarks::nxQuarkFolderpath())
             .map{|location| File.basename(location)}
             .select{|s| s[-7, 7] == ".marble"}
     end
 
-    # Nodes::networkIds()
+    # NxQuarks::networkIds()
     def self.networkIds()
-        Nodes::nodesFilepaths().map{|filepath| File.basename(filepath)[0, 15] }
+        NxQuarks::nxQuarksFilepaths().map{|filepath| File.basename(filepath)[0, 15] }
     end
 
-    # Nodes::makeNewFSUniqueStringNode(description, uniquestring)
-    def self.makeNewFSUniqueStringNode(description, uniquestring)
-        id = Nodes::issueNewId()
-        filepath = "#{Nodes::nodesFolderpath()}/#{id}.marble"
+    # NxQuarks::makeNewFSUniqueStringNxQuark(description, uniquestring)
+    def self.makeNewFSUniqueStringNxQuark(description, uniquestring)
+        id = NxQuarks::issueNewId()
+        filepath = "#{NxQuarks::nxQuarkFolderpath()}/#{id}.marble"
         Marbles::issueNewEmptyMarbleFile(filepath)
         Marbles::set(filepath, "uuid", id)
         Marbles::set(filepath, "unixtime", Time.new.to_i)
@@ -79,11 +79,11 @@ class Nodes
         id
     end
 
-    # Nodes::interactivelyMakeNewNodeReturnIdOrNull()
-    def self.interactivelyMakeNewNodeReturnIdOrNull()
-        id = Nodes::issueNewId()
+    # NxQuarks::interactivelyMakeNewNxQuarkReturnIdOrNull()
+    def self.interactivelyMakeNewNxQuarkReturnIdOrNull()
+        id = NxQuarks::issueNewId()
 
-        filepath = "#{Nodes::nodesFolderpath()}/#{id}.marble"
+        filepath = "#{NxQuarks::nxQuarkFolderpath()}/#{id}.marble"
 
         Marbles::issueNewEmptyMarbleFile(filepath)
 
@@ -92,7 +92,7 @@ class Nodes
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         if description == "" then
-            Nodes::destroy(id)
+            NxQuarks::destroy(id)
             return nil 
         end
         Marbles::set(filepath, "description", description)
@@ -100,7 +100,7 @@ class Nodes
         nxType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["NxTag", "Url", "Text", "AionPoint", "FSUniqueString", "NxSmartDirectory"])
 
         if nxType.nil? then
-            Nodes::destroy(id)
+            NxQuarks::destroy(id)
             return nil
         end
 
@@ -113,7 +113,7 @@ class Nodes
         if nxType == "Url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             if url == "" then
-                Nodes::destroy(id)
+                NxQuarks::destroy(id)
                 return nil
             end
             Marbles::set(filepath, "url", url)
@@ -128,12 +128,12 @@ class Nodes
         if nxType == "AionPoint" then
             filename = LucilleCore::askQuestionAnswerAsString("filename (on Desktop) (empty to abort): ")
             if filename == "" then
-                Nodes::destroy(id)
+                NxQuarks::destroy(id)
                 return nil
             end
             fp1 = "/Users/pascal/Desktop/#{filename}"
             if !File.exists?(fp1) then
-                Nodes::destroy(id)
+                NxQuarks::destroy(id)
                 return nil
             end
             operator = MarblesElizabeth.new(filepath)
@@ -144,7 +144,7 @@ class Nodes
         if nxType == "FSUniqueString" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             if uniquestring == "" then
-                Nodes::destroy(id)
+                NxQuarks::destroy(id)
                 return nil
             end
             Marbles::set(filepath, "uniquestring", uniquestring)
@@ -153,7 +153,7 @@ class Nodes
         if nxType == "NxSmartDirectory" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             if uniquestring == "" then
-                Nodes::destroy(id)
+                NxQuarks::destroy(id)
                 return nil
             end
             Marbles::set(filepath, "uniquestring", uniquestring) 
@@ -162,92 +162,92 @@ class Nodes
         nil
     end
 
-    # Nodes::architectId()
+    # NxQuarks::architectId()
     def self.architectId()
-        id = Nodes::selectOneNodeIdOrNull()
+        id = NxQuarks::selectOneNxQuarkIdOrNull()
         return id if id
-        Nodes::interactivelyMakeNewNodeReturnIdOrNull()
+        NxQuarks::interactivelyMakeNewNxQuarkReturnIdOrNull()
     end
 
     # -------------------------------------------------------
-    # Nodes Instrospection
+    # NxQuarks Instrospection
 
-    # Nodes::filepathOrNull(id)
+    # NxQuarks::filepathOrNull(id)
     def self.filepathOrNull(id)
-        filepath = "#{Nodes::nodesFolderpath()}/#{id}.marble"
+        filepath = "#{NxQuarks::nxQuarkFolderpath()}/#{id}.marble"
         return nil if !File.exists?(filepath)
         filepath
     end
 
-    # Nodes::exists?(id)
+    # NxQuarks::exists?(id)
     def self.exists?(id)
-        File.exists?("#{Nodes::nodesFolderpath()}/#{id}.marble")
+        File.exists?("#{NxQuarks::nxQuarkFolderpath()}/#{id}.marble")
     end
 
-    # Nodes::destroy(id)
+    # NxQuarks::destroy(id)
     def self.destroy(id)
-        filepath = "#{Nodes::nodesFolderpath()}/#{id}.marble"
+        filepath = "#{NxQuarks::nxQuarkFolderpath()}/#{id}.marble"
         if File.exists?(filepath) then
             LucilleCore::removeFileSystemLocation(filepath)
         end
     end
 
-    # Nodes::description(id)
+    # NxQuarks::description(id)
     def self.description(id)
-        filepath = Nodes::filepathOrNull(id)
+        filepath = NxQuarks::filepathOrNull(id)
         raise "dcfa2f7b-80e0-4930-9b37-9d41e15acd9c" if filepath.nil?
         Marbles::get(filepath, "description")
     end
 
-    # Nodes::nxType(id)
+    # NxQuarks::nxType(id)
     def self.nxType(id)
-        filepath = Nodes::filepathOrNull(id)
+        filepath = NxQuarks::filepathOrNull(id)
         raise "ebde87c8-1fa8-44b6-b56e-0812ca779c0f" if filepath.nil?
         Marbles::get(filepath, "nxType")
     end
 
-    # Nodes::unixtime(id)
+    # NxQuarks::unixtime(id)
     def self.unixtime(id)
-        filepath = Nodes::filepathOrNull(id)
+        filepath = NxQuarks::filepathOrNull(id)
         raise "60583265-18d3-4ec9-87dc-36c27036630a" if filepath.nil?
         Marbles::get(filepath, "unixtime").to_i
     end
 
-    # Nodes::datetime(id)
+    # NxQuarks::datetime(id)
     def self.datetime(id)
-        Time.at(Nodes::unixtime(id)).utc.iso8601
+        Time.at(NxQuarks::unixtime(id)).utc.iso8601
     end
 
-    # Nodes::toString(id)
+    # NxQuarks::toString(id)
     def self.toString(id)
-        type = Nodes::nxType(id)
-        padding = Nodes::nodeTypes().map{|t| t.size}.max
-        "[#{type.ljust(padding)}] #{Nodes::description(id)}"
+        type = NxQuarks::nxType(id)
+        padding = NxQuarks::nxQuarkTypes().map{|t| t.size}.max
+        "[#{type.ljust(padding)}] #{NxQuarks::description(id)}"
     end
 
     # -------------------------------------------------------
-    # Nodes Metadata update
+    # NxQuarks Metadata update
 
-    # Nodes::setDescription(id, description)
+    # NxQuarks::setDescription(id, description)
     def self.setDescription(id, description)
-        filepath = Nodes::filepathOrNull(id)
+        filepath = NxQuarks::filepathOrNull(id)
         raise "e61c8efd-41a1-4c8e-b981-740f2f80db95" if filepath.nil?
         Marbles::set(filepath, "description", description)
     end
 
-    # Nodes::setUnixtime(id, unixtime)
+    # NxQuarks::setUnixtime(id, unixtime)
     def self.setUnixtime(id, unixtime)
-        filepath = Nodes::filepathOrNull(id)
+        filepath = NxQuarks::filepathOrNull(id)
         raise "e61c8efd-41a1-4c8e-b981-740f2f80db95" if filepath.nil?
         Marbles::set(filepath, "description", description)
     end
 
     # -------------------------------------------------------
-    # Nodes Notes
+    # NxQuarks Notes
 
-    # Nodes::interactivelyIssueNoteOrNothing(id)
+    # NxQuarks::interactivelyIssueNoteOrNothing(id)
     def self.interactivelyIssueNoteOrNothing(id)
-        filepath = Nodes::filepathOrNull(id)
+        filepath = NxQuarks::filepathOrNull(id)
         return if filepath.nil?
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", ["line", "url", "aion-point"])
         return if type.nil?
@@ -292,28 +292,28 @@ class Nodes
         Marbles::addSetData(filepath, "notes:d39ca9d6644694abc4235e105a64a59b", note["uuid"], JSON.generate(note))
     end
 
-    # Nodes::notes(id)
+    # NxQuarks::notes(id)
     def self.notes(id)
-        filepath = Nodes::filepathOrNull(id)
+        filepath = NxQuarks::filepathOrNull(id)
         raise "78b404cf-d825-4557-afd1-3b699dbe7a70" if filepath.nil?
         Marbles::getSet(filepath, "notes:d39ca9d6644694abc4235e105a64a59b").map{|note| JSON.parse(note) }
     end
 
-    # Nodes::nodeToString(note)
-    def self.nodeToString(note)
+    # NxQuarks::nxQuarksToString(note)
+    def self.nxQuarksToString(note)
         note.to_s
     end
 
-    # Nodes::accessNote(note)
+    # NxQuarks::accessNote(note)
     def self.accessNote(note)
         puts note.to_s
         LucilleCore::pressEnterToContinue()
     end
 
     # -------------------------------------------------------
-    # Nodes Ops
+    # NxQuarks Ops
 
-    # Nodes::access(id)
+    # NxQuarks::access(id)
     def self.access(id)
 
         accessUniqueString = lambda {|uniquestring|
@@ -337,77 +337,77 @@ class Nodes
             end
         }
 
-        if Nodes::nxType(id) == "NxTag" then
-            puts "line: #{Nodes::description(id)}"
+        if NxQuarks::nxType(id) == "NxTag" then
+            puts "line: #{NxQuarks::description(id)}"
             LucilleCore::pressEnterToContinue()
         end
 
-        if Nodes::nxType(id) == "Url" then
-            puts "description: #{Nodes::description(id)}"
-            url = Marbles::get(Nodes::filepathOrNull(id), "url")
+        if NxQuarks::nxType(id) == "Url" then
+            puts "description: #{NxQuarks::description(id)}"
+            url = Marbles::get(NxQuarks::filepathOrNull(id), "url")
             puts "url: #{url}"
             Utils::openUrl(url)
         end
 
-        if Nodes::nxType(id) == "Text" then
-            text = Marbles::get(Nodes::filepathOrNull(id), "text")
+        if NxQuarks::nxType(id) == "Text" then
+            text = Marbles::get(NxQuarks::filepathOrNull(id), "text")
             puts "text:\n#{text}"
             LucilleCore::pressEnterToContinue()
         end
 
-        if Nodes::nxType(id) == "AionPoint" then
-            puts "description: #{Nodes::description(id)}"
-            nhash = Marbles::get(Nodes::filepathOrNull(id), "nhash")
-            operator = MarblesElizabeth.new(Nodes::filepathOrNull(id))
+        if NxQuarks::nxType(id) == "AionPoint" then
+            puts "description: #{NxQuarks::description(id)}"
+            nhash = Marbles::get(NxQuarks::filepathOrNull(id), "nhash")
+            operator = MarblesElizabeth.new(NxQuarks::filepathOrNull(id))
             AionCore::exportHashAtFolder(operator, nhash, "/Users/pascal/Desktop")
             # Write the line to open the file.
             LucilleCore::pressEnterToContinue()
         end
 
-        if Nodes::nxType(id) == "FSUniqueString" then
-            puts "description: #{Nodes::description(id)}"
-            uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
+        if NxQuarks::nxType(id) == "FSUniqueString" then
+            puts "description: #{NxQuarks::description(id)}"
+            uniquestring = Marbles::get(NxQuarks::filepathOrNull(id), "uniquestring")
             accessUniqueString.call(uniquestring)
         end
 
-        if Nodes::nxType(id) == "NxSmartDirectory" then
-            puts "description: #{Nodes::description(id)}"
-            uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
+        if NxQuarks::nxType(id) == "NxSmartDirectory" then
+            puts "description: #{NxQuarks::description(id)}"
+            uniquestring = Marbles::get(NxQuarks::filepathOrNull(id), "uniquestring")
             accessUniqueString.call(uniquestring)
         end
     end
 
-    # Nodes::edit(id)
+    # NxQuarks::edit(id)
     def self.edit(id)
 
-        if Nodes::nxType(id) == "NxTag" then
-            puts "line: #{Nodes::description(id)}"
+        if NxQuarks::nxType(id) == "NxTag" then
+            puts "line: #{NxQuarks::description(id)}"
             # Update Description
-            description = Utils::editTextSynchronously(Nodes::description(id))
+            description = Utils::editTextSynchronously(NxQuarks::description(id))
             if description != "" then
-                Nodes::setDescription(id, description)
+                NxQuarks::setDescription(id, description)
             end
         end
 
-        if Nodes::nxType(id) == "Url" then
-            puts "description: #{Nodes::description(id)}"
-            url = Marbles::get(Nodes::filepathOrNull(id), "url")
+        if NxQuarks::nxType(id) == "Url" then
+            puts "description: #{NxQuarks::description(id)}"
+            url = Marbles::get(NxQuarks::filepathOrNull(id), "url")
             puts "url: #{url}"
             url = Utils::editTextSynchronously(url)
-            Marbles::set(Nodes::filepathOrNull(id), "url", url)
+            Marbles::set(NxQuarks::filepathOrNull(id), "url", url)
         end
 
-        if Nodes::nxType(id) == "Text" then
-            puts "description: #{Nodes::description(id)}"
-            text = Marbles::get(Nodes::filepathOrNull(id), "text")
+        if NxQuarks::nxType(id) == "Text" then
+            puts "description: #{NxQuarks::description(id)}"
+            text = Marbles::get(NxQuarks::filepathOrNull(id), "text")
             text = Utils::editTextSynchronously(text)
-            Marbles::set(Nodes::filepathOrNull(id), "text", text)
+            Marbles::set(NxQuarks::filepathOrNull(id), "text", text)
         end
 
-        if Nodes::nxType(id) == "AionPoint" then
-            puts "description: #{Nodes::description(id)}"
-            nhash = Marbles::get(Nodes::filepathOrNull(id), "nhash")
-            operator = MarblesElizabeth.new(Nodes::filepathOrNull(id))
+        if NxQuarks::nxType(id) == "AionPoint" then
+            puts "description: #{NxQuarks::description(id)}"
+            nhash = Marbles::get(NxQuarks::filepathOrNull(id), "nhash")
+            operator = MarblesElizabeth.new(NxQuarks::filepathOrNull(id))
             AionCore::exportHashAtFolder(operator, nhash, "/Users/pascal/Desktop")
             # Write the line to open the file.
             LucilleCore::pressEnterToContinue()
@@ -416,31 +416,31 @@ class Nodes
             end
         end
 
-        if Nodes::nxType(id) == "FSUniqueString" then
-            puts "description: #{Nodes::description(id)}"
-            uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
+        if NxQuarks::nxType(id) == "FSUniqueString" then
+            puts "description: #{NxQuarks::description(id)}"
+            uniquestring = Marbles::get(NxQuarks::filepathOrNull(id), "uniquestring")
             uniquestring = Utils::editTextSynchronously(uniquestring)
-            Marbles::set(Nodes::filepathOrNull(id), "uniquestring", uniquestring)
+            Marbles::set(NxQuarks::filepathOrNull(id), "uniquestring", uniquestring)
         end
 
-        if Nodes::nxType(id) == "NxSmartDirectory" then
-            puts "description: #{Nodes::description(id)}"
-            uniquestring = Marbles::get(Nodes::filepathOrNull(id), "uniquestring")
+        if NxQuarks::nxType(id) == "NxSmartDirectory" then
+            puts "description: #{NxQuarks::description(id)}"
+            uniquestring = Marbles::get(NxQuarks::filepathOrNull(id), "uniquestring")
             uniquestring = Utils::editTextSynchronously(uniquestring)
-            Marbles::set(Nodes::filepathOrNull(id), "uniquestring", uniquestring)
+            Marbles::set(NxQuarks::filepathOrNull(id), "uniquestring", uniquestring)
         end
     end
 
-    # Nodes::transmuteOrNothing(id, targetType)
+    # NxQuarks::transmuteOrNothing(id, targetType)
     def self.transmuteOrNothing(id, targetType)
-        type1 = Nodes::nxType(id)
+        type1 = NxQuarks::nxType(id)
 
         if type1 == "NxTag" and targetType == "NxSmartDirectory" then
             puts "NxTag to NxSmartDirectory."
             puts "I need to transform the tag into a uniquestring (root of the NxSmartDirectory)"
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return if uniquestring == ""
-            filepath = Nodes::filepathOrNull(id)
+            filepath = NxQuarks::filepathOrNull(id)
             return if filepath.nil?
             Marbles::set(filepath, "nxType", "NxSmartDirectory")
             Marbles::set(filepath, "uniquestring", uniquestring) 
@@ -450,10 +450,10 @@ class Nodes
         if type1 == "AionPoint" and targetType == "FSUniqueString" then
             puts "AionPoint to FSUniqueString"
 
-            filepath = Nodes::filepathOrNull(id)
+            filepath = NxQuarks::filepathOrNull(id)
 
             puts "First, let's make sure the data is exported"
-            nhash = Marbles::get(Nodes::filepathOrNull(id), "nhash")
+            nhash = Marbles::get(NxQuarks::filepathOrNull(id), "nhash")
             operator = MarblesElizabeth.new(filepath)
             AionCore::exportHashAtFolder(operator, nhash, "/Users/pascal/Desktop")
 
@@ -480,10 +480,10 @@ class Nodes
         if type1 == "AionPoint" and targetType == "NxSmartDirectory" then
             puts "AionPoint to NxSmartDirectory."
 
-            filepath = Nodes::filepathOrNull(id)
+            filepath = NxQuarks::filepathOrNull(id)
 
             puts "First, let's make sure the data is exported"
-            nhash = Marbles::get(Nodes::filepathOrNull(id), "nhash")
+            nhash = Marbles::get(NxQuarks::filepathOrNull(id), "nhash")
             operator = MarblesElizabeth.new(filepath)
             AionCore::exportHashAtFolder(operator, nhash, "/Users/pascal/Desktop")
 
@@ -511,156 +511,156 @@ class Nodes
         LucilleCore::pressEnterToContinue()
     end
 
-    # Nodes::landing(id)
+    # NxQuarks::landing(id)
     def self.landing(id)
 
-        filepath = Nodes::filepathOrNull(id)
+        filepath = NxQuarks::filepathOrNull(id)
 
-        if Nodes::nxType(id) == "NxSmartDirectory" then
+        if NxQuarks::nxType(id) == "NxSmartDirectory" then
             NxSmartDirectory::smartDirectorySync(id, filepath)
         end
 
         loop {
             system("clear")
 
-            return if !Nodes::exists?(id)
+            return if !NxQuarks::exists?(id)
 
-            # If I land on a smart directory, then I need to make sure that all the elements in the folder are children of the node.
+            # If I land on a smart directory, then I need to make sure that all the elements in the folder are children of the quark.
 
-            puts Nodes::description(id)
-            puts "#{Nodes::nxType(id)}, id: #{id}, datetime: #{Nodes::datetime(id)}"
-            if Nodes::nxType(id) == "Url" then
-                puts "url: #{Marbles::get(Nodes::filepathOrNull(id), "url")}"
+            puts NxQuarks::description(id)
+            puts "#{NxQuarks::nxType(id)}, id: #{id}, datetime: #{NxQuarks::datetime(id)}"
+            if NxQuarks::nxType(id) == "Url" then
+                puts "url: #{Marbles::get(NxQuarks::filepathOrNull(id), "url")}"
             end
-            if ["FSUniqueString", "NxSmartDirectory"].include?(Nodes::nxType(id)) then
+            if ["FSUniqueString", "NxSmartDirectory"].include?(NxQuarks::nxType(id)) then
                 puts "uniquestring: #{Marbles::get(filepath, "uniquestring")}"
             end
 
             mx = LCoreMenuItemsNX1.new()
 
-            Nodes::notes(id).each{|note|
-                mx.item("note: #{Nodes::nodeToString(note)}", lambda {
-                    Nodes::accessNote(note)
+            NxQuarks::notes(id).each{|note|
+                mx.item("note: #{NxQuarks::nxQuarksToString(note)}", lambda {
+                    NxQuarks::accessNote(note)
                 })
             }
 
             puts ""
 
             Links::linkedIds2(id).each{|idx|
-                mx.item("related: #{Nodes::toString(idx)}", lambda {
-                    Nodes::landing(idx)
+                mx.item("related: #{NxQuarks::toString(idx)}", lambda {
+                    NxQuarks::landing(idx)
                 })
             }
 
             puts ""
 
             Arrows::parentsIds2(id)
-                .sort{|idx1, idx2| Nodes::unixtime(idx1) <=> Nodes::unixtime(idx2) }
+                .sort{|idx1, idx2| NxQuarks::unixtime(idx1) <=> NxQuarks::unixtime(idx2) }
                 .each{|idx|
-                    mx.item("parent: #{Nodes::toString(idx)}", lambda {
-                        Nodes::landing(idx)
+                    mx.item("parent: #{NxQuarks::toString(idx)}", lambda {
+                        NxQuarks::landing(idx)
                     })
                 }
 
             puts ""
 
             Arrows::childrenIds2(id)
-                .sort{|idx1, idx2| Nodes::unixtime(idx1) <=> Nodes::unixtime(idx2) }
+                .sort{|idx1, idx2| NxQuarks::unixtime(idx1) <=> NxQuarks::unixtime(idx2) }
                 .each{|idx|
-                    mx.item("child : #{Nodes::toString(idx)}", lambda {
-                        Nodes::landing(idx)
+                    mx.item("child : #{NxQuarks::toString(idx)}", lambda {
+                        NxQuarks::landing(idx)
                     })
                 }
 
             puts ""
 
             mx.item("access".yellow, lambda {
-                Nodes::access(id)
+                NxQuarks::access(id)
             })
 
             mx.item("edit".yellow, lambda {
-                Nodes::edit(id)
+                NxQuarks::edit(id)
             })
 
             mx.item("update/set description".yellow, lambda {
-                description = Utils::editTextSynchronously(Nodes::description(id))
+                description = Utils::editTextSynchronously(NxQuarks::description(id))
                 return if description == ""
-                Nodes::setDescription(id, description)
+                NxQuarks::setDescription(id, description)
             })
 
             mx.item("edit datetime".yellow, lambda {
-                datetime = Utils::editTextSynchronously(Nodes::datetime(id))
+                datetime = Utils::editTextSynchronously(NxQuarks::datetime(id))
                 return if !Utils::isDateTime_UTC_ISO8601(datetime)
                 unixtime = DateTime.parse(datetime).to_time.to_i
-                Nodes::setUnixtime(id, unixtime)
+                NxQuarks::setUnixtime(id, unixtime)
             })
 
             mx.item("add note".yellow, lambda {
-                Nodes::interactivelyIssueNoteOrNothing(id)
+                NxQuarks::interactivelyIssueNoteOrNothing(id)
             })
 
             mx.item("remove note".yellow, lambda {
-                filepath = Nodes::filepathOrNull(id)
-                note = LucilleCore::selectEntityFromListOfEntitiesOrNull("note", Nodes::notes(id), lambda{|note| Nodes::nodeToString(note) })
+                filepath = NxQuarks::filepathOrNull(id)
+                note = LucilleCore::selectEntityFromListOfEntitiesOrNull("note", NxQuarks::notes(id), lambda{|note| NxQuarks::nxQuarksToString(note) })
                 return if note.nil?
                 Marbles::removeSetData(filepath, "notes:d39ca9d6644694abc4235e105a64a59b", note["uuid"])
             })
 
             mx.item("transmute".yellow, lambda {
-                targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("targetType", Nodes::nodeTypes())
+                targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("targetType", NxQuarks::nxQuarkTypes())
                 return if targetType.nil?
-                Nodes::transmuteOrNothing(id, targetType)
+                NxQuarks::transmuteOrNothing(id, targetType)
             })
 
             mx.item("architecture parent".yellow, lambda { 
-                idx = Nodes::architectId()
+                idx = NxQuarks::architectId()
                 return if idx.nil?
                 Arrows::link(idx, id)
             })
 
             mx.item("architecture related".yellow, lambda { 
-                idx = Nodes::architectId()
+                idx = NxQuarks::architectId()
                 return if idx.nil?
                 Links::link(id, idx)
             })
 
             mx.item("architecture child".yellow, lambda {
-                if Nodes::nxType(id) == "NxSmartDirectory" then
+                if NxQuarks::nxType(id) == "NxSmartDirectory" then
                     puts "Operation not permited on a smart directory"
                     return
                 end
-                idx = Nodes::architectId()
+                idx = NxQuarks::architectId()
                 return if idx.nil?
                 Arrows::link(id, idx)
             })
 
             mx.item("remove parents".yellow, lambda {
-                idxs, _ = LucilleCore::selectZeroOrMore("parents", [], Arrows::parentsIds2(id), lambda{|idx| Nodes::description(idx) })
+                idxs, _ = LucilleCore::selectZeroOrMore("parents", [], Arrows::parentsIds2(id), lambda{|idx| NxQuarks::description(idx) })
                 idxs.each{|idx|
                     Arrows::unlink(idx, id)
                 }
             })
 
             mx.item("remove related".yellow, lambda {
-                idxs, _ = LucilleCore::selectZeroOrMore("related", [], Links::linkedIds2(id), lambda{|idx| Nodes::description(idx) })
+                idxs, _ = LucilleCore::selectZeroOrMore("related", [], Links::linkedIds2(id), lambda{|idx| NxQuarks::description(idx) })
                 idxs.each{|idx|
                     Links::unlink(id, idx)
                 }
             })
 
             mx.item("remove childrens".yellow, lambda {
-                if Nodes::nxType(id) == "NxSmartDirectory" then
+                if NxQuarks::nxType(id) == "NxSmartDirectory" then
                     puts "Operation not permited on a smart directory"
                     return
                 end
-                idxs, _ = LucilleCore::selectZeroOrMore("childrens", [], Arrows::childrenIds2(id), lambda{|idx| Nodes::description(idx) })
+                idxs, _ = LucilleCore::selectZeroOrMore("childrens", [], Arrows::childrenIds2(id), lambda{|idx| NxQuarks::description(idx) })
                 idxs.each{|idx|
                     Arrows::unlink(id, idx)
                 }
             })
 
             mx.item("recast children data carriers as unique strings at folder".yellow, lambda {
-                if Nodes::nxType(id) == "NxSmartDirectory" then
+                if NxQuarks::nxType(id) == "NxSmartDirectory" then
                     puts "Operation not permited on a smart directory"
                     return
                 end
@@ -669,47 +669,47 @@ class Nodes
                 return if !File.directory?(targetfolder)
                 Arrows::childrenIds2(id)
                     .each{|idx|
-                        puts "recasting: #{Nodes::toString(idx)}"
-                        if Nodes::nxType(idx) == "AionPoint" then
-                            nhash = Marbles::get(Nodes::filepathOrNull(idx), "nhash")
-                            operator = MarblesElizabeth.new(Nodes::filepathOrNull(idx))
-                            descriptionx = Nodes::description(idx)
+                        puts "recasting: #{NxQuarks::toString(idx)}"
+                        if NxQuarks::nxType(idx) == "AionPoint" then
+                            nhash = Marbles::get(NxQuarks::filepathOrNull(idx), "nhash")
+                            operator = MarblesElizabeth.new(NxQuarks::filepathOrNull(idx))
+                            descriptionx = NxQuarks::description(idx)
                             uniquestring = SecureRandom.hex(6)
                             targetFolderpath = "#{targetfolder}/#{descriptionx} [#{uniquestring}]"
                             FileUtils.mkdir(targetFolderpath)
                             AionCore::exportHashAtFolder(operator, nhash, targetFolderpath)
-                            Marbles::set(Nodes::filepathOrNull(idx), "nxType", "FSUniqueString")
-                            Marbles::set(Nodes::filepathOrNull(idx), "uniquestring", uniquestring)
+                            Marbles::set(NxQuarks::filepathOrNull(idx), "nxType", "FSUniqueString")
+                            Marbles::set(NxQuarks::filepathOrNull(idx), "uniquestring", uniquestring)
                         end
                     }
 
             })
 
             mx.item("relocate (move a selection of children somewhere else)".yellow, lambda {
-                if Nodes::nxType(id) == "NxSmartDirectory" then
+                if NxQuarks::nxType(id) == "NxSmartDirectory" then
                     puts "Operation not permited on a smart directory"
                     return
                 end
                 puts "(1) new parent selection ; (2) moving children selection"
-                id1 = Nodes::architectId()
+                id1 = NxQuarks::architectId()
                 return if id1.nil?
 
-                selected, unselected = LucilleCore::selectZeroOrMore("Nodes", [], Arrows::childrenIds2(id), lambda{|idx| Nodes::description(idx) })
+                selected, unselected = LucilleCore::selectZeroOrMore("NxQuarks", [], Arrows::childrenIds2(id), lambda{|idx| NxQuarks::description(idx) })
                 selected.each{|idx|
-                    puts "Connecting   : #{Nodes::description(id1)}, #{Nodes::description(idx)}"
+                    puts "Connecting   : #{NxQuarks::description(id1)}, #{NxQuarks::description(idx)}"
                     Arrows::link(id1, idx)
-                    puts "Disconnecting: #{Nodes::description(id)}, #{Nodes::description(idx)}"
+                    puts "Disconnecting: #{NxQuarks::description(id)}, #{NxQuarks::description(idx)}"
                     Arrows::unlink(id, idx)
                 }
             })
 
             mx.item("garbage collection".yellow, lambda { 
-                # This is mostly to flush data on nodes that used to be AionPoints but have been transmuted
+                # This is mostly to flush data on quarks that used to be AionPoints but have been transmuted
                 # into "FSUniqueString" or "NxSmartDirectory"
-                return if !["FSUniqueString", "NxSmartDirectory"].include?(Nodes::nxType(id))
+                return if !["FSUniqueString", "NxSmartDirectory"].include?(NxQuarks::nxType(id))
 
                 # Here we use priviledge knowledge from Marbles
-                filepath = Nodes::filepathOrNull(id)
+                filepath = NxQuarks::filepathOrNull(id)
                 db = SQLite3::Database.new(filepath)
                 db.busy_timeout = 117
                 db.busy_handler { |count| true }
@@ -723,7 +723,7 @@ class Nodes
                     code = SecureRandom.hex(2)
                     input = LucilleCore::askQuestionAnswerAsString("Special protocol. Enter this string: '#{code}' : ")
                     return if input != code
-                    Nodes::destroy(id)
+                    NxQuarks::destroy(id)
                 end
             })
 
@@ -737,50 +737,50 @@ class Nodes
     # ---------------------------------------------------
     # Special Circumstances
 
-    # Nodes::mx19s()
+    # NxQuarks::mx19s()
     def self.mx19s()
-        Nodes::ids()
+        NxQuarks::ids()
             .map{|id|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
-                    "announce" => "#{volatileuuid} #{Nodes::toString(id)}",
-                    "type"     => "node",
+                    "announce" => "#{volatileuuid} #{NxQuarks::toString(id)}",
+                    "type"     => "quark",
                     "id"       => id
                 }
             }
     end
 
-    # Nodes::mx20s()
+    # NxQuarks::mx20s()
     def self.mx20s()
-        Nodes::ids()
+        NxQuarks::ids()
             .map{|id|
                 volatileuuid = SecureRandom.hex[0, 8]
-                tostring = Nodes::toString(id)
+                tostring = NxQuarks::toString(id)
                 {
                     "announce"         => "#{volatileuuid} #{tostring}",
                     "deep-searcheable" => tostring,
-                    "type"             => "node",
+                    "type"             => "quark",
                     "id"               => id
                 }
             }
     end
 
-    # Nodes::selectOneNodeMx19OrNull()
-    def self.selectOneNodeMx19OrNull()
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(Nodes::mx19s(), lambda{|item| item["announce"] })
+    # NxQuarks::selectOneNxQuarkMx19OrNull()
+    def self.selectOneNxQuarkMx19OrNull()
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(NxQuarks::mx19s(), lambda{|item| item["announce"] })
     end
 
-    # Nodes::selectOneNodeIdOrNull()
-    def self.selectOneNodeIdOrNull()
-        mx19 = Nodes::selectOneNodeMx19OrNull()
+    # NxQuarks::selectOneNxQuarkIdOrNull()
+    def self.selectOneNxQuarkIdOrNull()
+        mx19 = NxQuarks::selectOneNxQuarkMx19OrNull()
         return if mx19.nil?
         mx19["id"]
     end
 
-    # Nodes::fsck(id)
+    # NxQuarks::fsck(id)
     def self.fsck(id)
 
-        filepath = Nodes::filepathOrNull(id)
+        filepath = NxQuarks::filepathOrNull(id)
 
         if filepath.nil? then
             raise "fsck fail: did not find marble file for id: #{id}"
@@ -825,7 +825,7 @@ class Nodes
                 raise "fsck fail: no nhash found for id: #{id}"
             end
             nhash = Marbles::getOrNull(filepath, "nhash")
-            operator = MarblesElizabeth.new(Nodes::filepathOrNull(id))
+            operator = MarblesElizabeth.new(NxQuarks::filepathOrNull(id))
             status = AionFsck::structureCheckAionHash(operator, nhash)
             if !status then
                 raise "fsck fail: Incorrect Aion Structure for nhash: #{nhash} (id: #{id})"
@@ -844,12 +844,12 @@ class Nodes
             end
 
             Arrows::childrenIds2(id).each{|idx|
-                filepathx = Nodes::filepathOrNull(idx)
+                filepathx = NxQuarks::filepathOrNull(idx)
                 if !["FSUniqueString", "NxSmartDirectory"].include?(Marbles::get(filepathx, "nxType")) then
                     puts "NxSmartDirectory '#{Marbles::getOrNull(filepathx, "description")}' has a child that is not a FSUniqueString or a NxSmartDirectory"
                     puts "We are going to land on it"
                     LucilleCore::pressEnterToContinue()
-                    Nodes::landing(id)
+                    NxQuarks::landing(id)
                 end
             }
         end

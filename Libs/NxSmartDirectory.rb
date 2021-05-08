@@ -20,12 +20,12 @@ class NxSmartDirectory
         filename
     end
 
-    # NxSmartDirectory::getNodeIdByUniqueStringOrNull(uniquestring)
-    def self.getNodeIdByUniqueStringOrNull(uniquestring)
+    # NxSmartDirectory::getNxQuarkIdByUniqueStringOrNull(uniquestring)
+    def self.getNxQuarkIdByUniqueStringOrNull(uniquestring)
         useTheForce = lambda{|uniquestring|
-            Nodes::ids().each{|id|
-                next if !["FSUniqueString", "NxSmartDirectory"].include?(Nodes::nxType(id))
-                next if Marbles::get(Nodes::filepathOrNull(id), "uniquestring") != uniquestring
+            NxQuarks::ids().each{|id|
+                next if !["FSUniqueString", "NxSmartDirectory"].include?(NxQuarks::nxType(id))
+                next if Marbles::get(NxQuarks::filepathOrNull(id), "uniquestring") != uniquestring
                 return id
             }
             nil
@@ -40,10 +40,10 @@ class NxSmartDirectory
 
     # NxSmartDirectory::trueIfBothIdsAreUniqueStringCarriersWithTheSameUniqueString(id1, id2)
     def self.trueIfBothIdsAreUniqueStringCarriersWithTheSameUniqueString(id1, id2)
-        return false if !["FSUniqueString", "NxSmartDirectory"].include?(Nodes::nxType(id1))
-        return false if !["FSUniqueString", "NxSmartDirectory"].include?(Nodes::nxType(id2))
-        uniquestring1 = Marbles::get(Nodes::filepathOrNull(id1), "uniquestring")
-        uniquestring2 = Marbles::get(Nodes::filepathOrNull(id2), "uniquestring")
+        return false if !["FSUniqueString", "NxSmartDirectory"].include?(NxQuarks::nxType(id1))
+        return false if !["FSUniqueString", "NxSmartDirectory"].include?(NxQuarks::nxType(id2))
+        uniquestring1 = Marbles::get(NxQuarks::filepathOrNull(id1), "uniquestring")
+        uniquestring2 = Marbles::get(NxQuarks::filepathOrNull(id2), "uniquestring")
         uniquestring1 == uniquestring2
     end
 
@@ -54,27 +54,27 @@ class NxSmartDirectory
         uniquestring = Marbles::get(filepath, "uniquestring")
         folderpath = Utils::locationByUniqueStringOrNull(uniquestring)
         if folderpath.nil? then
-            puts "Could not determine location for NxSmartDirectory '#{Nodes::description(id)}' uniquestring: #{uniquestring}"
+            puts "Could not determine location for NxSmartDirectory '#{NxQuarks::description(id)}' uniquestring: #{uniquestring}"
             LucilleCore::pressEnterToContinue()
             return
         end
 
 
         # We convert the arrow kids to unique strings kids with a presence on disk
-        # Note that we ca manually, in Nyx, create (non unique string kids), but we can still transmute another node type to NxSmartDirectory
+        # Note that we ca manually, in Nyx, create (non unique string kids), but we can still transmute another quark type to NxSmartDirectory
         # Resulting in possibly non arrow kids of type FSUniqueString
         Arrows::childrenIds2(id).each{|idx|
-            next if Nodes::nxType(idx) == "NxSmartDirectory"
-            next if Nodes::nxType(idx) == "FSUniqueString"
-            if Nodes::nxType(idx) == "Url" then
+            next if NxQuarks::nxType(idx) == "NxSmartDirectory"
+            next if NxQuarks::nxType(idx) == "FSUniqueString"
+            if NxQuarks::nxType(idx) == "Url" then
                 uniquestring1 = Marbles::get(filepath, "uniquestring")
                 folderpath1 = Utils::locationByUniqueStringOrNull(uniquestring1)
                 if folderpath1.nil? then
-                    puts "Could not determine location for NxSmartDirectory '#{Nodes::description(id)}' uniquestring: #{uniquestring1}"
+                    puts "Could not determine location for NxSmartDirectory '#{NxQuarks::description(id)}' uniquestring: #{uniquestring1}"
                     LucilleCore::pressEnterToContinue()
                     return
                 end
-                filepathx = Nodes::filepathOrNull(idx)
+                filepathx = NxQuarks::filepathOrNull(idx)
                 urlx = Marbles::get(filepathx, "url")
                 uniquestring2 = SecureRandom.hex(6)
                 filename2 = "URL [#{uniquestring2}].txt"
@@ -85,7 +85,7 @@ class NxSmartDirectory
                 Marbles::set(filepathx, "uniquestring", uniquestring2)
                 next
             end
-            puts "I do not know how to run this export operation for type #{Nodes::nxType(idx)}"
+            puts "I do not know how to run this export operation for type #{NxQuarks::nxType(idx)}"
             LucilleCore::pressEnterToContinue()
         }
 
@@ -103,7 +103,7 @@ class NxSmartDirectory
         # Now we need to make sure that each fs child is an arrow child
         LucilleCore::locationsAtFolder(folderpath).each{|childlocation| 
             childuniquestring = NxSmartDirectory::getUniqueStringOrNull(File.basename(childlocation))
-            childid = NxSmartDirectory::getNodeIdByUniqueStringOrNull(childuniquestring)
+            childid = NxSmartDirectory::getNxQuarkIdByUniqueStringOrNull(childuniquestring)
             next if (childid and Arrows::childrenIds2(id).include?(childid))
             # The childid is either null or the childid is not an arrow child
             if childid.nil? then
@@ -111,29 +111,29 @@ class NxSmartDirectory
                 puts "childuniquestring: #{childuniquestring}"
                 puts "I am about to make a new arrow child with description: #{childdescription}"
                 LucilleCore::pressEnterToContinue()
-                childid = Nodes::makeNewFSUniqueStringNode(childdescription, childuniquestring)
+                childid = NxQuarks::makeNewFSUniqueStringNxQuark(childdescription, childuniquestring)
             end
             Arrows::link(id, childid)
         }
 
         # Now we make sure that each arrow child is on disk, otherwise we remove it
         Arrows::childrenIds2(id).each{|idx|
-            uniquestringx = Marbles::getOrNull(Nodes::filepathOrNull(idx), "uniquestring")
+            uniquestringx = Marbles::getOrNull(NxQuarks::filepathOrNull(idx), "uniquestring")
             next if uniquestringx.nil? # looks like we have a arrow kid that is not standard
             if !LucilleCore::locationsAtFolder(folderpath).map{|childlocation| NxSmartDirectory::getUniqueStringOrNull(File.basename(childlocation)) }.compact.include?(uniquestringx) then
                 # We have an arrow kid carrying a unique string that is not in the folder. Kill it!
-                puts "Destroying arrow child (no longer in folder): #{Nodes::description(idx)}"
+                puts "Destroying arrow child (no longer in folder): #{NxQuarks::description(idx)}"
                 LucilleCore::pressEnterToContinue()
-                Nodes::destroy(idx)
+                NxQuarks::destroy(idx)
             end
         }
 
         # Now we make sure that we do not have duplicate arrow kids with the same unique string
         Arrows::childrenIds2(id).reduce([]){|selectedIds, cursorId|
             if selectedIds.any?{|id1| NxSmartDirectory::trueIfBothIdsAreUniqueStringCarriersWithTheSameUniqueString(id1, cursorId) } then
-                puts "Destroying arrow child (duplicate unique string): #{Nodes::description(cursorId)}"
+                puts "Destroying arrow child (duplicate unique string): #{NxQuarks::description(cursorId)}"
                 LucilleCore::pressEnterToContinue()
-                Nodes::destroy(cursorId)
+                NxQuarks::destroy(cursorId)
             else
                 selectedIds << cursorId
             end

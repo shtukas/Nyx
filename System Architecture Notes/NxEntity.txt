@@ -1,0 +1,7 @@
+There are two objects in the Nyx hierarchy
+    1. NxQuarks (data carriers)
+    2. NxListings
+Collectively referred to as NxEntity
+
+A NxListing can contain NxListings and NxQuarks
+A NxEntity may be `related` to any other NxEntity

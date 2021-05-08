@@ -5,8 +5,8 @@ class Search
 
     # Search::mx19Landing(mx19)
     def self.mx19Landing(mx19)
-        if mx19["type"] == "node" then
-            Nodes::landing(mx19["id"])
+        if mx19["type"] == "quark" then
+            NxQuarks::landing(mx19["id"])
             return
         end
         if mx19["type"] == "galaxy-location" then
@@ -17,12 +17,12 @@ class Search
         raise "3a35f700-153a-484b-b4ac-c9489982b52b"
     end
 
-    # Search::searchLoopNetworkNodes()
-    def self.searchLoopNetworkNodes()
+    # Search::searchLoopNetworkNxQuarks()
+    def self.searchLoopNetworkNxQuarks()
         loop {
-            mx19 = Nodes::selectOneNodeMx19OrNull()
+            mx19 = NxQuarks::selectOneNxQuarkMx19OrNull()
             break if mx19.nil?
-            Nodes::landing(mx19["id"])
+            NxQuarks::landing(mx19["id"])
         }
     end
 
@@ -41,7 +41,7 @@ class Search
         loop {
             pattern = LucilleCore::askQuestionAnswerAsString("pattern (empty to exit): ")
             return if pattern == ""
-            mx20s = Nodes::mx20s()
+            mx20s = NxQuarks::mx20s()
             mx20s = mx20s.select{|mx20| mx20["deep-searcheable"].downcase.include?(pattern.downcase) }
             loop {
                 mx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("mx20", mx20s, lambda{|mx20| mx20["announce"] })

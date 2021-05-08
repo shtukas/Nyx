@@ -53,6 +53,6 @@ class Links
     # Links::linkedIds2(id)
     def self.linkedIds2(id)
         Links::linkedIds(id)
-            .select{|idx| Nodes::exists?(idx) }
+            .select{|idx| NxQuarks::exists?(idx) }
     end
 end
