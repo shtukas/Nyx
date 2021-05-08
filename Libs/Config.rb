@@ -7,6 +7,6 @@ class Config
 
     # Config::nyxFolderPath()
     def self.nyxFolderPath()
-        "/Users/pascal/Galaxy/Documents/03 Nyx"
+        "/Users/pascal/Galaxy/DataBank/Nyx"
     end
 end

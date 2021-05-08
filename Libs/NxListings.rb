@@ -26,13 +26,16 @@ class NxListings
         db.close
     end
 
-    # NxListings::interactivelyCreateNewListingOrNull()
-    def self.interactivelyCreateNewListingOrNull()
+    # NxListings::interactivelyCreateNewListingNx21OrNull()
+    def self.interactivelyCreateNewListingNx21OrNull()
         uuid = SecureRandom.uuid
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         NxListings::createNewListing(uuid, description)
-        uuid
+        {
+            "uuid"        => uuid,
+            "description" => description,
+        }
     end
 
     # NxListings::listings(): Array[Nx21]
@@ -71,9 +74,24 @@ class NxListings
 
     # ----------------------------------------------------------------------
 
-    # NxListings::landing(id)
-    def self.landing(id)
-        puts "Landing on a Listing [not yet implemented]"
+    # NxListings::ids()
+    def self.ids()
+        NxListings::listings().map{|item| item["uuid"] }
+    end
+
+    # NxListings::toString(nx21)
+    def self.toString(nx21)
+        "[listing] #{nx21["description"]}"
+    end
+
+    # NxListings::selectOneListingNx21OrNull()
+    def self.selectOneListingNx21OrNull()
+        Utils::selectOneObjectOrNullUsingInteractiveInterface(NxListings::listings(), lambda{|nx21| nx21["description"] })
+    end
+
+    # NxListings::landing(nx21)
+    def self.landing(nx21)
+        puts "Landing on a NxListing [not yet implemented]"
         LucilleCore::pressEnterToContinue()
     end
 
@@ -84,7 +102,7 @@ class NxListings
             {
                 "announce" => "#{volatileuuid} [listing] #{nx21["description"]}",
                 "type"     => "NxListing",
-                "id"       => nx21["uuid"]
+                "payload"  => nx21
             }
         }
     end

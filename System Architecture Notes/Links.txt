@@ -1,2 +1,0 @@
-
-CREATE TABLE _links_ (_id1_ text, _id2_ text);

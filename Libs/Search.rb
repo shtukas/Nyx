@@ -5,17 +5,17 @@ class Search
 
     # Search::nx19s()
     def self.nx19s()
-        NxListings::nx19s() + NxQuarks::mx19s() # + Galaxy::mx19sAtRoot(root)
+        NxListings::nx19s() + Nx27s::nx19s() # + Galaxy::mx19sAtRoot(root)
     end
 
     # Search::mx19Landing(mx19)
     def self.mx19Landing(mx19)
-        if mx19["type"] == "NxQuark" then
-            NxQuarks::landing(mx19["id"])
+        if mx19["type"] == "NxListing" then
+            NxListings::landing(mx19["payload"])
             return
         end
-        if mx19["type"] == "NxListing" then
-            NxListings::landing(mx19["id"])
+        if mx19["type"] == "Nx27" then
+            NxListings::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "GalaxyLocation" then
@@ -31,8 +31,8 @@ class Search
         Utils::selectOneObjectOrNullUsingInteractiveInterface(Search::nx19s(), lambda{|item| item["announce"] })
     end
 
-    # Search::searchLoopNetworkNxQuarks()
-    def self.searchLoopNetworkNxQuarks()
+    # Search::searchLoop()
+    def self.searchLoop()
         loop {
             mx19 = Search::selectOneNx19OrNull()
             break if mx19.nil?

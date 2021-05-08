@@ -59,87 +59,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
-=begin
-    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
-    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
-    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
-    BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
-=end
-
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
-=begin
-
-The operator is an object that has meet the following signatures
-
-    .commitBlob(blob: BinaryData) : Hash
-    .filepathToContentHash(filepath) : Hash
-    .readBlobErrorIfNotFound(nhash: Hash) : BinaryData
-    .datablobCheck(nhash: Hash): Boolean
-
-class Elizabeth
-
-    def initialize()
-
-    end
-
-    def commitBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        KeyValueStore::set(nil, "SHA256-#{Digest::SHA256.hexdigest(blob)}", blob)
-        nhash
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = KeyValueStore::getOrNull(nil, nhash)
-        raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
-        blob
-    end
-
-    def datablobCheck(nhash)
-        begin
-            readBlobErrorIfNotFound(nhash)
-            true
-        rescue
-            false
-        end
-    end
-
-end
-
-AionCore::commitLocationReturnHash(operator, location)
-AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
-
-AionFsck::structureCheckAionHash(operator, nhash)
-
-=end
-
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
-=begin
-    Mercury::postValue(channel, value)
-    Mercury::dequeueFirstValueOrNull(channel)
-    Mercury::dequeueFirstValueOrNullForClient(channel, clientId)
-=end
-
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Marble.rb"
-
 # ------------------------------------------------------------
-
-require_relative "Arrows.rb"
 
 require_relative "Config.rb"
 
 require_relative "Galaxy.rb"
 
-require_relative "Links.rb"
+require_relative "Nx27s.rb"
 require_relative "NxListings.rb"
-
-require_relative "NxEntities.rb"
-require_relative "NxQuarks.rb"
-require_relative "NxSmartDirectory.rb"
 
 require_relative "Search.rb"
 

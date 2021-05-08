@@ -1,0 +1,10 @@
+
+CREATE TABLE _nx27s_ (_recorduuid_ text, _listinguuid_, _datetime_ text, _description_ text, _uniquestring_);
+
+Nx27 {
+    "recorduuid"   : String
+    "listinguuid"  : String
+    "datetime"     : string # used for ordering the elements of a listing
+    "description"  : String
+    "uniquestring" : String
+}

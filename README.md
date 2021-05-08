@@ -1,1 +1,1 @@
-Nyx is a (very non standard) file system, used to store and manipulate most of Pascal's personal data.
+Nyx (File System)

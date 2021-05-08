@@ -7,23 +7,30 @@ require_relative "Libs/loader.rb"
 # ----------------------------------------------------------------------------
 
 if ARGV[0] == "search" then
-    Search::searchLoopNetworkNxQuarks()
+    Search::searchLoop()
     exit
 end
 
-if ARGV[0] == "listing" then
+if ARGV[0] == "listings" then
     loop {
-        id = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxQuark", NxEntities::ids(), lambda{|id| NxQuarks::description(id) })
+        id = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxEntity", NxEntities::ids(), lambda{|id| NxEntities::idToString(id) })
         break if id.nil?
-        NxQuarks::landing(id)
+        NxEntities::landing(id)
     }
     exit
 end
 
-if ARGV[0] == "make" then
-    id = NxQuarks::interactivelyMakeNewNxQuarkReturnIdOrNull()
-    exit if id.nil?
-    NxQuarks::landing(id)
+if ARGV[0] == "make" and ARGV[1] == "listing"  then
+    nx21 = NxListings::interactivelyCreateNewListingNx21OrNull()
+    exit if nx21.nil?
+    NxListings::landing(nx21)
+    exit
+end
+
+if ARGV[0] == "make" and ARGV[1] == "entry"  then
+    nx27 = Nx27s::interactivelyCreateNewEntryOrNull()
+    exit if nx27.nil?
+    Nx27s::landing(nxs7)
     exit
 end
 
@@ -32,22 +39,13 @@ if ARGV[0] == "unique-string" then
     exit
 end
 
-if ARGV[0] == "fsck" then
-    NxEntities::ids().each{|id|
-        puts "fsck: #{id}"
-        NxQuarks::fsck(id)
-    }
-    puts "All good!".green
-    exit
-end
-
 str = <<HELP
 usage:
     nyx search
-    nyx listing
-    nyx make
+    nyx listings
+    nyx make listing
+    nyx make entry
     nyx unique-string # Generates a unique string for type FSUniqueString
-    nyx fsck
     nyx help # help display
 HELP
 puts str

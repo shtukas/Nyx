@@ -1,3 +1,0 @@
-
-CREATE TABLE _arrows_ (_sourceId_ text, _targetId_ text);
-
