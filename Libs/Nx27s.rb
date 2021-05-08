@@ -46,6 +46,24 @@ class Nx27s
         }
     end
 
+    # Nx27s::interactivelyCreateNewEntryOrNullGivenListing(nx21)
+    def self.interactivelyCreateNewEntryOrNullGivenListing(nx21)
+        recorduuid = SecureRandom.uuid
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
+        return nil if uniquestring == ""
+        datetime = Time.new.utc.iso8601
+        Nx27s::createNewEntry(recorduuid, nx21["uuid"], datetime, description, uniquestring)
+        {
+            "recorduuid"   => recorduuid,
+            "listinguuid"  => nx21["uuid"],
+            "datetime"     => datetime,
+            "description"  => description,
+            "uniquestring" => uniquestring,
+        }
+    end
+
     # Nx27s::entries(): Array[Nx27]
     def self.entries()
         db = SQLite3::Database.new(Nx27s::databaseFilepath())
@@ -106,6 +124,15 @@ class Nx27s
         answer
     end
 
+    # Nx27s::updateEntryDescription(recorduuid, description)
+    def self.updateEntryDescription(recorduuid, description)
+        db = SQLite3::Database.new(Nx27s::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "update _nx27s_ set _description_=? where _recorduuid_=?", [description, recorduuid]
+        db.close
+    end
+
     # ----------------------------------------------------------------------
 
     # Nx27s::recordIds()
@@ -120,8 +147,43 @@ class Nx27s
 
     # Nx27s::landing(nxs7)
     def self.landing(nx27)
-        puts "Landing on a Nx27 [not yet implemented]"
-        LucilleCore::pressEnterToContinue()
+        loop {
+            nx27 = Nx27s::getEntryByRecordIdOrNull(nx27["recorduuid"]) # Could have been destroyed or metadata updated in the previous loop
+            return if nx27.nil?
+            system("clear")
+            puts Nx27s::toString(nx27).green
+            puts ""
+            mx = LCoreMenuItemsNX1.new()
+            mx.item("access".yellow, lambda {
+                uniquestring = nx27["uniquestring"]
+                puts "Looking for location..."
+                location = Utils::locationByUniqueStringOrNull(uniquestring)
+                if location then
+                    puts "location: #{location}"
+                    if LucilleCore::askQuestionAnswerAsBoolean("access ? ") then
+                        system("open '#{location}'")
+                    end
+                else
+                    puts "I could not determine the location for uniquestring: '#{uniquestring}'"
+                    if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
+                        Nx27s::destroyEntry(nx27["recorduuid"])
+                    end
+                end
+            })
+            mx.item("update description".yellow, lambda {
+                description = Utils::editTextSynchronously(nx27["description"]).strip
+                return if description == ""
+                Nx27s::updateEntryDescription(nx27["recorduuid"], description)
+            })
+            mx.item("destroy".yellow, lambda {
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
+                    Nx27s::destroyEntry(nx27["recorduuid"])
+                end
+            })
+            puts ""
+            status = mx.promptAndRunSandbox()
+            break if !status
+        }
     end
 
     # Nx27s::nx19s()

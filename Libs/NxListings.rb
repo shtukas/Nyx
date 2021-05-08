@@ -91,8 +91,36 @@ class NxListings
 
     # NxListings::landing(nx21)
     def self.landing(nx21)
-        puts "Landing on a NxListing [not yet implemented]"
-        LucilleCore::pressEnterToContinue()
+        loop {
+            nx21 = NxListings::getListingByIdOrNull(nx21["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            return if nx21.nil?
+            system("clear")
+            puts NxListings::toString(nx21).green
+            puts ""
+            mx = LCoreMenuItemsNX1.new()
+            Nx27s::getEntriesForListingOrdered(nx21["uuid"]).each{|nx27|
+                mx.item(Nx27s::toString(nx27), lambda {
+                    Nx27s::landing(nx27)
+                })
+            }
+            puts ""
+            mx.item("add entry".yellow, lambda {
+                Nx27s::interactivelyCreateNewEntryOrNullGivenListing(nx21)
+            })
+            mx.item("remove entry".yellow, lambda {
+                nx27 = LucilleCore::selectEntityFromListOfEntitiesOrNull("entry", Nx27s::getEntriesForListingOrdered(nx21["uuid"]), lambda{|nx27| nx27["description"] })
+                return if nx27.nil?
+                Nx27s::destroyEntry(nx27["recorduuid"])
+            })
+            mx.item("destroy".yellow, lambda {
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
+                    NxListings::destroyListing(nx21["uuid"])
+                end
+            })
+            puts ""
+            status = mx.promptAndRunSandbox()
+            break if !status
+        }
     end
 
     # NxListings::nx19s()

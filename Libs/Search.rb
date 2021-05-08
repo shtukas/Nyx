@@ -15,7 +15,7 @@ class Search
             return
         end
         if mx19["type"] == "Nx27" then
-            NxListings::landing(mx19["payload"])
+            Nx27s::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "GalaxyLocation" then
