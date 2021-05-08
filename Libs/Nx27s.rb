@@ -66,6 +66,7 @@ class Nx27s
             return nil if nx21p.nil?
             nx21c = NxListings::architectOneListingNx21OrNull()
             return nil if nx21c.nil?
+            return nil if nx21p["uuid"] == nx21c["uuid"]
             datetime = Time.new.utc.iso8601
             Nx27s::createNewNx27TypeListing(recorduuid, nx21p["uuid"], datetime, nx21c["uuid"])
             return {
@@ -104,6 +105,7 @@ class Nx27s
         if type == "listing" then
             nx21c = NxListings::architectOneListingNx21OrNull()
             return nil if nx21c.nil?
+            return nil if nx21["uuid"] == nx21c["uuid"]
             datetime = Time.new.utc.iso8601
             Nx27s::createNewNx27TypeListing(recorduuid, nx21["uuid"], datetime, nx21c["uuid"])
             return {
