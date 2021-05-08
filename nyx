@@ -28,7 +28,7 @@ if ARGV[0] == "make" and ARGV[1] == "listing"  then
 end
 
 if ARGV[0] == "make" and ARGV[1] == "entry"  then
-    nx27 = Nx27s::interactivelyCreateNewEntryOrNull()
+    nx27 = Nx27s::interactivelyCreateNewNx27OrNull()
     exit if nx27.nil?
     Nx27s::landing(nxs7)
     exit

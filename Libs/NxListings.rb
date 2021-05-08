@@ -89,6 +89,13 @@ class NxListings
         Utils::selectOneObjectOrNullUsingInteractiveInterface(NxListings::listings(), lambda{|nx21| nx21["description"] })
     end
 
+    # NxListings::architectOneListingNx21OrNull()
+    def self.architectOneListingNx21OrNull()
+        nx21 = NxListings::selectOneListingNx21OrNull()
+        return nx21 if nx21
+        NxListings::interactivelyCreateNewListingNx21OrNull()
+    end
+
     # NxListings::landing(nx21)
     def self.landing(nx21)
         loop {
@@ -98,19 +105,19 @@ class NxListings
             puts NxListings::toString(nx21).green
             puts ""
             mx = LCoreMenuItemsNX1.new()
-            Nx27s::getEntriesForListingOrdered(nx21["uuid"]).each{|nx27|
+            Nx27s::getNx27sForListingOrdered(nx21["uuid"]).each{|nx27|
                 mx.item(Nx27s::toString(nx27), lambda {
                     Nx27s::landing(nx27)
                 })
             }
             puts ""
             mx.item("add entry".yellow, lambda {
-                Nx27s::interactivelyCreateNewEntryOrNullGivenListing(nx21)
+                Nx27s::interactivelyCreateNewNx27GivenParentListingOrNull(nx21)
             })
             mx.item("remove entry".yellow, lambda {
-                nx27 = LucilleCore::selectEntityFromListOfEntitiesOrNull("entry", Nx27s::getEntriesForListingOrdered(nx21["uuid"]), lambda{|nx27| nx27["description"] })
+                nx27 = LucilleCore::selectEntityFromListOfEntitiesOrNull("entry", Nx27s::getNx27sForListingOrdered(nx21["uuid"]), lambda{|nx27| Nx27s::toString(nx27) })
                 return if nx27.nil?
-                Nx27s::destroyEntry(nx27["recorduuid"])
+                Nx27s::destroyNx27(nx27["recorduuid"])
             })
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
