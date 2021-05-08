@@ -16,42 +16,6 @@ class NxQuarks
     end
 
     # -------------------------------------------------------
-    # Ids (eg: 024677747775-07)
-
-    # NxQuarks::randomDigit()
-    def self.randomDigit()
-        (0..9).to_a.sample
-    end
-
-    # NxQuarks::randomId(length)
-    def self.randomId(length)
-        (1..length).map{|i| NxQuarks::randomDigit() }.join()
-    end
-
-    # NxQuarks::forgeNewId()
-    def self.forgeNewId()
-        raise "ed679236-713a-41e9-bed0-b19d4b65986d" if !NxQuarks::nxQuarkTypes()
-        "#{NxQuarks::randomId(12)}-#{NxQuarks::randomId(2)}"
-    end
-
-    # NxQuarks::ids()
-    def self.ids()
-        LucilleCore::locationsAtFolder(NxQuarks::nxQuarkFolderpath())
-            .map{|location| File.basename(location) }
-            .select{|s| s[-7, 7] == ".marble" }
-            .map{|s| s[0, 15] }
-    end
-
-    # NxQuarks::issueNewId()
-    def self.issueNewId()
-        loop {
-            id = NxQuarks::forgeNewId()
-            next if NxQuarks::exists?(id)
-            return id
-        }
-    end
-
-    # -------------------------------------------------------
     # NxQuarks General
 
     # NxQuarks::nxQuarksFilepaths()
@@ -68,7 +32,7 @@ class NxQuarks
 
     # NxQuarks::makeNewFSUniqueStringNxQuark(description, uniquestring)
     def self.makeNewFSUniqueStringNxQuark(description, uniquestring)
-        id = NxQuarks::issueNewId()
+        id = NxEntities::issueNewId()
         filepath = "#{NxQuarks::nxQuarkFolderpath()}/#{id}.marble"
         Marbles::issueNewEmptyMarbleFile(filepath)
         Marbles::set(filepath, "uuid", id)
@@ -81,7 +45,7 @@ class NxQuarks
 
     # NxQuarks::interactivelyMakeNewNxQuarkReturnIdOrNull()
     def self.interactivelyMakeNewNxQuarkReturnIdOrNull()
-        id = NxQuarks::issueNewId()
+        id = NxEntities::issueNewId()
 
         filepath = "#{NxQuarks::nxQuarkFolderpath()}/#{id}.marble"
 
@@ -739,7 +703,7 @@ class NxQuarks
 
     # NxQuarks::mx19s()
     def self.mx19s()
-        NxQuarks::ids()
+        NxEntities::ids()
             .map{|id|
                 volatileuuid = SecureRandom.hex[0, 8]
                 {
@@ -752,7 +716,7 @@ class NxQuarks
 
     # NxQuarks::mx20s()
     def self.mx20s()
-        NxQuarks::ids()
+        NxEntities::ids()
             .map{|id|
                 volatileuuid = SecureRandom.hex[0, 8]
                 tostring = NxQuarks::toString(id)

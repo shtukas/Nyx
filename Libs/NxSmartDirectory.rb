@@ -23,7 +23,7 @@ class NxSmartDirectory
     # NxSmartDirectory::getNxQuarkIdByUniqueStringOrNull(uniquestring)
     def self.getNxQuarkIdByUniqueStringOrNull(uniquestring)
         useTheForce = lambda{|uniquestring|
-            NxQuarks::ids().each{|id|
+            NxEntities::ids().each{|id|
                 next if !["FSUniqueString", "NxSmartDirectory"].include?(NxQuarks::nxType(id))
                 next if Marbles::get(NxQuarks::filepathOrNull(id), "uniquestring") != uniquestring
                 return id

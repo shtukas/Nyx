@@ -136,6 +136,7 @@ require_relative "Galaxy.rb"
 
 require_relative "Links.rb"
 
+require_relative "NxEntities.rb"
 require_relative "NxQuarks.rb"
 require_relative "NxSmartDirectory.rb"
 

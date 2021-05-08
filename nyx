@@ -18,7 +18,7 @@ end
 
 if ARGV[0] == "listing" then
     loop {
-        id = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxQuark", NxQuarks::ids(), lambda{|id| NxQuarks::description(id) })
+        id = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxQuark", NxEntities::ids(), lambda{|id| NxQuarks::description(id) })
         break if id.nil?
         NxQuarks::landing(id)
     }
@@ -38,7 +38,7 @@ if ARGV[0] == "unique-string" then
 end
 
 if ARGV[0] == "fsck" then
-    NxQuarks::ids().each{|id|
+    NxEntities::ids().each{|id|
         puts "fsck: #{id}"
         NxQuarks::fsck(id)
     }
