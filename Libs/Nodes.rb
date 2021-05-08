@@ -5,14 +5,9 @@ class Nodes
     # -------------------------------------------------------
     # Config
 
-    # Nodes::nyxFolderpath()
-    def self.nyxFolderpath()
-        "/Users/pascal/Galaxy/DataBank/Nyx"
-    end
-
     # Nodes::nodesFolderpath()
     def self.nodesFolderpath()
-        "#{Nodes::nyxFolderpath()}/Nodes"
+        "#{Config::nyxFolderPath()}/Nodes"
     end
 
     # Nodes::nodeTypes()

@@ -130,6 +130,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Marble.rb"
 
 require_relative "Arrows.rb"
 
+require_relative "Config.rb"
+
 require_relative "Galaxy.rb"
 
 require_relative "Links.rb"

@@ -4,7 +4,7 @@
 class Arrows
     # Arrows::databaseFilepath()
     def self.databaseFilepath()
-        "#{Nodes::nyxFolderpath()}/arrows.sqlite3"
+        "#{Config::nyxFolderPath()}/arrows.sqlite3"
     end
 
     # Arrows::link(sourceId, targetId)
