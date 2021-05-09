@@ -8,12 +8,12 @@ class Nx27s
         "#{Config::nyxFolderPath()}/Nx27s.sqlite3"
     end
 
-    # Nx27s::insertNewNx27(uuid, datetime, type, payload1, payload2)
-    def self.insertNewNx27(uuid, datetime, type, payload1, payload2)
+    # Nx27s::insertNewNx27(uuid, datetime, type, description, payload1)
+    def self.insertNewNx27(uuid, datetime, type, description, payload1)
         db = SQLite3::Database.new(Nx27s::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _nx27s_ (_uuid_, _datetime_, _type_, _payload1_, _payload2_) values (?,?,?,?,?)", [uuid, datetime, type, payload1, payload2]
+        db.execute "insert into _nx27s_ (_uuid_, _datetime_, _type_, _description_, _payload1_) values (?,?,?,?,?)", [uuid, datetime, type, description, payload1]
         db.close
     end
 
@@ -34,8 +34,8 @@ class Nx27s
                 "entityType"   => "Nx27",
                 "datetime"     => row["_datetime_"],
                 "type"         => "unique-string",
-                "description"  => row["_payload1_"],
-                "uniquestring" => row["_payload2_"],
+                "description"  => row["_description_"],
+                "uniquestring" => row["_payload1_"],
             }
         end
         if row["_type_"] == "url" then
@@ -44,8 +44,18 @@ class Nx27s
                 "entityType"   => "Nx27",
                 "datetime"     => row["_datetime_"],
                 "type"         => "url",
-                "description"  => row["_payload1_"],
-                "url"          => row["_payload2_"],
+                "description"  => row["_description_"],
+                "url"          => row["_payload1_"],
+            }
+        end
+        if row["_type_"] == "text" then
+            return {
+                "uuid"         => row["_uuid_"],
+                "entityType"   => "Nx27",
+                "datetime"     => row["_datetime_"],
+                "type"         => "url",
+                "description"  => row["_description_"],
+                "nhash"        => row["_payload1_"],
             }
         end
         raise "46ef7497-2d20-48e2-99d7-85b23fe5eaf2"
@@ -68,28 +78,33 @@ class Nx27s
     # Nx27s::interactivelyCreateNewNx27OrNull()
     def self.interactivelyCreateNewNx27OrNull()
         uuid = SecureRandom.uuid
+        datetime = Time.new.utc.iso8601
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["unique-string", "url"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["unique-string", "url", "text"])
         return nil if type.nil?
 
         if type == "unique-string" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return nil if description == ""
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring == ""
             datetime = Time.new.utc.iso8601
             Nx27s::insertNewNx27(uuid, datetime, "unique-string", description, uniquestring)
-            return Nx27s::getNx27ByIdOrNull(uuid)
         end
         if type == "url" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return nil if description == ""
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
             datetime = Time.new.utc.iso8601
             Nx27s::insertNewNx27(uuid, datetime, "url", description, url)
-            return Nx27s::getNx27ByIdOrNull(uuid)
         end
+        if type == "text" then
+            text = Utils::editTextSynchronously("")
+            return nil if text == ""
+            nhash = BinaryBlobsService::putBlob(text)
+            Nx27s::insertNewNx27(uuid, datetime, "text", description, nhash)
+        end
+
+        Nx27s::getNx27ByIdOrNull(uuid)
     end
 
     # Nx27s::nx27s(): Array[Nx27]
@@ -106,28 +121,21 @@ class Nx27s
         answer
     end
 
-    # Nx27s::getNx27sForListingOrdered(listinguuid): Array[Nx21]
-    def self.getNx27sForListingOrdered(listinguuid)
-        db = SQLite3::Database.new(Nx27s::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _nx27s_ where _listinguuid_=? order by _datetime_" , [listinguuid] ) do |row|
-            answer << Nx27s::tableHashRowToNx27(row)
-        end
-        db.close
-        answer
-    end
-
-
-
-    # Nx27s::updateNx27TypeUniqueStringDescription(uuid, description)
-    def self.updateNx27TypeUniqueStringDescription(uuid, description)
+    # Nx27s::updateDescription(uuid, description)
+    def self.updateDescription(uuid, description)
         db = SQLite3::Database.new(Nx27s::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "update _nx27s_ set _description_=? where _uuid_=?", [description, uuid]
+        db.close
+    end
+
+    # Nx27s::updatePayload1(uuid, payload1)
+    def self.updatePayload1(uuid, payload1)
+        db = SQLite3::Database.new(Nx27s::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "update _nx27s_ set _payload1_=? where _uuid_=?", [payload1, uuid]
         db.close
     end
 
@@ -160,9 +168,17 @@ class Nx27s
         if type == "url" then
             system("open '#{nx27["url"]}'")
         end
+        if type == "text" then
+            nhash = nx27["nhash"]
+            text = BinaryBlobsService::getBlobOrNull(nhash)
+            puts ""
+            puts text
+            puts ""
+            LucilleCore::pressEnterToContinue()
+        end
     end
 
-    # Nx27s::landing(nxs7)
+    # Nx27s::landing(nx27)
     def self.landing(nx27)
         loop {
             nx27 = Nx27s::getNx27ByIdOrNull(nx27["uuid"]) # Could have been destroyed or metadata updated in the previous loop
@@ -185,7 +201,7 @@ class Nx27s
             mx.item("update description".yellow, lambda {
                 description = Utils::editTextSynchronously(nx27["description"]).strip
                 return if description == ""
-                Nx27s::updateNx27TypeUniqueStringDescription(nx27["uuid"], description)
+                Nx27s::updateDescription(nx27["uuid"], description)
             })
             mx.item("add to listing".yellow, lambda {
                 listing = NxListings::architectOneListingNx21OrNull()

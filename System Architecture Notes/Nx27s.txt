@@ -1,5 +1,5 @@
 
-CREATE TABLE _nx27s_ (_uuid_ text, _datetime_ text, _type_ text, _payload1_ text, _payload2_ text);
+CREATE TABLE _nx27s_ (_uuid_ text, _datetime_ text, _type_ text, _description_ text, _payload1_ text);
 
 Nx27 
 {
@@ -7,22 +7,22 @@ Nx27
     "entityType"   : "Nx27"
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "type"         : "unique-string"
-    "description"  : String # payload1
-    "uniquestring" : String # payload2
+    "description"  : String
+    "uniquestring" : String # payload1
 }
 {
     "uuid"         : String
     "entityType"   : "Nx27"
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "type"         : "url"
-    "description"  : String # payload1
-    "url"          : String # payload2, the url
+    "description"  : String
+    "url"          : String # payload1, the url
 }
 {
     "uuid"         : String
     "entityType"   : "Nx27"
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "type"         : "text"
-    "description"  : String # payload1
-    "nhash"        : String # payload2, text is stored in the Binary Blobs Service
+    "description"  : String
+    "nhash"        : String # payload1, text is stored in the Binary Blobs Service
 }

@@ -27,10 +27,10 @@ if ARGV[0] == "make" and ARGV[1] == "listing"  then
     exit
 end
 
-if ARGV[0] == "make" and ARGV[1] == "entity"  then
-    entity = NxEntities::interactivelyCreateNewEntityOrNull()
-    exit if entity.nil?
-    NxEntities::landing(entity)
+if ARGV[0] == "make" and ARGV[1] == "data"  then
+    nx27 = Nx27s::interactivelyCreateNewNx27OrNull()
+    exit if nx27.nil?
+    Nx27s::landing(nx27)
     exit
 end
 
@@ -44,7 +44,7 @@ usage:
     nyx search
     nyx listings
     nyx make listing
-    nyx make entity
+    nyx make data
     nyx unique-string # Generates a unique string for type FSUniqueString
     nyx help # help display
 HELP

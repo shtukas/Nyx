@@ -61,6 +61,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 # ------------------------------------------------------------
 
+require_relative "BinaryBlobsService.rb"
+
 require_relative "Config.rb"
 
 require_relative "Galaxy.rb"
