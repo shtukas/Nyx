@@ -10,7 +10,7 @@ class Search
 
     # Search::mx19Landing(mx19)
     def self.mx19Landing(mx19)
-        if mx19["type"] == "NxListing" then
+        if mx19["type"] == "Nx21" then
             NxListings::landing(mx19["payload"])
             return
         end
@@ -26,18 +26,17 @@ class Search
         raise "3a35f700-153a-484b-b4ac-c9489982b52b"
     end
 
-    # Search::selectOneNx19OrNull()
-    def self.selectOneNx19OrNull()
-        Utils::selectOneObjectOrNullUsingInteractiveInterface(Search::nx19s(), lambda{|item| item["announce"] })
+    # Search::interactivelySelectOneNx19OrNull()
+    def self.interactivelySelectOneNx19OrNull()
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Search::nx19s(), lambda{|item| item["announce"] })
     end
 
     # Search::searchLoop()
     def self.searchLoop()
         loop {
-            mx19 = Search::selectOneNx19OrNull()
+            mx19 = Search::interactivelySelectOneNx19OrNull()
             break if mx19.nil?
             Search::mx19Landing(mx19)
         }
     end
-
 end

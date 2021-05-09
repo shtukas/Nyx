@@ -66,7 +66,9 @@ require_relative "Config.rb"
 require_relative "Galaxy.rb"
 
 require_relative "Nx27s.rb"
+require_relative "NxEntities.rb"
 require_relative "NxListings.rb"
+require_relative "ListingEntityMapping.rb"
 
 require_relative "Search.rb"
 

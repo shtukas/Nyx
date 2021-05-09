@@ -30,7 +30,7 @@ class Galaxy
             {
                 "announce" => "#{File.basename(location)}",
                 "type"     => "GalaxyLocation",
-                "location" => location
+                "payload"  => location
             }
         }
     end

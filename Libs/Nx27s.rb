@@ -8,157 +8,111 @@ class Nx27s
         "#{Config::nyxFolderPath()}/Nx27s.sqlite3"
     end
 
-    # Nx27s::insertNewNx27(recorduuid, listinguuid, datetime, type, payload1, payload2)
-    def self.insertNewNx27(recorduuid, listinguuid, datetime, type, payload1, payload2)
+    # Nx27s::insertNewNx27(uuid, datetime, type, payload1, payload2)
+    def self.insertNewNx27(uuid, datetime, type, payload1, payload2)
         db = SQLite3::Database.new(Nx27s::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _nx27s_ (_recorduuid_, _listinguuid_, _datetime_, _type_, _payload1_, _payload2_) values (?,?,?,?,?,?)", [recorduuid, listinguuid, datetime, type, payload1, payload2]
+        db.execute "insert into _nx27s_ (_uuid_, _datetime_, _type_, _payload1_, _payload2_) values (?,?,?,?,?)", [uuid, datetime, type, payload1, payload2]
         db.close
     end
 
-    # Nx27s::destroyNx27(recorduuid)
-    def self.destroyNx27(recorduuid)
+    # Nx27s::destroyNx27(uuid)
+    def self.destroyNx27(uuid)
         db = SQLite3::Database.new(Nx27s::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "delete from _nx27s_ where _recorduuid_=?", [recorduuid]
+        db.execute "delete from _nx27s_ where _uuid_=?", [uuid]
         db.close
+    end
+
+    # Nx27s::tableHashRowToNx27(row)
+    def self.tableHashRowToNx27(row)
+        if row["_type_"] == "unique-string" then
+            return {
+                "uuid"         => row["_uuid_"],
+                "entityType"   => "Nx27",
+                "datetime"     => row["_datetime_"],
+                "type"         => "unique-string",
+                "description"  => row["_payload1_"],
+                "uniquestring" => row["_payload2_"],
+            }
+        end
+        if row["_type_"] == "url" then
+            return {
+                "uuid"         => row["_uuid_"],
+                "entityType"   => "Nx27",
+                "datetime"     => row["_datetime_"],
+                "type"         => "url",
+                "description"  => row["_payload1_"],
+                "url"          => row["_payload2_"],
+            }
+        end
+        raise "46ef7497-2d20-48e2-99d7-85b23fe5eaf2"
+    end
+
+    # Nx27s::getNx27ByIdOrNull(uuid): null or Nx21
+    def self.getNx27ByIdOrNull(uuid)
+        db = SQLite3::Database.new(Nx27s::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute( "select * from _nx27s_ where _uuid_=?" , [uuid] ) do |row|
+            answer = Nx27s::tableHashRowToNx27(row)
+        end
+        db.close
+        answer
     end
 
     # Nx27s::interactivelyCreateNewNx27OrNull()
     def self.interactivelyCreateNewNx27OrNull()
-        recorduuid = SecureRandom.uuid
+        uuid = SecureRandom.uuid
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["unique-string", "url", "listing"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["unique-string", "url"])
         return nil if type.nil?
 
         if type == "unique-string" then
-            puts "We start by architecturing the parent listing"
-            LucilleCore::pressEnterToContinue()
-            nx21 = NxListings::architectOneListingNx21OrNull()
-            return nil if nx21.nil?
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring == ""
             datetime = Time.new.utc.iso8601
-            Nx27s::insertNewNx27(recorduuid, nx21["uuid"], datetime, "unique-string", description, uniquestring)
-            return {
-                "recorduuid"   => recorduuid,
-                "listinguuid"  => nx21["uuid"],
-                "datetime"     => datetime,
-                "type"         => "unique-string",
-                "description"  => description,
-                "uniquestring" => uniquestring,
-            }
+            Nx27s::insertNewNx27(uuid, datetime, "unique-string", description, uniquestring)
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add it to a listing ? ") then
+                nx21 = NxListings::architectOneListingNx21OrNull()
+                if nx21 then
+                    ListingEntityMapping::add(nx21["uuid"], uuid)
+                end
+            end
+            return Nx27s::getNx27ByIdOrNull(uuid)
         end
         if type == "url" then
-            puts "We start by architecturing the parent listing"
-            LucilleCore::pressEnterToContinue()
-            nx21 = NxListings::architectOneListingNx21OrNull()
-            return nil if nx21.nil?
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
             datetime = Time.new.utc.iso8601
-            Nx27s::insertNewNx27(recorduuid, nx21["uuid"], datetime, "url", description, url)
-            return {
-                "recorduuid"   => recorduuid,
-                "listinguuid"  => nx21["uuid"],
-                "datetime"     => datetime,
-                "type"         => "url",
-                "description"  => description,
-                "url"          => url,
-            }
-        end
-        if type == "listing" then
-            puts "We are going to architect the parent listing and then the child one"
-            LucilleCore::pressEnterToContinue()
-            nx21p = NxListings::architectOneListingNx21OrNull()
-            return nil if nx21p.nil?
-            nx21c = NxListings::architectOneListingNx21OrNull()
-            return nil if nx21c.nil?
-            return nil if nx21p["uuid"] == nx21c["uuid"]
-            datetime = Time.new.utc.iso8601
-            Nx27s::insertNewNx27(recorduuid, nx21p["uuid"], datetime, "listing", nx21c["uuid"], nil)
-            return {
-                "recorduuid"   => recorduuid,
-                "listinguuid"  => nx21p["uuid"],
-                "datetime"     => datetime,
-                "type"         => "listing",
-                "luuid"        => nx21c["uuid"],
-            }
+            Nx27s::insertNewNx27(uuid, datetime, "url", description, url)
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add it to a listing ? ") then
+                nx21 = NxListings::architectOneListingNx21OrNull()
+                if nx21 then
+                    ListingEntityMapping::add(nx21["uuid"], uuid)
+                end
+            end
+            return Nx27s::getNx27ByIdOrNull(uuid)
         end
     end
 
-    # Nx27s::interactivelyCreateNewNx27GivenParentListingOrNull(nx21)
-    def self.interactivelyCreateNewNx27GivenParentListingOrNull(nx21)
-        recorduuid = SecureRandom.uuid
-
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["unique-string", "listing"])
-        return nil if type.nil?
-
-        if type == "unique-string" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return nil if description == ""
-            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
-            return nil if uniquestring == ""
-            datetime = Time.new.utc.iso8601
-            Nx27s::insertNewNx27(recorduuid, nx21["uuid"], datetime, "unique-string", description, uniquestring)
-            return {
-                "recorduuid"   => recorduuid,
-                "listinguuid"  => nx21["uuid"],
-                "datetime"     => datetime,
-                "type"         => "unique-string",
-                "description"  => description,
-                "uniquestring" => uniquestring,
-            }
-        end
-        if type == "listing" then
-            nx21c = NxListings::architectOneListingNx21OrNull()
-            return nil if nx21c.nil?
-            return nil if nx21["uuid"] == nx21c["uuid"]
-            datetime = Time.new.utc.iso8601
-            Nx27s::insertNewNx27(recorduuid, nx21["uuid"], datetime, "listing", nx21c["uuid"], nil)
-            return {
-                "recorduuid"   => recorduuid,
-                "listinguuid"  => nx21["uuid"],
-                "datetime"     => datetime,
-                "type"         => "listing",
-                "luuid"        => nx21c["uuid"],
-            }
-        end
-    end
-
-    # Nx27s::entries(): Array[Nx27]
-    def self.entries()
+    # Nx27s::nx27s(): Array[Nx27]
+    def self.nx27s()
         db = SQLite3::Database.new(Nx27s::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
         db.execute( "select * from _nx27s_" , [] ) do |row|
-            if row["_type_"] == "unique-string" then
-                answer << {
-                    "recorduuid"   => row["_recorduuid_"],
-                    "listinguuid"  => row["_listinguuid_"],
-                    "datetime"     => row["_datetime_"],
-                    "type"         => "unique-string",
-                    "description"  => row["_payload1_"],
-                    "uniquestring" => row["_payload2_"],
-                }
-            end
-            if row["_type_"] == "listing" then
-                answer << {
-                    "recorduuid"   => row["_recorduuid_"],
-                    "listinguuid"  => row["_listinguuid_"],
-                    "datetime"     => row["_datetime_"],
-                    "type"         => "listing",
-                    "luuid"        => row["_payload1_"],
-                }
-            end
+            answer << Nx27s::tableHashRowToNx27(row)
         end
         db.close
         answer
@@ -172,127 +126,85 @@ class Nx27s
         db.results_as_hash = true
         answer = []
         db.execute( "select * from _nx27s_ where _listinguuid_=? order by _datetime_" , [listinguuid] ) do |row|
-            if row["_type_"] == "unique-string" then
-                answer << {
-                    "recorduuid"   => row["_recorduuid_"],
-                    "listinguuid"  => row["_listinguuid_"],
-                    "datetime"     => row["_datetime_"],
-                    "type"         => "unique-string",
-                    "description"  => row["_payload1_"],
-                    "uniquestring" => row["_payload2_"],
-                }
-            end
-            if row["_type_"] == "listing" then
-                answer << {
-                    "recorduuid"   => row["_recorduuid_"],
-                    "listinguuid"  => row["_listinguuid_"],
-                    "datetime"     => row["_datetime_"],
-                    "type"         => "listing",
-                    "luuid"        => row["_payload1_"],
-                }
-            end
+            answer << Nx27s::tableHashRowToNx27(row)
         end
         db.close
         answer
     end
 
-    # Nx27s::getNx27ByRecordIdOrNull(recorduuid): null or Nx21
-    def self.getNx27ByRecordIdOrNull(recorduuid)
-        db = SQLite3::Database.new(Nx27s::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = nil
-        db.execute( "select * from _nx27s_ where _recorduuid_=?" , [recorduuid] ) do |row|
-            if row["_type_"] == "unique-string" then
-                answer = {
-                    "recorduuid"   => row["_recorduuid_"],
-                    "listinguuid"  => row["_listinguuid_"],
-                    "datetime"     => row["_datetime_"],
-                    "type"         => "unique-string",
-                    "description"  => row["_payload1_"],
-                    "uniquestring" => row["_payload2_"],
-                }
-            end
-            if row["_type_"] == "listing" then
-                answer = {
-                    "recorduuid"   => row["_recorduuid_"],
-                    "listinguuid"  => row["_listinguuid_"],
-                    "datetime"     => row["_datetime_"],
-                    "type"         => "listing",
-                    "luuid"        => row["_payload1_"],
-                }
-            end
-        end
-        db.close
-        answer
-    end
 
-    # Nx27s::updateNx27TypeUniqueStringDescription(recorduuid, description)
-    def self.updateNx27TypeUniqueStringDescription(recorduuid, description)
+
+    # Nx27s::updateNx27TypeUniqueStringDescription(uuid, description)
+    def self.updateNx27TypeUniqueStringDescription(uuid, description)
         db = SQLite3::Database.new(Nx27s::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "update _nx27s_ set _description_=? where _recorduuid_=?", [description, recorduuid]
+        db.execute "update _nx27s_ set _description_=? where _uuid_=?", [description, uuid]
         db.close
     end
 
     # ----------------------------------------------------------------------
 
-    # Nx27s::recordIds()
-    def self.recordIds()
-        Nx27s::entries().map{|item| item["recorduuid"] }
-    end
-
     # Nx27s::toString(nx27)
     def self.toString(nx27)
-        if nx27["type"] == "unique-string" then
-            return "[entry  ] #{nx27["description"]}"
-        end
-        if nx27["type"] == "listing" then
-            luuid = nx27["luuid"]
-            nx21 = NxListings::getListingByIdOrNull(luuid)
-            if nx21 then
-                return "[listing] #{nx21["description"]}"
+        "[entry  ] #{nx27["description"]} (#{nx27["type"]})"
+    end
+
+    # Nx27s::access(nx27)
+    def self.access(nx27)
+        type = nx27["type"]
+        if type == "unique-string" then
+            uniquestring = nx27["uniquestring"]
+            puts "Looking for location..."
+            location = Utils::locationByUniqueStringOrNull(uniquestring)
+            if location then
+                puts "location: #{location}"
+                if LucilleCore::askQuestionAnswerAsBoolean("access ? ") then
+                    system("open '#{location}'")
+                end
             else
-                return "[listing] no listing found for luuid: #{luuid}"
+                puts "I could not determine the location for uniquestring: '#{uniquestring}'"
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
+                    Nx27s::destroyNx27(nx27["uuid"])
+                end
             end
+        end
+        if type == "url" then
+            system("open '#{nx27["url"]}'")
         end
     end
 
     # Nx27s::landing(nxs7)
     def self.landing(nx27)
         loop {
-            nx27 = Nx27s::getNx27ByRecordIdOrNull(nx27["recorduuid"]) # Could have been destroyed or metadata updated in the previous loop
+            nx27 = Nx27s::getNx27ByIdOrNull(nx27["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if nx27.nil?
             system("clear")
+            mx = LCoreMenuItemsNX1.new()
             puts Nx27s::toString(nx27).green
             puts ""
-            mx = LCoreMenuItemsNX1.new()
+            ListingEntityMapping::listings(nx27["uuid"]).each{|listing|
+                mx.item(NxListings::toString(listing), lambda {
+                    NxListings::landing(listing)
+                })
+            }
+            puts ""
             mx.item("access".yellow, lambda {
-                uniquestring = nx27["uniquestring"]
-                puts "Looking for location..."
-                location = Utils::locationByUniqueStringOrNull(uniquestring)
-                if location then
-                    puts "location: #{location}"
-                    if LucilleCore::askQuestionAnswerAsBoolean("access ? ") then
-                        system("open '#{location}'")
-                    end
-                else
-                    puts "I could not determine the location for uniquestring: '#{uniquestring}'"
-                    if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                        Nx27s::destroyNx27(nx27["recorduuid"])
-                    end
-                end
+                Nx27s::access(nx27)
             })
             mx.item("update description".yellow, lambda {
                 description = Utils::editTextSynchronously(nx27["description"]).strip
                 return if description == ""
-                Nx27s::updateNx27TypeUniqueStringDescription(nx27["recorduuid"], description)
+                Nx27s::updateNx27TypeUniqueStringDescription(nx27["uuid"], description)
+            })
+            mx.item("add to listing".yellow, lambda {
+                listing = NxListings::architectOneListingNx21OrNull()
+                return if listing.nil?
+                ListingEntityMapping::add(listing["uuid"], nx27["uuid"])
             })
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    Nx27s::destroyNx27(nx27["recorduuid"])
+                    Nx27s::destroyNx27(nx27["uuid"])
                 end
             })
             puts ""
@@ -303,30 +215,13 @@ class Nx27s
 
     # Nx27s::nx19s()
     def self.nx19s()
-        Nx27s::entries().map{|nx27|
+        Nx27s::nx27s().map{|nx27|
             volatileuuid = SecureRandom.hex[0, 8]
-            if nx27["type"] == "unique-string" then
-                nx19 = {
-                    "announce" => "#{volatileuuid} [entry] #{nx27["description"]}",
-                    "type"     => "Nx27",
-                    "payload"  => nx27
-                }
-            end
-            if nx27["type"] == "listing" then
-                luuid = nx27["luuid"]
-                nx21 = NxListings::getListingByIdOrNull(luuid)
-                if nx21 then
-                    nx19 = {
-                        "announce" => "#{volatileuuid} [listing] #{nx21["description"]}",
-                        "type"     => "NxListing",
-                        "payload"  => nx21
-                    }
-                else
-                    nx19 = nil
-                end
-            end
-
-            nx19
-        }.compact
+            {
+                "announce" => "#{volatileuuid} #{Nx27s::toString(nx27)}",
+                "type"     => "Nx27",
+                "payload"  => nx27
+            }
+        }
     end
 end

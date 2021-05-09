@@ -1,25 +1,18 @@
 
-CREATE TABLE _nx27s_ (_recorduuid_ text, _listinguuid_, _datetime_ text, _type_ text, _payload1_ text, _payload2_ text);
+CREATE TABLE _nx27s_ (_uuid_ text, _datetime_ text, _type_ text, _payload1_ text, _payload2_ text);
 
 Nx27 
 {
-    "recorduuid"   : String
-    "listinguuid"  : String
+    "uuid"         : String
+    "entityType"   : "Nx27"
     "datetime"     : String # used for ordering the elements of a listing
     "type"         : "unique-string"
     "description"  : String # payload1
     "uniquestring" : String # payload2
 }
 {
-    "recorduuid"   : String
-    "listinguuid"  : String
-    "datetime"     : String # used for ordering the elements of a listing
-    "type"         : "listing"
-    "luuid"        : String # payload1
-}
-{
-    "recorduuid"   : String
-    "listinguuid"  : String
+    "uuid"         : String
+    "entityType"   : "Nx27"
     "datetime"     : String # used for ordering the elements of a listing
     "type"         : "url"
     "description"  : String # payload1

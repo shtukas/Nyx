@@ -120,8 +120,8 @@ class Utils
         LucilleCore::selectEntityFromListOfEntitiesOrNull("select", lines)
     end
 
-    # Utils::selectOneObjectOrNullUsingInteractiveInterface(items, toString = lambda{|item| item })
-    def self.selectOneObjectOrNullUsingInteractiveInterface(items, toString = lambda{|item| item })
+    # Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, toString = lambda{|item| item })
+    def self.selectOneObjectUsingInteractiveInterfaceOrNull(items, toString = lambda{|item| item })
         lines = items.map{|item| toString.call(item) }
         line = Utils::selectLineOrNullUsingInteractiveInterface(lines)
         return nil if line.nil?
