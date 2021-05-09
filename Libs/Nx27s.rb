@@ -30,10 +30,12 @@ class Nx27s
     def self.interactivelyCreateNewNx27OrNull()
         recorduuid = SecureRandom.uuid
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["unique-string", "listing"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["unique-string", "url", "listing"])
         return nil if type.nil?
 
         if type == "unique-string" then
+            puts "We start by architecturing the parent listing"
+            LucilleCore::pressEnterToContinue()
             nx21 = NxListings::architectOneListingNx21OrNull()
             return nil if nx21.nil?
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -51,8 +53,29 @@ class Nx27s
                 "uniquestring" => uniquestring,
             }
         end
+        if type == "url" then
+            puts "We start by architecturing the parent listing"
+            LucilleCore::pressEnterToContinue()
+            nx21 = NxListings::architectOneListingNx21OrNull()
+            return nil if nx21.nil?
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return nil if description == ""
+            url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
+            return nil if url == ""
+            datetime = Time.new.utc.iso8601
+            Nx27s::insertNewNx27(recorduuid, nx21["uuid"], datetime, "url", description, url)
+            return {
+                "recorduuid"   => recorduuid,
+                "listinguuid"  => nx21["uuid"],
+                "datetime"     => datetime,
+                "type"         => "url",
+                "description"  => description,
+                "url"          => url,
+            }
+        end
         if type == "listing" then
             puts "We are going to architect the parent listing and then the child one"
+            LucilleCore::pressEnterToContinue()
             nx21p = NxListings::architectOneListingNx21OrNull()
             return nil if nx21p.nil?
             nx21c = NxListings::architectOneListingNx21OrNull()

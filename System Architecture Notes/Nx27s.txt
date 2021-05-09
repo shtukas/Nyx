@@ -23,5 +23,5 @@ Nx27
     "datetime"     : String # used for ordering the elements of a listing
     "type"         : "url"
     "description"  : String # payload1
-    "nhash"        : String # payload2, the url is stored using the BinaryBlobsService
+    "url"          : String # payload2, the url
 }
