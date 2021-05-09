@@ -8,12 +8,12 @@ class NxListings
         "#{Config::nyxFolderPath()}/listings.sqlite3"
     end
 
-    # NxListings::createNewListing(uuid, description)
-    def self.createNewListing(uuid, description)
+    # NxListings::createNewListing(uuid, datetime, description)
+    def self.createNewListing(uuid, datetime, description)
         db = SQLite3::Database.new(NxListings::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _listings_ (_uuid_, _description_) values (?,?)", [uuid, description]
+        db.execute "insert into _listings_ (_uuid_, _datetime_, _description_) values (?,?,?)", [uuid, datetime, description]
         db.close
     end
 
@@ -24,37 +24,6 @@ class NxListings
         db.busy_handler { |count| true }
         db.execute "delete from _listings_ where _uuid_=?", [uuid]
         db.close
-    end
-
-    # NxListings::interactivelyCreateNewListingNx21OrNull()
-    def self.interactivelyCreateNewListingNx21OrNull()
-        uuid = SecureRandom.uuid
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        NxListings::createNewListing(uuid, description)
-        {
-            "entityType"  => "Nx21",
-            "uuid"        => uuid,
-            "description" => description,
-        }
-    end
-
-    # NxListings::nx21s(): Array[Nx21]
-    def self.nx21s()
-        db = SQLite3::Database.new(NxListings::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _listings_" , [] ) do |row|
-            answer << {
-                "entityType"  => "Nx21",
-                "uuid"        => row["_uuid_"],
-                "description" => row["_description_"],
-            }
-        end
-        db.close
-        answer
     end
 
     # NxListings::getListingByIdOrNull(id): null or Nx21
@@ -68,6 +37,35 @@ class NxListings
             answer = {
                 "entityType"  => "Nx21",
                 "uuid"        => row["_uuid_"],
+                "datetime"    => row["_datetime_"],
+                "description" => row["_description_"],
+            }
+        end
+        db.close
+        answer
+    end
+
+    # NxListings::interactivelyCreateNewListingNx21OrNull()
+    def self.interactivelyCreateNewListingNx21OrNull()
+        uuid = SecureRandom.uuid
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        NxListings::createNewListing(uuid, Time.new.utc.iso8601, description)
+        NxListings::getListingByIdOrNull(uuid)
+    end
+
+    # NxListings::nx21s(): Array[Nx21]
+    def self.nx21s()
+        db = SQLite3::Database.new(NxListings::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _listings_" , [] ) do |row|
+            answer << {
+                "entityType"  => "Nx21",
+                "uuid"        => row["_uuid_"],
+                "datetime"    => row["_datetime_"],
                 "description" => row["_description_"],
             }
         end
@@ -103,11 +101,13 @@ class NxListings
             mx = LCoreMenuItemsNX1.new()
             puts NxListings::toString(nx21).green
             puts ""
-            ListingEntityMapping::entities(nx21["uuid"]).each{|entity|
-                mx.item(NxEntities::toString(entity), lambda {
-                    NxEntities::landing(entity)
-                })
-            }
+            ListingEntityMapping::entities(nx21["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity|
+                    mx.item(NxEntities::toString(entity), lambda {
+                        NxEntities::landing(entity)
+                    })
+                }
             puts ""
             mx.item("add entity".yellow, lambda {
                 entity = NxEntities::architectEntityOrNull()

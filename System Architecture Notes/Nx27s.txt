@@ -5,7 +5,7 @@ Nx27
 {
     "uuid"         : String
     "entityType"   : "Nx27"
-    "datetime"     : String # used for ordering the elements of a listing
+    "datetime"     : DateTime Iso 8601 UTC Zulu
     "type"         : "unique-string"
     "description"  : String # payload1
     "uniquestring" : String # payload2
@@ -13,8 +13,16 @@ Nx27
 {
     "uuid"         : String
     "entityType"   : "Nx27"
-    "datetime"     : String # used for ordering the elements of a listing
+    "datetime"     : DateTime Iso 8601 UTC Zulu
     "type"         : "url"
     "description"  : String # payload1
     "url"          : String # payload2, the url
+}
+{
+    "uuid"         : String
+    "entityType"   : "Nx27"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "type"         : "text"
+    "description"  : String # payload1
+    "nhash"        : String # payload2, text is stored in the Binary Blobs Service
 }

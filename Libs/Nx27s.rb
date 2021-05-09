@@ -79,12 +79,6 @@ class Nx27s
             return nil if uniquestring == ""
             datetime = Time.new.utc.iso8601
             Nx27s::insertNewNx27(uuid, datetime, "unique-string", description, uniquestring)
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add it to a listing ? ") then
-                nx21 = NxListings::architectOneListingNx21OrNull()
-                if nx21 then
-                    ListingEntityMapping::add(nx21["uuid"], uuid)
-                end
-            end
             return Nx27s::getNx27ByIdOrNull(uuid)
         end
         if type == "url" then
@@ -94,12 +88,6 @@ class Nx27s
             return nil if url == ""
             datetime = Time.new.utc.iso8601
             Nx27s::insertNewNx27(uuid, datetime, "url", description, url)
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add it to a listing ? ") then
-                nx21 = NxListings::architectOneListingNx21OrNull()
-                if nx21 then
-                    ListingEntityMapping::add(nx21["uuid"], uuid)
-                end
-            end
             return Nx27s::getNx27ByIdOrNull(uuid)
         end
     end
@@ -147,7 +135,7 @@ class Nx27s
 
     # Nx27s::toString(nx27)
     def self.toString(nx27)
-        "[entry  ] #{nx27["description"]} (#{nx27["type"]})"
+        "[entry  ] #{nx27["description"]} {#{nx27["type"]}}"
     end
 
     # Nx27s::access(nx27)
@@ -183,11 +171,13 @@ class Nx27s
             mx = LCoreMenuItemsNX1.new()
             puts Nx27s::toString(nx27).green
             puts ""
-            ListingEntityMapping::listings(nx27["uuid"]).each{|listing|
-                mx.item(NxListings::toString(listing), lambda {
-                    NxListings::landing(listing)
-                })
-            }
+            ListingEntityMapping::listings(nx27["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|listing|
+                    mx.item(NxListings::toString(listing), lambda {
+                        NxListings::landing(listing)
+                    })
+                }
             puts ""
             mx.item("access".yellow, lambda {
                 Nx27s::access(nx27)
