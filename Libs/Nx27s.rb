@@ -8,21 +8,12 @@ class Nx27s
         "#{Config::nyxFolderPath()}/Nx27s.sqlite3"
     end
 
-    # Nx27s::createNewNx27TypeUniqueString(recorduuid, listinguuid, datetime, description, uniquestring)
-    def self.createNewNx27TypeUniqueString(recorduuid, listinguuid, datetime, description, uniquestring)
+    # Nx27s::insertNewNx27(recorduuid, listinguuid, datetime, type, payload1, payload2)
+    def self.insertNewNx27(recorduuid, listinguuid, datetime, type, payload1, payload2)
         db = SQLite3::Database.new(Nx27s::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _nx27s_ (_recorduuid_, _listinguuid_, _datetime_, _type_, _payload1_, _payload2_) values (?,?,?,?,?,?)", [recorduuid, listinguuid, datetime, "unique-string", description, uniquestring]
-        db.close
-    end
-
-    # Nx27s::createNewNx27TypeListing(recorduuid, listinguuid, datetime, luuid)
-    def self.createNewNx27TypeListing(recorduuid, listinguuid, datetime, luuid)
-        db = SQLite3::Database.new(Nx27s::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "insert into _nx27s_ (_recorduuid_, _listinguuid_, _datetime_, _type_, _payload1_) values (?,?,?,?,?)", [recorduuid, listinguuid, datetime, "listing", luuid]
+        db.execute "insert into _nx27s_ (_recorduuid_, _listinguuid_, _datetime_, _type_, _payload1_, _payload2_) values (?,?,?,?,?,?)", [recorduuid, listinguuid, datetime, type, payload1, payload2]
         db.close
     end
 
@@ -50,7 +41,7 @@ class Nx27s
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring == ""
             datetime = Time.new.utc.iso8601
-            Nx27s::createNewNx27TypeUniqueString(recorduuid, nx21["uuid"], datetime, description, uniquestring)
+            Nx27s::insertNewNx27(recorduuid, nx21["uuid"], datetime, "unique-string", description, uniquestring)
             return {
                 "recorduuid"   => recorduuid,
                 "listinguuid"  => nx21["uuid"],
@@ -68,7 +59,7 @@ class Nx27s
             return nil if nx21c.nil?
             return nil if nx21p["uuid"] == nx21c["uuid"]
             datetime = Time.new.utc.iso8601
-            Nx27s::createNewNx27TypeListing(recorduuid, nx21p["uuid"], datetime, nx21c["uuid"])
+            Nx27s::insertNewNx27(recorduuid, nx21p["uuid"], datetime, "listing", nx21c["uuid"], nil)
             return {
                 "recorduuid"   => recorduuid,
                 "listinguuid"  => nx21p["uuid"],
@@ -92,7 +83,7 @@ class Nx27s
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring == ""
             datetime = Time.new.utc.iso8601
-            Nx27s::createNewNx27TypeUniqueString(recorduuid, nx21["uuid"], datetime, description, uniquestring)
+            Nx27s::insertNewNx27(recorduuid, nx21["uuid"], datetime, "unique-string", description, uniquestring)
             return {
                 "recorduuid"   => recorduuid,
                 "listinguuid"  => nx21["uuid"],
@@ -107,7 +98,7 @@ class Nx27s
             return nil if nx21c.nil?
             return nil if nx21["uuid"] == nx21c["uuid"]
             datetime = Time.new.utc.iso8601
-            Nx27s::createNewNx27TypeListing(recorduuid, nx21["uuid"], datetime, nx21c["uuid"])
+            Nx27s::insertNewNx27(recorduuid, nx21["uuid"], datetime, "listing", nx21c["uuid"], nil)
             return {
                 "recorduuid"   => recorduuid,
                 "listinguuid"  => nx21["uuid"],
