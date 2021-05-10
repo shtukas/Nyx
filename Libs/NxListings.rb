@@ -54,6 +54,15 @@ class NxListings
         NxListings::getListingByIdOrNull(uuid)
     end
 
+    # NxListings::updateDescription(uuid, description)
+    def self.updateDescription(uuid, description)
+        db = SQLite3::Database.new(NxListings::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "update _listings_ set _description_=? where _uuid_=?", [description, uuid]
+        db.close
+    end
+
     # NxListings::nx21s(): Array[Nx21]
     def self.nx21s()
         db = SQLite3::Database.new(NxListings::databaseFilepath())
@@ -109,6 +118,11 @@ class NxListings
                     })
                 }
             puts ""
+            mx.item("update description".yellow, lambda {
+                description = Utils::editTextSynchronously(nx21["description"]).strip
+                return if description == ""
+                NxListings::updateDescription(nx21["uuid"], description)
+            })
             mx.item("add entity".yellow, lambda {
                 entity = NxEntities::architectEntityOrNull()
                 return if entity.nil?
