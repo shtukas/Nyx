@@ -1,6 +1,87 @@
 
 # encoding: UTF-8
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
+=begin
+
+The operator is an object that has meet the following signatures
+
+    .commitBlob(blob: BinaryData) : Hash
+    .filepathToContentHash(filepath) : Hash
+    .readBlobErrorIfNotFound(nhash: Hash) : BinaryData
+    .datablobCheck(nhash: Hash): Boolean
+
+class Elizabeth
+
+    def initialize()
+
+    end
+
+    def commitBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        KeyValueStore::set(nil, "SHA256-#{Digest::SHA256.hexdigest(blob)}", blob)
+        nhash
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = KeyValueStore::getOrNull(nil, nhash)
+        raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
+        blob
+    end
+
+    def datablobCheck(nhash)
+        begin
+            readBlobErrorIfNotFound(nhash)
+            true
+        rescue
+            false
+        end
+    end
+
+end
+
+AionCore::commitLocationReturnHash(operator, location)
+AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
+
+AionFsck::structureCheckAionHash(operator, nhash)
+
+=end
+
+class Elizabeth
+
+    def initialize()
+
+    end
+
+    def commitBlob(blob)
+        BinaryBlobsService::putBlob(blob)
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = BinaryBlobsService::getBlobOrNull(nhash)
+        raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
+        blob
+    end
+
+    def datablobCheck(nhash)
+        begin
+            readBlobErrorIfNotFound(nhash)
+            true
+        rescue
+            false
+        end
+    end
+
+end
+
 class Nx27s
 
     # Nx27s::databaseFilepath()
@@ -33,7 +114,7 @@ class Nx27s
                 "uuid"         => row["_uuid_"],
                 "entityType"   => "Nx27",
                 "datetime"     => row["_datetime_"],
-                "type"         => "unique-string",
+                "type"         => row["_type_"],
                 "description"  => row["_description_"],
                 "uniquestring" => row["_payload1_"],
             }
@@ -43,7 +124,7 @@ class Nx27s
                 "uuid"         => row["_uuid_"],
                 "entityType"   => "Nx27",
                 "datetime"     => row["_datetime_"],
-                "type"         => "url",
+                "type"         => row["_type_"],
                 "description"  => row["_description_"],
                 "url"          => row["_payload1_"],
             }
@@ -53,7 +134,17 @@ class Nx27s
                 "uuid"         => row["_uuid_"],
                 "entityType"   => "Nx27",
                 "datetime"     => row["_datetime_"],
-                "type"         => "url",
+                "type"         => row["_type_"],
+                "description"  => row["_description_"],
+                "nhash"        => row["_payload1_"],
+            }
+        end
+        if row["_type_"] == "aion-point" then
+            return {
+                "uuid"         => row["_uuid_"],
+                "entityType"   => "Nx27",
+                "datetime"     => row["_datetime_"],
+                "type"         => row["_type_"],
                 "description"  => row["_description_"],
                 "nhash"        => row["_payload1_"],
             }
@@ -82,7 +173,7 @@ class Nx27s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["unique-string", "url", "text"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["unique-string", "url", "text", "aion-point"])
         return nil if type.nil?
 
         if type == "unique-string" then
@@ -102,6 +193,14 @@ class Nx27s
             return nil if text == ""
             nhash = BinaryBlobsService::putBlob(text)
             Nx27s::insertNewNx27(uuid, datetime, "text", description, nhash)
+        end
+        if type == "aion-point" then
+            filename = LucilleCore::askQuestionAnswerAsString("filename on Desktop (empty to abort) : ")
+            return nil if filename == ""
+            location = "/Users/pascal/Desktop/#{filename}"
+            return nil if !File.exists?(location)
+            nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
+            Nx27s::insertNewNx27(uuid, datetime, "aion-point", description, nhash)
         end
 
         Nx27s::getNx27ByIdOrNull(uuid)
@@ -174,6 +273,12 @@ class Nx27s
             puts ""
             puts text
             puts ""
+            LucilleCore::pressEnterToContinue()
+        end
+        if type == "aion-point" then
+            nhash = nx27["nhash"]
+            AionCore::exportHashAtFolder(Elizabeth.new(), nhash, "/Users/pascal/Desktop")
+            puts "Structure exported to Desktop"
             LucilleCore::pressEnterToContinue()
         end
     end

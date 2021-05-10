@@ -26,3 +26,11 @@ Nx27
     "description"  : String
     "nhash"        : String # payload1, text is stored in the Binary Blobs Service
 }
+{
+    "uuid"         : String
+    "entityType"   : "Nx27"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "type"         : "aion-point"
+    "description"  : String
+    "nhash"        : String # payload1, nhash is the root of an Aion Point
+}
