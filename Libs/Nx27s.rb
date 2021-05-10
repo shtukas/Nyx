@@ -329,15 +329,15 @@ class Nx27s
             return if nx27.nil?
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            puts Nx27s::toString(nx27).green
-            puts ""
             ListingEntityMapping::listings(nx27["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|listing|
-                    mx.item(NxListings::toString(listing), lambda {
+                    mx.item("belongs to: #{NxListings::toString(listing)}", lambda {
                         NxListings::landing(listing)
                     })
                 }
+            puts ""
+            puts Nx27s::toString(nx27).green
             puts ""
             mx.item("access".yellow, lambda {
                 Nx27s::access(nx27)
