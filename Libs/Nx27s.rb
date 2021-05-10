@@ -283,6 +283,45 @@ class Nx27s
         end
     end
 
+    # Nx27s::edit(nx27)
+    def self.edit(nx27)
+        if nx27["type"] == "unique-string" then
+            puts "Editing the unique string"
+            LucilleCore::pressEnterToContinue()
+            uniquestring = Utils::editTextSynchronously(nx27["uniquestring"]).strip
+            Nx27s::updatePayload1(nx27["uuid"], uniquestring)
+        end
+        if nx27["type"] == "url" then
+            puts "Editing the url"
+            LucilleCore::pressEnterToContinue()
+            url = Utils::editTextSynchronously(nx27["url"]).strip
+            Nx27s::updatePayload1(nx27["uuid"], url)
+        end
+        if nx27["type"] == "text" then
+            puts "Editing the text"
+            LucilleCore::pressEnterToContinue()
+            nhash = nx27["nhash"]
+            text = BinaryBlobsService::getBlobOrNull(nhash)
+            text = Utils::editTextSynchronously(text)
+            nhash = BinaryBlobsService::putBlob(text)
+            Nx27s::updatePayload1(nx27["uuid"], nhash)
+        end
+        if nx27["type"] == "aion-point" then
+            puts "Editing the Aion-Point"
+            LucilleCore::pressEnterToContinue()
+            nhash = nx27["nhash"]
+            AionCore::exportHashAtFolder(Elizabeth.new(), nhash, "/Users/pascal/Desktop")
+            puts "Modify the Aion-Point and press enter to continue"
+            LucilleCore::pressEnterToContinue()
+            filename = LucilleCore::askQuestionAnswerAsString("filename on Desktop (empty to abort) : ")
+            return nil if filename == ""
+            location = "/Users/pascal/Desktop/#{filename}"
+            return nil if !File.exists?(location)
+            nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
+            Nx27s::updatePayload1(nx27["uuid"], nhash)
+        end
+    end
+
     # Nx27s::landing(nx27)
     def self.landing(nx27)
         loop {
@@ -302,6 +341,9 @@ class Nx27s
             puts ""
             mx.item("access".yellow, lambda {
                 Nx27s::access(nx27)
+            })
+            mx.item("edit".yellow, lambda {
+                Nx27s::edit(nx27)
             })
             mx.item("update description".yellow, lambda {
                 description = Utils::editTextSynchronously(nx27["description"]).strip
