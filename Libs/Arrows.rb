@@ -34,11 +34,11 @@ class Arrows
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute( "select * from _arrows where _sourceuuid_=?" , [sourceuuid] ) do |row|
+        db.execute( "select * from _arrows_ where _sourceuuid_=?" , [sourceuuid] ) do |row|
             answer << row["_targetuuid_"]
         end
         db.close
-        answer
+        answer.uniq
     end
 
     # Arrows::sourcesuuids(targetuuid)
@@ -48,11 +48,11 @@ class Arrows
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute( "select * from _arrows where _targetuuid_=?" , [targetuuid] ) do |row|
+        db.execute( "select * from _arrows_ where _targetuuid_=?" , [targetuuid] ) do |row|
             answer << row["_sourceuuid_"]
         end
         db.close
-        answer
+        answer.uniq
     end
 
     # Arrows::childrenEntities(parentuuid)

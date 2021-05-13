@@ -1,0 +1,4 @@
+
+CREATE TABLE _links_ (_uuid1_ text, _uuid2_ text);
+
+links.sqlite3
