@@ -89,6 +89,11 @@ class Nx27s
         "#{Config::nyxFolderPath()}/Nx27s.sqlite3"
     end
 
+    # Nx27s::types()
+    def self.types()
+        ["unique-string", "url", "text", "aion-point"]
+    end
+
     # Nx27s::insertNewNx27(uuid, datetime, type, description, payload1)
     def self.insertNewNx27(uuid, datetime, type, description, payload1)
         db = SQLite3::Database.new(Nx27s::databaseFilepath())
@@ -173,7 +178,7 @@ class Nx27s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["unique-string", "url", "text", "aion-point"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx27s::types())
         return nil if type.nil?
 
         if type == "unique-string" then
@@ -218,6 +223,18 @@ class Nx27s
         end
         db.close
         answer
+    end
+
+    # Nx27s::updateType(uuid, type)
+    def self.updateType(uuid, type)
+        if !Nx27s::types().include?(type) then
+            raise "a2b7274e-9b68-4463-8a6c-ac1777654c82: '#{type}'"
+        end
+        db = SQLite3::Database.new(Nx27s::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "update _nx27s_ set _type_=? where _uuid_=?", [type, uuid]
+        db.close
     end
 
     # Nx27s::updateDescription(uuid, description)
@@ -322,6 +339,27 @@ class Nx27s
         end
     end
 
+    # Nx27s::transmute(nx27, targetType)
+    def self.transmute(nx27, targetType)
+        return if nx27["type"] == targetType
+
+        if nx27["type"] == "text" and targetType == "aion-point" then
+            puts "Transmuting #{nx27["description"]} of type 'text' into a aion-point"
+            LucilleCore::pressEnterToContinue()
+            filename = "#{SecureRandom.hex(4)}.txt"
+            filepath = "/Users/pascal/Desktop/#{filename}"
+            text = BinaryBlobsService::getBlobOrNull(nx27["nhash"])
+            File.open(filepath, "w"){|f| f.puts(text) }
+            nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), filepath)
+            Nx27s::updatePayload1(nx27["uuid"], nhash)
+            Nx27s::updateType(nx27["uuid"], "aion-point")
+            LucilleCore::removeFileSystemLocation(filepath)
+            return
+        end
+
+        puts "I do not know how to transmute #{nx27["description"]} of type '#{nx27["type"]}' into a '#{targetType}'"
+    end
+
     # Nx27s::landing(nx27)
     def self.landing(nx27)
         loop {
@@ -354,6 +392,11 @@ class Nx27s
                 listing = NxListings::architectOneListingNx21OrNull()
                 return if listing.nil?
                 ListingEntityMapping::add(listing["uuid"], nx27["uuid"])
+            })
+            mx.item("transmute".yellow, lambda {
+                targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx27s::types())
+                return if targetType.nil?
+                Nx27s::transmute(nx27, targetType)
             })
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
