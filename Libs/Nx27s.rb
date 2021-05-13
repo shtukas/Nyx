@@ -91,7 +91,7 @@ class Nx27s
 
     # Nx27s::types()
     def self.types()
-        ["unique-string", "url", "text", "aion-point"]
+        ["node", "unique-string", "url", "text", "aion-point"]
     end
 
     # Nx27s::insertNewNx27(uuid, datetime, type, description, payload1)
@@ -114,6 +114,15 @@ class Nx27s
 
     # Nx27s::tableHashRowToNx27(row)
     def self.tableHashRowToNx27(row)
+        if row["_type_"] == "node" then
+            return {
+                "uuid"         => row["_uuid_"],
+                "entityType"   => "Nx27",
+                "datetime"     => row["_datetime_"],
+                "type"         => row["_type_"],
+                "description"  => row["_description_"]
+            }
+        end
         if row["_type_"] == "unique-string" then
             return {
                 "uuid"         => row["_uuid_"],
@@ -175,12 +184,17 @@ class Nx27s
     def self.interactivelyCreateNewNx27OrNull()
         uuid = SecureRandom.uuid
         datetime = Time.new.utc.iso8601
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
 
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx27s::types())
         return nil if type.nil?
 
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+
+        if type == "node" then
+            datetime = Time.new.utc.iso8601
+            Nx27s::insertNewNx27(uuid, datetime, "node", description, nil)
+        end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring == ""
@@ -259,12 +273,19 @@ class Nx27s
 
     # Nx27s::toString(nx27)
     def self.toString(nx27)
-        "[entry  ] #{nx27["description"]} {#{nx27["type"]}}"
+        if nx27["type"] == "node" then
+            return "[node  ] #{nx27["description"]}"
+        end
+        "[data  ] #{nx27["description"]} {#{nx27["type"]}}"
     end
 
     # Nx27s::access(nx27)
     def self.access(nx27)
         type = nx27["type"]
+        if type == "node" then
+            puts Nx27s::toString(nx27)
+            LucilleCore::pressEnterToContinue()
+        end
         if type == "unique-string" then
             uniquestring = nx27["uniquestring"]
             puts "Looking for location..."
@@ -302,6 +323,10 @@ class Nx27s
 
     # Nx27s::edit(nx27)
     def self.edit(nx27)
+        if nx27["type"] == "node" then
+            puts "no specific edition of '#{Nx27s::toString(nx27)}'"
+            LucilleCore::pressEnterToContinue()
+        end
         if nx27["type"] == "unique-string" then
             puts "Editing the unique string"
             LucilleCore::pressEnterToContinue()

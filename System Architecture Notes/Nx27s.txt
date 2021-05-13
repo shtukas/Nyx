@@ -6,6 +6,13 @@ Nx27
     "uuid"         : String
     "entityType"   : "Nx27"
     "datetime"     : DateTime Iso 8601 UTC Zulu
+    "type"         : "node"
+    "description"  : String
+}
+{
+    "uuid"         : String
+    "entityType"   : "Nx27"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
     "type"         : "unique-string"
     "description"  : String
     "uniquestring" : String # payload1
