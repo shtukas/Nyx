@@ -20,10 +20,33 @@ class NxSD1Element
         }
     end
 
+    # NxSD1Element::getLocationForNxSD1ElementOrNull(element)
+    def self.getLocationForNxSD1ElementOrNull(element)
+        parentDirectory = NxSmartDirectory1::getDirectoryOrNull(element["mark"])
+        return nil if parentDirectory.nil?
+        "#{parentDirectory}/#{element["locationName"]}"
+    end
+
     # NxSD1Element::landing(element)
     def self.landing(element)
-        puts "You are landing on a NxSD1Element: '#{NxSD1Element::toString(element)}'"
-        LucilleCore::pressEnterToContinue()
+        location = NxSD1Element::getLocationForNxSD1ElementOrNull(element)
+        if location.nil? then
+            puts "Interesting, I could not land on"
+            puts JSON.pretty_generate(element)
+            LucilleCore::pressEnterToContinue()
+        end
+        puts "opening: #{location}"
+        if File.directory?(location) then
+            system("open '#{location}'")
+            LucilleCore::pressEnterToContinue()
+        end
+        if File.file?(location) then
+            if Utils::fileByFilenameIsSafelyOpenable(File.basename(location)) then
+                system("open '#{location}'")
+            else
+                system("open '#{File.dirname(location)}'")
+            end
+        end
     end
 
 end

@@ -130,13 +130,17 @@ class NxSmartDirectory1
     def self.getNxSD1Elements(nxSmartD1)
         folderpath = NxSmartDirectory1::getDirectoryOrNull(nxSmartD1["mark"])
         return [] if folderpath.nil?
-        LucilleCore::locationsAtFolder(folderpath).map{|location|
+        locationToNxSD1ElementOrNull = lambda{|location|
+            return nil if File.basename(location).start_with?('.')
             {
                 "entityType"       => "NxSD1Element",
-                "parentObjectUUID" => nxSmartD1["uuid"],
+                "mark"             => nxSmartD1["mark"],
                 "locationName"     => File.basename(location)
             }
         }
+        LucilleCore::locationsAtFolder(folderpath)
+            .map{|location| locationToNxSD1ElementOrNull.call(location)}
+            .compact
     end
 
     # ----------------------------------------------------------------------
@@ -186,6 +190,12 @@ class NxSmartDirectory1
                         NxEntities::landing(entity)
                     })
                 }
+            puts ""
+            NxSmartDirectory1::getNxSD1Elements(nxSmartD1).each{|element|
+                mx.item(NxSD1Element::toString(element), lambda {
+                    NxSD1Element::landing(element)
+                })
+            }
             puts ""
             mx.item("update mark".yellow, lambda {
                 mark = Utils::editTextSynchronously(nxSmartD1["mark"]).strip
