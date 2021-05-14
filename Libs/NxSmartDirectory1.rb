@@ -124,6 +124,11 @@ class NxSmartDirectory1
         "[smartD1] #{NxSmartDirectory1::getDescription(nxSmartD1["mark"])}"
     end
 
+    # NxSmartDirectory1::displayName(filename)
+    def self.displayName(filename)
+        filename
+    end
+
     # ----------------------------------------------------------------------
 
     # NxSmartDirectory1::getNxSD1Elements(nxSmartD1)
@@ -132,10 +137,12 @@ class NxSmartDirectory1
         return [] if folderpath.nil?
         locationToNxSD1ElementOrNull = lambda{|location|
             return nil if File.basename(location).start_with?('.')
+            basename = File.basename(location)
             {
                 "entityType"       => "NxSD1Element",
                 "mark"             => nxSmartD1["mark"],
-                "locationName"     => File.basename(location)
+                "locationName"     => basename,
+                "displayName"      => NxSmartDirectory1::displayName(basename)
             }
         }
         LucilleCore::locationsAtFolder(folderpath)
