@@ -73,7 +73,7 @@ class NxEntities
             return NxEvent1::interactivelyCreateNewNxEvent1OrNull()
         end
         if type == "smart directory" then
-            return NxSmartDirectory1::architectOneNxSmartDirectoryOrNull()
+            return NxSmartDirectory1::interactivelyCreateNewNxSmartDirectory1OrNull()
         end
         raise "1902268c-f5e3-45fb-bcf5-573f4c14f160"
     end
