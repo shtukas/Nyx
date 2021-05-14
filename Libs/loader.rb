@@ -76,7 +76,6 @@ require_relative "NxListings.rb"
 require_relative "NxSmartDirectory1.rb"
 
 require_relative "Links.rb"
-require_relative "ListingEntityMapping.rb"
 
 require_relative "Search.rb"
 

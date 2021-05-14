@@ -274,9 +274,9 @@ class Nx27s
     # Nx27s::toString(nx27)
     def self.toString(nx27)
         if nx27["type"] == "node" then
-            return "[node  ] #{nx27["description"]}"
+            return "[node   ] #{nx27["description"]}"
         end
-        "[data  ] #{nx27["description"]} {#{nx27["type"]}}"
+        "[data   ] #{nx27["description"]} {#{nx27["type"]}}"
     end
 
     # Nx27s::access(nx27)
@@ -392,15 +392,29 @@ class Nx27s
             return if nx27.nil?
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            ListingEntityMapping::listings(nx27["uuid"])
+            puts Nx27s::toString(nx27).green
+            puts ""
+            Arrows::parents(nx27["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|listing|
-                    mx.item("belongs to: #{NxListings::toString(listing)}", lambda {
-                        NxListings::landing(listing)
+                .each{|entity|
+                    mx.item("[parent ] #{NxEntities::toString(entity)}", lambda {
+                        NxEntities::landing(entity)
                     })
                 }
-            puts ""
-            puts Nx27s::toString(nx27).green
+            Links::entities(nx27["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity|
+                    mx.item("[related] #{NxEntities::toString(entity)}", lambda {
+                        NxEntities::landing(entity)
+                    })
+                }
+            Arrows::children(nx27["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity|
+                    mx.item("[child  ] #{NxEntities::toString(entity)}", lambda {
+                        NxEntities::landing(entity)
+                    })
+                }
             puts ""
             mx.item("access".yellow, lambda {
                 Nx27s::access(nx27)
@@ -413,10 +427,11 @@ class Nx27s
                 return if description == ""
                 Nx27s::updateDescription(nx27["uuid"], description)
             })
-            mx.item("add to listing".yellow, lambda {
-                listing = NxListings::architectOneNxListingOrNull()
-                return if listing.nil?
-                ListingEntityMapping::add(listing["uuid"], nx27["uuid"])
+            mx.item("connect to other".yellow, lambda {
+                NxEntities::connectToOtherArchitectured(nx27)
+            })
+            mx.item("disconnect from other".yellow, lambda {
+                NxEntities::disconnectFromOther(nx27)
             })
             mx.item("transmute".yellow, lambda {
                 targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx27s::types())

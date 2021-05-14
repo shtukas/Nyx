@@ -55,15 +55,15 @@ class Arrows
         answer.uniq
     end
 
-    # Arrows::childrenEntities(parentuuid)
-    def self.childrenEntities(parentuuid)
+    # Arrows::children(parentuuid)
+    def self.children(parentuuid)
         Arrows::targetsuuids(parentuuid)
             .map{|uuid| NxEntities::getEntityByIdOrNull(uuid) }
             .compact
     end
 
-    # Arrows::parentsEntities(childuuid)
-    def self.parentsEntities(childuuid)
+    # Arrows::parents(childuuid)
+    def self.parents(childuuid)
         Arrows::sourcesuuids(childuuid)
             .map{|uuid| NxEntities::getEntityByIdOrNull(uuid) }
             .compact

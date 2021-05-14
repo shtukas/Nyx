@@ -129,10 +129,24 @@ class NxSmartDirectory1
             mx = LCoreMenuItemsNX1.new()
             puts NxSmartDirectory1::toString(nxSmartD1).green
             puts ""
-            ListingEntityMapping::entities(nxSmartD1["uuid"])
+            Arrows::parents(nxSmartD1["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
-                    mx.item(NxEntities::toString(entity), lambda {
+                    mx.item("[parent ] #{NxEntities::toString(entity)}", lambda {
+                        NxEntities::landing(entity)
+                    })
+                }
+            Links::entities(nxSmartD1["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity|
+                    mx.item("[related] #{NxEntities::toString(entity)}", lambda {
+                        NxEntities::landing(entity)
+                    })
+                }
+            Arrows::children(nxSmartD1["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity|
+                    mx.item("[child  ] #{NxEntities::toString(entity)}", lambda {
                         NxEntities::landing(entity)
                     })
                 }
@@ -142,15 +156,11 @@ class NxSmartDirectory1
                 return if mark == ""
                 NxSmartDirectory1::updateMark(nxSmartD1["uuid"], mark)
             })
-            mx.item("add entity".yellow, lambda {
-                entity = NxEntities::architectEntityOrNull()
-                return if entity.nil?
-                ListingEntityMapping::add(nxSmartD1["uuid"], entity["uuid"])
+            mx.item("connect to other".yellow, lambda {
+                NxEntities::connectToOtherArchitectured(nxSmartD1)
             })
-            mx.item("remove entity".yellow, lambda {
-                entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity", ListingEntityMapping::entities(nxSmartD1["uuid"]), lambda{|entity| NxEntities::toString(entity) })
-                return if entity.nil?
-                ListingEntityMapping::remove(nxSmartD1["uuid"], entity["uuid"])
+            mx.item("disconnect from other".yellow, lambda {
+                NxEntities::disconnectFromOther(nxSmartD1)
             })
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
