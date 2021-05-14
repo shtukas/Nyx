@@ -1,0 +1,14 @@
+
+NxSD1Element
+    {
+        "entityType"       : "NxSD1Element"
+        "parentObjectUUID" : String # UUID of the parent Smart Directory  
+        "locationName"     : String
+    }
+
+Note: although NxSD1Elements are NxEntities, we cannot do with them as much as we do with the others.
+
+For intance, we cannot directly create them, nor can we architecture them. We cannot connect to them or connect from them.
+
+They return in search results, but are not returned by NxEntities::entities() and do not show up during NxEntities::selectExistingEntityOrNull()
+

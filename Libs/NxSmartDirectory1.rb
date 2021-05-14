@@ -109,7 +109,9 @@ class NxSmartDirectory1
 
     # NxSmartDirectory1::getDirectoryOrNull(mark)
     def self.getDirectoryOrNull(mark)
-        "/path/to/it"
+        filepath = `btlas-nyx-smart-directories #{mark}`.strip
+        return File.dirname(filepath) if filepath
+        nil
     end
 
     # NxSmartDirectory1::getDescription(mark)
@@ -121,6 +123,23 @@ class NxSmartDirectory1
     def self.toString(nxSmartD1)
         "[smartD1] #{NxSmartDirectory1::getDescription(nxSmartD1["mark"])}"
     end
+
+    # ----------------------------------------------------------------------
+
+    # NxSmartDirectory1::getNxSD1Elements(nxSmartD1)
+    def self.getNxSD1Elements(nxSmartD1)
+        folderpath = NxSmartDirectory1::getDirectoryOrNull(nxSmartD1["mark"])
+        return [] if folderpath.nil?
+        LucilleCore::locationsAtFolder(folderpath).map{|location|
+            {
+                "entityType"       => "NxSD1Element",
+                "parentObjectUUID" => nxSmartD1["uuid"],
+                "locationName"     => File.basename(location)
+            }
+        }
+    end
+
+    # ----------------------------------------------------------------------
 
     # NxSmartDirectory1::selectOneNxSmartDirectoryOrNull()
     def self.selectOneNxSmartDirectoryOrNull()
@@ -192,13 +211,16 @@ class NxSmartDirectory1
 
     # NxSmartDirectory1::nx19s()
     def self.nx19s()
-        NxSmartDirectory1::nxSmartDirectories().map{|nxSmartD1|
-            volatileuuid = SecureRandom.hex[0, 8]
-            {
-                "announce" => "#{volatileuuid} #{NxSmartDirectory1::toString(nxSmartD1)}",
-                "type"     => "NxSmartDirectory",
-                "payload"  => nxSmartD1
+        NxSmartDirectory1::nxSmartDirectories()
+            .map{|nxSmartD1|
+                volatileuuid = SecureRandom.hex[0, 8]
+                p1 = {
+                    "announce" => "#{volatileuuid} #{NxSmartDirectory1::toString(nxSmartD1)}",
+                    "type"     => "NxSmartDirectory",
+                    "payload"  => nxSmartD1
+                }
+                [p1] + NxSD1Element::nx19s(nxSmartD1)
             }
-        }
+            .flatten
     end
 end

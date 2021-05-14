@@ -28,6 +28,9 @@ class NxEntities
         if entity["entityType"] == "NxSmartDirectory" then
             return NxSmartDirectory1::toString(entity)
         end
+        if entity["entityType"] == "NxSD1Element" then
+            return NxSD1Element::toString(entity)
+        end
         raise "1f4f2950-acf2-4136-ba09-7a180338393f"
     end
 
@@ -44,6 +47,9 @@ class NxEntities
         end
         if entity["entityType"] == "NxSmartDirectory" then
             return NxSmartDirectory1::landing(entity)
+        end
+        if entity["entityType"] == "NxSD1Element" then
+            return NxSD1Element::landing(entity)
         end
         raise "252103a9-c5f5-4206-92d7-c01fc91f8a06"
     end

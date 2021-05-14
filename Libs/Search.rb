@@ -5,6 +5,7 @@ class Search
 
     # Search::nx19s()
     def self.nx19s()
+        # NxSmartDirectory1::nx19s() also returns the NxSD1Elements
         NxListings::nx19s() + Nx27s::nx19s() + NxEvent1::nx19s() + NxSmartDirectory1::nx19s()
     end
 
@@ -24,6 +25,10 @@ class Search
         end
         if mx19["type"] == "NxSmartDirectory" then
             NxSmartDirectory1::landing(mx19["payload"])
+            return
+        end
+        if mx19["type"] == "NxSD1Element" then
+            NxSD1Element::landing(mx19["payload"])
             return
         end
         raise "3a35f700-153a-484b-b4ac-c9489982b52b"
