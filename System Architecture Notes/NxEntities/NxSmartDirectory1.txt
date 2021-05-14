@@ -10,3 +10,5 @@ NxSmartDirectory1 {
     "mark"        : String
     "style"       : Style
 }
+
+Style = "NoPrefix" | "100" | "YYYY-MM" | "YYYY-MM-DD"

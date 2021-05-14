@@ -5,7 +5,7 @@ class Search
 
     # Search::nx19s()
     def self.nx19s()
-        NxListings::nx19s() + Nx27s::nx19s() # + Galaxy::mx19sAtRoot(root)
+        NxListings::nx19s() + Nx27s::nx19s() + NxEvent1::nx19s() + NxSmartDirectory1::nx19s()
     end
 
     # Search::mx19Landing(mx19)
@@ -18,9 +18,12 @@ class Search
             Nx27s::landing(mx19["payload"])
             return
         end
-        if mx19["type"] == "GalaxyLocation" then
-            puts mx19["location"]
-            LucilleCore::pressEnterToContinue()
+        if mx19["type"] == "NxEvent1" then
+            NxEvent1::landing(mx19["payload"])
+            return
+        end
+        if mx19["type"] == "NxSmartDirectory" then
+            NxSmartDirectory1::landing(mx19["payload"])
             return
         end
         raise "3a35f700-153a-484b-b4ac-c9489982b52b"
