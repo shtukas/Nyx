@@ -20,17 +20,10 @@ if ARGV[0] == "listings" then
     exit
 end
 
-if ARGV[0] == "make" and ARGV[1] == "listing"  then
-    nxListing = NxListings::interactivelyCreateNewNxListingOrNull()
-    exit if nxListing.nil?
-    NxListings::landing(nxListing)
-    exit
-end
-
-if ARGV[0] == "make" and ARGV[1] == "data"  then
-    nx27 = Nx27s::interactivelyCreateNewNx27OrNull()
-    exit if nx27.nil?
-    Nx27s::landing(nx27)
+if ARGV[0] == "make" then
+    entity = NxEntities::interactivelyCreateNewEntityOrNull()
+    exit if entity.nil?
+    NxEntities::landing(entity)
     exit
 end
 
@@ -43,8 +36,7 @@ str = <<HELP
 usage:
     nyx search
     nyx listings
-    nyx make listing
-    nyx make data
+    nyx make
     nyx unique-string # Generates a unique string for type FSUniqueString
     nyx help # help display
 HELP

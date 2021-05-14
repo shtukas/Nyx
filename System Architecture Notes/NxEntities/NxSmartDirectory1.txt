@@ -1,0 +1,12 @@
+
+CREATE TABLE _smartdirectories1_ (_uuid_ text, _datetime_ text, _mark_ text, _style_ text);
+
+smartdirectories1.sqlite3
+
+NxSmartDirectory1 {
+    "entityType"  : "NxSmartDirectory1"
+    "uuid"        : String
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "mark"        : String
+    "style"       : Style
+}
