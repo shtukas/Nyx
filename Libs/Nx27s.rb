@@ -166,7 +166,7 @@ class Nx27s
         raise "46ef7497-2d20-48e2-99d7-85b23fe5eaf2"
     end
 
-    # Nx27s::getNx27ByIdOrNull(uuid): null or Nx21
+    # Nx27s::getNx27ByIdOrNull(uuid): null or Nx27
     def self.getNx27ByIdOrNull(uuid)
         db = SQLite3::Database.new(Nx27s::databaseFilepath())
         db.busy_timeout = 117
@@ -414,7 +414,7 @@ class Nx27s
                 Nx27s::updateDescription(nx27["uuid"], description)
             })
             mx.item("add to listing".yellow, lambda {
-                listing = NxListings::architectOneListingNx21OrNull()
+                listing = NxListings::architectOneNxListingOrNull()
                 return if listing.nil?
                 ListingEntityMapping::add(listing["uuid"], nx27["uuid"])
             })

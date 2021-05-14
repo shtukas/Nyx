@@ -26,7 +26,7 @@ class NxListings
         db.close
     end
 
-    # NxListings::getListingByIdOrNull(id): null or Nx21
+    # NxListings::getListingByIdOrNull(id): null or NxListing
     def self.getListingByIdOrNull(id)
         db = SQLite3::Database.new(NxListings::databaseFilepath())
         db.busy_timeout = 117
@@ -35,7 +35,7 @@ class NxListings
         answer = nil
         db.execute( "select * from _listings_ where _uuid_=?" , [id] ) do |row|
             answer = {
-                "entityType"  => "Nx21",
+                "entityType"  => "NxListing",
                 "uuid"        => row["_uuid_"],
                 "datetime"    => row["_datetime_"],
                 "description" => row["_description_"],
@@ -45,8 +45,8 @@ class NxListings
         answer
     end
 
-    # NxListings::interactivelyCreateNewListingNx21OrNull()
-    def self.interactivelyCreateNewListingNx21OrNull()
+    # NxListings::interactivelyCreateNewNxListingOrNull()
+    def self.interactivelyCreateNewNxListingOrNull()
         uuid = SecureRandom.uuid
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -63,8 +63,8 @@ class NxListings
         db.close
     end
 
-    # NxListings::nx21s(): Array[Nx21]
-    def self.nx21s()
+    # NxListings::nxListings(): Array[NxListing]
+    def self.nxListings()
         db = SQLite3::Database.new(NxListings::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -72,7 +72,7 @@ class NxListings
         answer = []
         db.execute( "select * from _listings_" , [] ) do |row|
             answer << {
-                "entityType"  => "Nx21",
+                "entityType"  => "NxListing",
                 "uuid"        => row["_uuid_"],
                 "datetime"    => row["_datetime_"],
                 "description" => row["_description_"],
@@ -84,33 +84,33 @@ class NxListings
 
     # ----------------------------------------------------------------------
 
-    # NxListings::toString(nx21)
-    def self.toString(nx21)
-        "[listing] #{nx21["description"]}"
+    # NxListings::toString(nxListing)
+    def self.toString(nxListing)
+        "[listing] #{nxListing["description"]}"
     end
 
-    # NxListings::selectOneListingNx21OrNull()
-    def self.selectOneListingNx21OrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxListings::nx21s(), lambda{|nx21| nx21["description"] })
+    # NxListings::selectOneNxListingOrNull()
+    def self.selectOneNxListingOrNull()
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxListings::nxListings(), lambda{|nxListing| nxListing["description"] })
     end
 
-    # NxListings::architectOneListingNx21OrNull()
-    def self.architectOneListingNx21OrNull()
-        nx21 = NxListings::selectOneListingNx21OrNull()
-        return nx21 if nx21
-        NxListings::interactivelyCreateNewListingNx21OrNull()
+    # NxListings::architectOneNxListingOrNull()
+    def self.architectOneNxListingOrNull()
+        nxListing = NxListings::selectOneNxListingOrNull()
+        return nxListing if nxListing
+        NxListings::interactivelyCreateNewNxListingOrNull()
     end
 
-    # NxListings::landing(nx21)
-    def self.landing(nx21)
+    # NxListings::landing(nxListing)
+    def self.landing(nxListing)
         loop {
-            nx21 = NxListings::getListingByIdOrNull(nx21["uuid"]) # Could have been destroyed or metadata updated in the previous loop
-            return if nx21.nil?
+            nxListing = NxListings::getListingByIdOrNull(nxListing["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            return if nxListing.nil?
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            puts NxListings::toString(nx21).green
+            puts NxListings::toString(nxListing).green
             puts ""
-            ListingEntityMapping::entities(nx21["uuid"])
+            ListingEntityMapping::entities(nxListing["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
                     mx.item(NxEntities::toString(entity), lambda {
@@ -119,23 +119,23 @@ class NxListings
                 }
             puts ""
             mx.item("update description".yellow, lambda {
-                description = Utils::editTextSynchronously(nx21["description"]).strip
+                description = Utils::editTextSynchronously(nxListing["description"]).strip
                 return if description == ""
-                NxListings::updateDescription(nx21["uuid"], description)
+                NxListings::updateDescription(nxListing["uuid"], description)
             })
             mx.item("add entity".yellow, lambda {
                 entity = NxEntities::architectEntityOrNull()
                 return if entity.nil?
-                ListingEntityMapping::add(nx21["uuid"], entity["uuid"])
+                ListingEntityMapping::add(nxListing["uuid"], entity["uuid"])
             })
             mx.item("remove entity".yellow, lambda {
-                entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity", ListingEntityMapping::entities(nx21["uuid"]), lambda{|entity| NxEntities::toString(entity) })
+                entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity", ListingEntityMapping::entities(nxListing["uuid"]), lambda{|entity| NxEntities::toString(entity) })
                 return if entity.nil?
-                ListingEntityMapping::remove(nx21["uuid"], entity["uuid"])
+                ListingEntityMapping::remove(nxListing["uuid"], entity["uuid"])
             })
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
-                    NxListings::destroyListing(nx21["uuid"])
+                    NxListings::destroyListing(nxListing["uuid"])
                 end
             })
             puts ""
@@ -146,12 +146,12 @@ class NxListings
 
     # NxListings::nx19s()
     def self.nx19s()
-        NxListings::nx21s().map{|nx21|
+        NxListings::nxListings().map{|nxListing|
             volatileuuid = SecureRandom.hex[0, 8]
             {
-                "announce" => "#{volatileuuid} #{NxListings::toString(nx21)}",
-                "type"     => "Nx21",
-                "payload"  => nx21
+                "announce" => "#{volatileuuid} #{NxListings::toString(nxListing)}",
+                "type"     => "NxListing",
+                "payload"  => nxListing
             }
         }
     end

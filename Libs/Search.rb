@@ -10,7 +10,7 @@ class Search
 
     # Search::mx19Landing(mx19)
     def self.mx19Landing(mx19)
-        if mx19["type"] == "Nx21" then
+        if mx19["type"] == "NxListing" then
             NxListings::landing(mx19["payload"])
             return
         end

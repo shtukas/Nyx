@@ -21,9 +21,9 @@ if ARGV[0] == "listings" then
 end
 
 if ARGV[0] == "make" and ARGV[1] == "listing"  then
-    nx21 = NxListings::interactivelyCreateNewListingNx21OrNull()
-    exit if nx21.nil?
-    NxListings::landing(nx21)
+    nxListing = NxListings::interactivelyCreateNewNxListingOrNull()
+    exit if nxListing.nil?
+    NxListings::landing(nxListing)
     exit
 end
 

@@ -2,8 +2,8 @@
 Nx19
     {
         "announce" : String
-        "type"     : "Nx21"
-        "payload"  : Nx21
+        "type"     : "NxListing"
+        "payload"  : NxListing
     }
     {
         "announce" : String

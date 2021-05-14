@@ -2,5 +2,5 @@
 NxEntities common attributes
 
     - uuid       : String
-    - entityType : "Nx21" | "Nx27"
+    - entityType : "NxListing" | "Nx27"
     - datetime   : DateTime Iso 8601 UTC Zulu

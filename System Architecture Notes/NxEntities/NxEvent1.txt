@@ -1,0 +1,12 @@
+
+CREATE TABLE _events1_ (_uuid_ text, _datetime_ text, _date_ text, _description_ text);
+
+events1.sqlite3
+
+NxEvent1 {
+    "entityType"  : "NxEvent1"
+    "uuid"        : String
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "date"        : YYYY-MM-DD
+    "description" : String
+}
