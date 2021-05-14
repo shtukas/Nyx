@@ -59,10 +59,19 @@ class NxSmartDirectory1
     # NxSmartDirectory1::interactivelyCreateNewNxSmartDirectory1OrNull()
     def self.interactivelyCreateNewNxSmartDirectory1OrNull()
         uuid = SecureRandom.uuid
-        mark = LucilleCore::askQuestionAnswerAsString("mark (empty to abort): ")
-        return nil if mark == ""
+        
+        folderpath = LucilleCore::askQuestionAnswerAsString("folderpath (empty to abort): ")
+        return nil if folderpath == ""
+        
         style = NxSmartDirectory1::interactivelySelectStyleOrNull()
         return nil if style.nil?
+
+        markFilepath = "#{folderpath}/.NxSD1-3945d937"
+        mark = SecureRandom.uuid
+        File.open(markFilepath, "w"){|f| f.puts(mark)}
+
+        # we should probaly cache that filepath against the mark
+
         NxSmartDirectory1::insertNewReference(uuid, Time.new.utc.iso8601, mark, style)
         NxSmartDirectory1::getNxSmartDirectory1ByIdOrNull(uuid)
     end
@@ -98,9 +107,14 @@ class NxSmartDirectory1
 
     # ----------------------------------------------------------------------
 
+    # NxSmartDirectory1::getDirectoryOrNull(mark)
+    def self.getDirectoryOrNull(mark)
+        "/path/to/it"
+    end
+
     # NxSmartDirectory1::getDescription(mark)
     def self.getDescription(mark)
-        "Description to be extracted"
+        File.basename(NxSmartDirectory1::getDirectoryOrNull(mark))
     end
 
     # NxSmartDirectory1::toString(nxSmartD1)
@@ -128,6 +142,9 @@ class NxSmartDirectory1
             system("clear")
             mx = LCoreMenuItemsNX1.new()
             puts NxSmartDirectory1::toString(nxSmartD1).green
+            puts "mark: #{nxSmartD1["mark"]}"
+            puts "style: #{nxSmartD1["style"]}"
+            puts "directory: #{NxSmartDirectory1::getDirectoryOrNull(nxSmartD1["mark"])}"
             puts ""
             Arrows::parents(nxSmartD1["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }

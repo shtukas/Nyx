@@ -12,3 +12,5 @@ NxSmartDirectory1 {
 }
 
 Style = "NoPrefix" | "100" | "YYYY-MM" | "YYYY-MM-DD"
+
+On the ground, those directories have a purple tag and a file ".NxSD1-3945d937" with a uuid inside, the mark.

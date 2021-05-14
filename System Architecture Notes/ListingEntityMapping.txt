@@ -1,4 +1,0 @@
-
-CREATE TABLE _mapping_ (_listinguuid_ text, _entityuuid_ text);
-
-listing-entity-mapping.sqlite3
