@@ -57,6 +57,8 @@ class NxSMDir1Auto
                 NxSD1Element::register(nxSmartDirectory1["uuid"], element["locationName"], element["description"], importId)
             }
         }
+
+        NxSD1Element::destroyRecordsByImportId(importId)
     end
 end
 
