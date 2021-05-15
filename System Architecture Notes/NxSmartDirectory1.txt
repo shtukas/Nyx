@@ -1,7 +1,10 @@
 
 
 smartdirectories1.sqlite3
-CREATE TABLE _smartdirectories1_ (_uuid_ text, _datetime_ text, _mark_ text, _importId_ text);
+
+CREATE TABLE _smartdirectories1_ (_uuid_ text, _datetime_ text, _description_ text, _importId_ text);
+
+The _description_ is the filename at scan time. We cache it here for faster retrieval when building the dataset for search.
 
 The _importId_ is used by the routine that import smartfolders from disk for garbage collection.
 
@@ -13,4 +16,5 @@ NxSmartDirectory1 {
     "entityType"  : "NxSmartDirectory1"
     "uuid"        : String
     "datetime"    : DateTime Iso 8601 UTC Zulu
+    "desription"  : String
 }

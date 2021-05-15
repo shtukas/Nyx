@@ -3,12 +3,12 @@
 
 class NxSMDir1Auto
 
-    # NxSMDir1Auto::register(uuid, datetime, importId)
-    def self.register(uuid, datetime, importId)
+    # NxSMDir1Auto::register(uuid, datetime, description, importId)
+    def self.register(uuid, datetime, description, importId)
         db = SQLite3::Database.new(NxSmartDirectory1::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _smartdirectories1_ (_uuid_, _datetime_, _importId_) values (?, ?, ?)", [uuid, datetime, importId]
+        db.execute "insert into _smartdirectories1_ (_uuid_, _datetime_, _description_, _importId_) values (?, ?, ?, ?)", [uuid, datetime, description, importId]
         db.close
     end
 
@@ -43,7 +43,8 @@ class NxSMDir1Auto
                 File.open(uuidfile, "w"){|f| f.write(SecureRandom.uuid) }
             end
             uuid = IO.read(uuidfile).strip
-            NxSMDir1Auto::register(uuid, Time.new.utc.iso8601, importId)
+            description = File.basename(folderpath)
+            NxSMDir1Auto::register(uuid, Time.new.utc.iso8601, description, importId)
         }
 
         NxSMDir1Auto::destroyRecordsByImportId(importId)
@@ -70,6 +71,7 @@ class NxSmartDirectory1
                 "entityType"  => "NxSmartDirectory",
                 "uuid"        => row["_uuid_"],
                 "datetime"    => row["_datetime_"],
+                "description" => row["_description_"]
             }
         end
         db.close
@@ -79,15 +81,6 @@ class NxSmartDirectory1
     # NxSmartDirectory1::styles()
     def self.styles()
         ["NoPrefix", "100", "YYYY-MM", "YYYY-MM-DD"]
-    end
-
-    # NxSmartDirectory1::updateMark(uuid, mark)
-    def self.updateMark(uuid, mark)
-        db = SQLite3::Database.new(NxSmartDirectory1::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "update _smartdirectories1_ set _mark_=? where _uuid_=?", [mark, uuid]
-        db.close
     end
 
     # NxSmartDirectory1::nxSmartDirectories(): Array[NxSmartDirectory]
@@ -101,7 +94,8 @@ class NxSmartDirectory1
             answer << {
                 "entityType"  => "NxSmartDirectory",
                 "uuid"        => row["_uuid_"],
-                "datetime"    => row["_datetime_"]
+                "datetime"    => row["_datetime_"],
+                "description" => row["_description_"]
             }
         end
         db.close
@@ -110,21 +104,16 @@ class NxSmartDirectory1
 
     # ----------------------------------------------------------------------
 
-    # NxSmartDirectory1::getDirectoryFolderpathOrNull(mark)
-    def self.getDirectoryFolderpathOrNull(mark)
-        filepath = `btlas-nyx-smart-directories #{mark}`.strip
+    # NxSmartDirectory1::getDirectoryFolderpathOrNull(uuid)
+    def self.getDirectoryFolderpathOrNull(uuid)
+        filepath = `btlas-nyx-smart-directories #{uuid}`.strip
         return File.dirname(filepath) if filepath
         nil
     end
 
-    # NxSmartDirectory1::getDescription(mark)
-    def self.getDescription(mark)
-        File.basename(NxSmartDirectory1::getDirectoryFolderpathOrNull(mark))
-    end
-
     # NxSmartDirectory1::toString(nxSmartD1)
     def self.toString(nxSmartD1)
-        "[smartD1] #{NxSmartDirectory1::getDescription(nxSmartD1["uuid"])}"
+        "[smartD1] #{nxSmartD1["description"]}"
     end
 
     # NxSmartDirectory1::displayName(filename)
@@ -157,7 +146,7 @@ class NxSmartDirectory1
 
     # NxSmartDirectory1::selectOneNxSmartDirectoryOrNull()
     def self.selectOneNxSmartDirectoryOrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxSmartDirectory1::nxSmartDirectories(), lambda{|nxSmartD1| NxSmartDirectory1::getDescription(nxSmartD1["uuid"]) })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxSmartDirectory1::nxSmartDirectories(), lambda{|nxSmartD1| nxSmartD1["description"] })
     end
 
     # NxSmartDirectory1::landing(nxSmartD1)

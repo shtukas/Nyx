@@ -2,7 +2,7 @@
 NxSD1Element
     {
         "entityType"       : "NxSD1Element"
-        "parentId"         : String # mark of the parent smart directory
+        "parentId"         : String # uuid of the parent smart directory
         "locationName"     : String
         "displayName"      : String # The location name without prefixes if there are some
     }
