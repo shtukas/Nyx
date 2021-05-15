@@ -22,7 +22,7 @@ class NxSD1Element
 
     # NxSD1Element::getLocationForNxSD1ElementOrNull(element)
     def self.getLocationForNxSD1ElementOrNull(element)
-        parentDirectory = NxSmartDirectory1::getDirectoryOrNull(element["mark"])
+        parentDirectory = NxSmartDirectory1::getDirectoryFolderpathOrNull(element["uuid"])
         return nil if parentDirectory.nil?
         "#{parentDirectory}/#{element["locationName"]}"
     end

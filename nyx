@@ -7,16 +7,13 @@ require_relative "Libs/loader.rb"
 # ----------------------------------------------------------------------------
 
 if ARGV[0] == "search" then
-    Search::searchLoop()
-    exit
-end
 
-if ARGV[0] == "listings" then
-    loop {
-        id = LucilleCore::selectEntityFromListOfEntitiesOrNull("NxEntity", NxEntities::ids(), lambda{|id| NxEntities::idToString(id) })
-        break if id.nil?
-        NxEntities::landing(id)
+    Thread.new {
+        sleep 10
+        NxSMDir1Auto::smartDirectoriesImportScan()
     }
+
+    Search::searchLoop()
     exit
 end
 
@@ -35,7 +32,6 @@ end
 str = <<HELP
 usage:
     nyx search
-    nyx listings
     nyx make
     nyx unique-string # Generates a unique string for type FSUniqueString
     nyx help # help display

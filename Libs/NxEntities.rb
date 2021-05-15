@@ -11,6 +11,8 @@ class NxEntities
         return entity if entity
         entity = NxEvent1::getNxEvent1ByIdOrNull(uuid)
         return entity if entity
+        entity = NxSmartDirectory1::getNxSmartDirectory1ByIdOrNull(uuid)
+        return entity if entity
         nil
     end
 
@@ -67,7 +69,7 @@ class NxEntities
 
     # NxEntities::interactivelyCreateNewEntityOrNull()
     def self.interactivelyCreateNewEntityOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["(nx27)", "listing", "event", "smart directory"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["(nx27)", "listing", "event"])
         return nil if type.nil?
         if type == "(nx27)" then
             return Nx27s::interactivelyCreateNewNx27OrNull()
@@ -77,9 +79,6 @@ class NxEntities
         end
         if type == "event" then
             return NxEvent1::interactivelyCreateNewNxEvent1OrNull()
-        end
-        if type == "smart directory" then
-            return NxSmartDirectory1::interactivelyCreateNewNxSmartDirectory1OrNull()
         end
         raise "1902268c-f5e3-45fb-bcf5-573f4c14f160"
     end

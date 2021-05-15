@@ -1,16 +1,16 @@
 
-CREATE TABLE _smartdirectories1_ (_uuid_ text, _datetime_ text, _mark_ text, _style_ text);
 
 smartdirectories1.sqlite3
+CREATE TABLE _smartdirectories1_ (_uuid_ text, _datetime_ text, _mark_ text, _importId_ text);
+
+The _importId_ is used by the routine that import smartfolders from disk for garbage collection.
+
+On the ground, smart directories are recognised by the fact that their name ends with '[s]'
+
+They are automatically given a file ".NxSD1-3945d937" containing a UUID, the one used for registration in the database table.
 
 NxSmartDirectory1 {
     "entityType"  : "NxSmartDirectory1"
     "uuid"        : String
     "datetime"    : DateTime Iso 8601 UTC Zulu
-    "mark"        : String
-    "style"       : Style
 }
-
-Style = "NoPrefix" | "100" | "YYYY-MM" | "YYYY-MM-DD"
-
-On the ground, those directories have a purple tag and a file ".NxSD1-3945d937" with a uuid inside, the mark.

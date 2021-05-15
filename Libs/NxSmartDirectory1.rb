@@ -1,29 +1,60 @@
 
 # encoding: UTF-8
 
+class NxSMDir1Auto
+    # NxSMDir1Auto::register(uuid, datetime, importId)
+    def self.register(uuid, datetime, importId)
+        db = SQLite3::Database.new(NxSmartDirectory1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "insert into _smartdirectories1_ (_uuid_, _datetime_, _importId_) values (?, ?, ?)", [uuid, datetime, importId]
+        db.close
+    end
+
+    # NxSMDir1Auto::destroyRecordsByImportId(importId)
+    def self.destroyRecordsByImportId(importId)
+        db = SQLite3::Database.new(NxSmartDirectory1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _smartdirectories1_ where _importId_!=?", [importId]
+        db.close
+    end
+
+    # NxSMDir1Auto::smartDirectoriesImportScan()
+    def self.smartDirectoriesImportScan()
+
+        smartDirectoriesLocationEnumerator = (lambda{
+            Enumerator.new do |filepaths|
+                Find.find("/Users/pascal/Galaxy/Documents") do |path|
+                    next if File.file?(path)
+                    next if path[-3, 3] != "[s]"
+                    filepaths << path
+                end
+            end
+        }).call()
+
+        importId = SecureRandom.uuid
+
+        smartDirectoriesLocationEnumerator.each{|folderpath|
+            puts "registering: #{folderpath}"
+            uuidfile = "#{folderpath}/.NxSD1-3945d937"
+            if !File.exists?(uuidfile) then
+                File.open(uuidfile, "w"){|f| f.write(SecureRandom.uuid) }
+            end
+            uuid = IO.read(uuidfile).strip
+            NxSMDir1Auto::register(uuid, Time.new.utc.iso8601, importId)
+        }
+
+        NxSMDir1Auto::destroyRecordsByImportId(importId)
+    end
+
+end
+
 class NxSmartDirectory1
 
     # NxSmartDirectory1::databaseFilepath()
     def self.databaseFilepath()
         "#{Config::nyxFolderPath()}/smartdirectories1.sqlite3"
-    end
-
-    # NxSmartDirectory1::insertNewReference(uuid, datetime, mark, style)
-    def self.insertNewReference(uuid, datetime, mark, style)
-        db = SQLite3::Database.new(NxSmartDirectory1::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "insert into _smartdirectories1_ (_uuid_, _datetime_, _mark_, _style_) values (?,?,?,?)", [uuid, datetime, mark, style]
-        db.close
-    end
-
-    # NxSmartDirectory1::destroyRecord(uuid)
-    def self.destroyRecord(uuid)
-        db = SQLite3::Database.new(NxSmartDirectory1::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _smartdirectories1_ where _uuid_=?", [uuid]
-        db.close
     end
 
     # NxSmartDirectory1::getNxSmartDirectory1ByIdOrNull(id): null or NxSmartDirectory
@@ -38,8 +69,6 @@ class NxSmartDirectory1
                 "entityType"  => "NxSmartDirectory",
                 "uuid"        => row["_uuid_"],
                 "datetime"    => row["_datetime_"],
-                "mark"        => row["_mark_"],
-                "style"       => row["_style_"],
             }
         end
         db.close
@@ -49,31 +78,6 @@ class NxSmartDirectory1
     # NxSmartDirectory1::styles()
     def self.styles()
         ["NoPrefix", "100", "YYYY-MM", "YYYY-MM-DD"]
-    end
-
-    # NxSmartDirectory1::interactivelySelectStyleOrNull()
-    def self.interactivelySelectStyleOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("style", NxSmartDirectory1::styles())
-    end
-
-    # NxSmartDirectory1::interactivelyCreateNewNxSmartDirectory1OrNull()
-    def self.interactivelyCreateNewNxSmartDirectory1OrNull()
-        uuid = SecureRandom.uuid
-        
-        folderpath = LucilleCore::askQuestionAnswerAsString("folderpath (empty to abort): ")
-        return nil if folderpath == ""
-        
-        style = NxSmartDirectory1::interactivelySelectStyleOrNull()
-        return nil if style.nil?
-
-        markFilepath = "#{folderpath}/.NxSD1-3945d937"
-        mark = SecureRandom.uuid
-        File.open(markFilepath, "w"){|f| f.puts(mark)}
-
-        # we should probaly cache that filepath against the mark
-
-        NxSmartDirectory1::insertNewReference(uuid, Time.new.utc.iso8601, mark, style)
-        NxSmartDirectory1::getNxSmartDirectory1ByIdOrNull(uuid)
     end
 
     # NxSmartDirectory1::updateMark(uuid, mark)
@@ -96,9 +100,7 @@ class NxSmartDirectory1
             answer << {
                 "entityType"  => "NxSmartDirectory",
                 "uuid"        => row["_uuid_"],
-                "datetime"    => row["_datetime_"],
-                "mark"        => row["_mark_"],
-                "style"       => row["_style_"],
+                "datetime"    => row["_datetime_"]
             }
         end
         db.close
@@ -107,8 +109,8 @@ class NxSmartDirectory1
 
     # ----------------------------------------------------------------------
 
-    # NxSmartDirectory1::getDirectoryOrNull(mark)
-    def self.getDirectoryOrNull(mark)
+    # NxSmartDirectory1::getDirectoryFolderpathOrNull(mark)
+    def self.getDirectoryFolderpathOrNull(mark)
         filepath = `btlas-nyx-smart-directories #{mark}`.strip
         return File.dirname(filepath) if filepath
         nil
@@ -116,12 +118,12 @@ class NxSmartDirectory1
 
     # NxSmartDirectory1::getDescription(mark)
     def self.getDescription(mark)
-        File.basename(NxSmartDirectory1::getDirectoryOrNull(mark))
+        File.basename(NxSmartDirectory1::getDirectoryFolderpathOrNull(mark))
     end
 
     # NxSmartDirectory1::toString(nxSmartD1)
     def self.toString(nxSmartD1)
-        "[smartD1] #{NxSmartDirectory1::getDescription(nxSmartD1["mark"])}"
+        "[smartD1] #{NxSmartDirectory1::getDescription(nxSmartD1["uuid"])}"
     end
 
     # NxSmartDirectory1::displayName(filename)
@@ -133,14 +135,14 @@ class NxSmartDirectory1
 
     # NxSmartDirectory1::getNxSD1Elements(nxSmartD1)
     def self.getNxSD1Elements(nxSmartD1)
-        folderpath = NxSmartDirectory1::getDirectoryOrNull(nxSmartD1["mark"])
+        folderpath = NxSmartDirectory1::getDirectoryFolderpathOrNull(nxSmartD1["uuid"])
         return [] if folderpath.nil?
         locationToNxSD1ElementOrNull = lambda{|location|
             return nil if File.basename(location).start_with?('.')
             basename = File.basename(location)
             {
                 "entityType"       => "NxSD1Element",
-                "mark"             => nxSmartD1["mark"],
+                "parentId"         => nxSmartD1["uuid"],
                 "locationName"     => basename,
                 "displayName"      => NxSmartDirectory1::displayName(basename)
             }
@@ -154,14 +156,7 @@ class NxSmartDirectory1
 
     # NxSmartDirectory1::selectOneNxSmartDirectoryOrNull()
     def self.selectOneNxSmartDirectoryOrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxSmartDirectory1::nxSmartDirectories(), lambda{|nxSmartD1| NxSmartDirectory1::getDescription(nxSmartD1["mark"]) })
-    end
-
-    # NxSmartDirectory1::architectOneNxSmartDirectoryOrNull()
-    def self.architectOneNxSmartDirectoryOrNull()
-        nxSmartD1 = NxSmartDirectory1::selectOneNxSmartDirectoryOrNull()
-        return nxSmartD1 if nxSmartD1
-        NxSmartDirectory1::interactivelyCreateNewNxSmartDirectory1OrNull()
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxSmartDirectory1::nxSmartDirectories(), lambda{|nxSmartD1| NxSmartDirectory1::getDescription(nxSmartD1["uuid"]) })
     end
 
     # NxSmartDirectory1::landing(nxSmartD1)
@@ -172,9 +167,7 @@ class NxSmartDirectory1
             system("clear")
             mx = LCoreMenuItemsNX1.new()
             puts NxSmartDirectory1::toString(nxSmartD1).green
-            puts "mark: #{nxSmartD1["mark"]}"
-            puts "style: #{nxSmartD1["style"]}"
-            puts "directory: #{NxSmartDirectory1::getDirectoryOrNull(nxSmartD1["mark"])}"
+            puts "directory: #{NxSmartDirectory1::getDirectoryFolderpathOrNull(nxSmartD1["uuid"])}"
             puts ""
             Arrows::parents(nxSmartD1["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
@@ -204,21 +197,11 @@ class NxSmartDirectory1
                 })
             }
             puts ""
-            mx.item("update mark".yellow, lambda {
-                mark = Utils::editTextSynchronously(nxSmartD1["mark"]).strip
-                return if mark == ""
-                NxSmartDirectory1::updateMark(nxSmartD1["uuid"], mark)
-            })
             mx.item("connect to other".yellow, lambda {
                 NxEntities::connectToOtherArchitectured(nxSmartD1)
             })
             mx.item("disconnect from other".yellow, lambda {
                 NxEntities::disconnectFromOther(nxSmartD1)
-            })
-            mx.item("destroy".yellow, lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
-                    NxSmartDirectory1::destroyRecord(nxSmartD1["uuid"])
-                end
             })
             puts ""
             status = mx.promptAndRunSandbox()
