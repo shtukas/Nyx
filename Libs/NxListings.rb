@@ -137,6 +137,13 @@ class NxListings
                 return if description == ""
                 NxListings::updateDescription(nxListing["uuid"], description)
             })
+            mx.item("add tag".yellow, lambda {
+                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+                return if description == ""
+                uuid = SecureRandom.uuid
+                NxTag::insertTag(uuid, description)
+                Links::insert(nxListing["uuid"], uuid)
+            })
             mx.item("connect to other".yellow, lambda {
                 NxEntities::connectToOtherArchitectured(nxListing)
             })

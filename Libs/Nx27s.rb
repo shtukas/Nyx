@@ -427,6 +427,13 @@ class Nx27s
                 return if description == ""
                 Nx27s::updateDescription(nx27["uuid"], description)
             })
+            mx.item("add tag".yellow, lambda {
+                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+                return if description == ""
+                uuid = SecureRandom.uuid
+                NxTag::insertTag(uuid, description)
+                Links::insert(nx27["uuid"], uuid)
+            })
             mx.item("connect to other".yellow, lambda {
                 NxEntities::connectToOtherArchitectured(nx27)
             })

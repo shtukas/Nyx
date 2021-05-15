@@ -13,6 +13,8 @@ class NxEntities
         return entity if entity
         entity = NxSmartDirectory1::getNxSmartDirectory1ByIdOrNull(uuid)
         return entity if entity
+        entity = NxTag::getTagByIdOrNull(uuid)
+        return entity if entity
         nil
     end
 
@@ -32,6 +34,9 @@ class NxEntities
         end
         if entity["entityType"] == "NxSD1Element" then
             return NxSD1Element::toString(entity)
+        end
+        if entity["entityType"] == "NxTag" then
+            return NxTag::toString(entity)
         end
         raise "1f4f2950-acf2-4136-ba09-7a180338393f"
     end
@@ -53,12 +58,15 @@ class NxEntities
         if entity["entityType"] == "NxSD1Element" then
             return NxSD1Element::landing(entity)
         end
+        if entity["entityType"] == "NxTag" then
+            return NxTag::landing(entity)
+        end
         raise "252103a9-c5f5-4206-92d7-c01fc91f8a06"
     end
 
     # NxEntities::entities()
     def self.entities()
-        Nx27s::nx27s() + NxListings::nxListings() + NxEvent1::nxEvent1s() + NxSmartDirectory1::nxSmartDirectories()
+        Nx27s::nx27s() + NxListings::nxListings() + NxEvent1::nxEvent1s() + NxSmartDirectory1::nxSmartDirectories() + NxTag::nxTags()
     end
 
     # NxEntities::selectExistingEntityOrNull()

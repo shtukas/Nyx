@@ -1,0 +1,12 @@
+
+NxTag.sqlite3
+
+CREATE TABLE _tags_ (_uuid_ text, _string_ text);
+
+NxTag {
+    "entityType"  : "NxTag"
+    "uuid"        : String
+    "description" : String
+}
+
+There are no arrows between tags and other entities. Only links.

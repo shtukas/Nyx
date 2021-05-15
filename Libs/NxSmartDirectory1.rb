@@ -53,7 +53,7 @@ class NxSMDir1Auto
 
         NxSmartDirectory1::nxSmartDirectories().each{|nxSmartDirectory1|
             NxSD1Element::nxSmartDirectory1ToNxSD1ElementsFromDisk(nxSmartDirectory1).each{|element|
-                puts "registering: NxSD1Element: #{element["description"]}"
+                puts "registering: NxSD1Element: #{element["description"]}" if verbose
                 NxSD1Element::register(nxSmartDirectory1["uuid"], element["locationName"], element["description"], importId)
             }
         }
@@ -170,6 +170,13 @@ class NxSmartDirectory1
                 })
             }
             puts ""
+            mx.item("add tag".yellow, lambda {
+                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+                return if description == ""
+                uuid = SecureRandom.uuid
+                NxTag::insertTag(uuid, description)
+                Links::insert(nxSmartDirectory1["uuid"], uuid)
+            })
             mx.item("connect to other".yellow, lambda {
                 NxEntities::connectToOtherArchitectured(nxSmartDirectory1)
             })

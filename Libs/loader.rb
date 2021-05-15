@@ -75,6 +75,7 @@ require_relative "NxEvent1.rb"
 require_relative "NxListings.rb"
 require_relative "NxSD1Element.rb"
 require_relative "NxSmartDirectory1.rb"
+require_relative "NxTag.rb"
 
 require_relative "Links.rb"
 
