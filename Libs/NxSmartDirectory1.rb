@@ -3,6 +3,8 @@
 
 class NxSMDir1Auto
 
+    # CREATE TABLE _smartdirectories1_ (_uuid_ text, _datetime_ text, _description_ text, _importId_ text);
+
     # NxSMDir1Auto::register(uuid, datetime, description, importId)
     def self.register(uuid, datetime, description, importId)
         db = SQLite3::Database.new(NxSmartDirectory1::databaseFilepath())
@@ -48,8 +50,14 @@ class NxSMDir1Auto
         }
 
         NxSMDir1Auto::destroyRecordsByImportId(importId)
-    end
 
+        NxSmartDirectory1::nxSmartDirectories().each{|nxSmartDirectory1|
+            NxSD1Element::nxSmartDirectory1ToNxSD1ElementsFromDisk(nxSmartDirectory1).each{|element|
+                puts "registering: NxSD1Element: #{element["description"]}"
+                NxSD1Element::register(nxSmartDirectory1["uuid"], element["locationName"], element["description"], importId)
+            }
+        }
+    end
 end
 
 class NxSmartDirectory1
@@ -111,70 +119,44 @@ class NxSmartDirectory1
         nil
     end
 
-    # NxSmartDirectory1::toString(nxSmartD1)
-    def self.toString(nxSmartD1)
-        "[smartD1] #{nxSmartD1["description"]}"
-    end
-
-    # NxSmartDirectory1::displayName(filename)
-    def self.displayName(filename)
-        filename
-    end
-
-    # ----------------------------------------------------------------------
-
-    # NxSmartDirectory1::getNxSD1Elements(nxSmartD1)
-    def self.getNxSD1Elements(nxSmartD1)
-        folderpath = NxSmartDirectory1::getDirectoryFolderpathOrNull(nxSmartD1["uuid"])
-        return [] if folderpath.nil?
-        locationToNxSD1ElementOrNull = lambda{|location|
-            return nil if File.basename(location).start_with?('.')
-            basename = File.basename(location)
-            {
-                "entityType"       => "NxSD1Element",
-                "parentId"         => nxSmartD1["uuid"],
-                "locationName"     => basename,
-                "displayName"      => NxSmartDirectory1::displayName(basename)
-            }
-        }
-        LucilleCore::locationsAtFolder(folderpath)
-            .map{|location| locationToNxSD1ElementOrNull.call(location)}
-            .compact
+    # NxSmartDirectory1::toString(nxSmartDirectory1)
+    def self.toString(nxSmartDirectory1)
+        "[smartD1] #{nxSmartDirectory1["description"]}"
     end
 
     # ----------------------------------------------------------------------
 
     # NxSmartDirectory1::selectOneNxSmartDirectoryOrNull()
     def self.selectOneNxSmartDirectoryOrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxSmartDirectory1::nxSmartDirectories(), lambda{|nxSmartD1| nxSmartD1["description"] })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxSmartDirectory1::nxSmartDirectories(), lambda{|nxSmartDirectory1| nxSmartDirectory1["description"] })
     end
 
-    # NxSmartDirectory1::landing(nxSmartD1)
-    def self.landing(nxSmartD1)
+    # NxSmartDirectory1::landing(nxSmartDirectory1)
+    def self.landing(nxSmartDirectory1)
         loop {
-            nxSmartD1 = NxSmartDirectory1::getNxSmartDirectory1ByIdOrNull(nxSmartD1["uuid"]) # Could have been destroyed or metadata updated in the previous loop
-            return if nxSmartD1.nil?
+            nxSmartDirectory1 = NxSmartDirectory1::getNxSmartDirectory1ByIdOrNull(nxSmartDirectory1["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            return if nxSmartDirectory1.nil?
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            puts NxSmartDirectory1::toString(nxSmartD1).green
-            puts "uuid: #{nxSmartD1["uuid"]}"
-            puts "directory: #{NxSmartDirectory1::getDirectoryFolderpathOrNull(nxSmartD1["uuid"])}"
+            puts NxSmartDirectory1::toString(nxSmartDirectory1).green
+            puts "uuid: #{nxSmartDirectory1["uuid"]}"
+            puts "directory: #{NxSmartDirectory1::getDirectoryFolderpathOrNull(nxSmartDirectory1["uuid"])}"
             puts ""
-            Arrows::parents(nxSmartD1["uuid"])
+            Arrows::parents(nxSmartDirectory1["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
                     mx.item("[parent ] #{NxEntities::toString(entity)}", lambda {
                         NxEntities::landing(entity)
                     })
                 }
-            Links::entities(nxSmartD1["uuid"])
+            Links::entities(nxSmartDirectory1["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
                     mx.item("[related] #{NxEntities::toString(entity)}", lambda {
                         NxEntities::landing(entity)
                     })
                 }
-            Arrows::children(nxSmartD1["uuid"])
+            Arrows::children(nxSmartDirectory1["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
                     mx.item("[child  ] #{NxEntities::toString(entity)}", lambda {
@@ -182,17 +164,17 @@ class NxSmartDirectory1
                     })
                 }
             puts ""
-            NxSmartDirectory1::getNxSD1Elements(nxSmartD1).each{|element|
+            NxSD1Element::nxSmartDirectory1ToNxSD1ElementsFromDisk(nxSmartDirectory1).each{|element|
                 mx.item(NxSD1Element::toString(element), lambda {
                     NxSD1Element::landing(element)
                 })
             }
             puts ""
             mx.item("connect to other".yellow, lambda {
-                NxEntities::connectToOtherArchitectured(nxSmartD1)
+                NxEntities::connectToOtherArchitectured(nxSmartDirectory1)
             })
             mx.item("disconnect from other".yellow, lambda {
-                NxEntities::disconnectFromOther(nxSmartD1)
+                NxEntities::disconnectFromOther(nxSmartDirectory1)
             })
             puts ""
             status = mx.promptAndRunSandbox()
@@ -203,14 +185,14 @@ class NxSmartDirectory1
     # NxSmartDirectory1::nx19s()
     def self.nx19s()
         NxSmartDirectory1::nxSmartDirectories()
-            .map{|nxSmartD1|
+            .map{|nxSmartDirectory1|
                 volatileuuid = SecureRandom.hex[0, 8]
                 p1 = {
-                    "announce" => "#{volatileuuid} #{NxSmartDirectory1::toString(nxSmartD1)}",
+                    "announce" => "#{volatileuuid} #{NxSmartDirectory1::toString(nxSmartDirectory1)}",
                     "type"     => "NxSmartDirectory",
-                    "payload"  => nxSmartD1
+                    "payload"  => nxSmartDirectory1
                 }
-                [p1] + NxSD1Element::nx19s(nxSmartD1)
+                [p1] + NxSD1Element::nx19s(nxSmartDirectory1)
             }
             .flatten
     end

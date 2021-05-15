@@ -24,6 +24,11 @@ if ARGV[0] == "make" then
     exit
 end
 
+if ARGV[0] == "scan" then
+    NxSMDir1Auto::smartDirectoriesImportScan(true)
+    exit
+end
+
 if ARGV[0] == "unique-string" then
     puts SecureRandom.hex(6)
     exit
@@ -33,6 +38,7 @@ str = <<HELP
 usage:
     nyx search
     nyx make
+    nyx scan
     nyx unique-string # Generates a unique string for type FSUniqueString
     nyx help # help display
 HELP

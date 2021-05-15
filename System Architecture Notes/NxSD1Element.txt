@@ -1,10 +1,14 @@
 
+NxSD1Element.sqlite3
+
+CREATE TABLE _elements_ (_parentId_ text, _locationName_ text, _description_ text, _importId_ text);
+
 NxSD1Element
     {
         "entityType"       : "NxSD1Element"
         "parentId"         : String # uuid of the parent smart directory
         "locationName"     : String
-        "displayName"      : String # The location name without prefixes if there are some
+        "description"      : String # The location name without prefixes if there are some
     }
 
 Note: although NxSD1Elements are NxEntities, we cannot do with them as much as we do with the others.
