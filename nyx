@@ -10,7 +10,7 @@ if ARGV[0] == "search" then
 
     Thread.new {
         sleep 10
-        NxSMDir1Auto::smartDirectoriesImportScan()
+        NxSMDir1Auto::smartDirectoriesImportScan(false)
     }
 
     Search::searchLoop()

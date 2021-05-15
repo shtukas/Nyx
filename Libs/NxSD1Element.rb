@@ -22,7 +22,7 @@ class NxSD1Element
 
     # NxSD1Element::getLocationForNxSD1ElementOrNull(element)
     def self.getLocationForNxSD1ElementOrNull(element)
-        parentDirectory = NxSmartDirectory1::getDirectoryFolderpathOrNull(element["uuid"])
+        parentDirectory = NxSmartDirectory1::getDirectoryFolderpathOrNull(element["parentId"])
         return nil if parentDirectory.nil?
         "#{parentDirectory}/#{element["locationName"]}"
     end
@@ -38,7 +38,6 @@ class NxSD1Element
         puts "opening: #{location}"
         if File.directory?(location) then
             system("open '#{location}'")
-            LucilleCore::pressEnterToContinue()
         end
         if File.file?(location) then
             if Utils::fileByFilenameIsSafelyOpenable(File.basename(location)) then
@@ -47,6 +46,7 @@ class NxSD1Element
                 system("open '#{File.dirname(location)}'")
             end
         end
+        LucilleCore::pressEnterToContinue()
     end
 
 end

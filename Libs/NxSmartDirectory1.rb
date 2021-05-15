@@ -2,6 +2,7 @@
 # encoding: UTF-8
 
 class NxSMDir1Auto
+
     # NxSMDir1Auto::register(uuid, datetime, importId)
     def self.register(uuid, datetime, importId)
         db = SQLite3::Database.new(NxSmartDirectory1::databaseFilepath())
@@ -20,8 +21,8 @@ class NxSMDir1Auto
         db.close
     end
 
-    # NxSMDir1Auto::smartDirectoriesImportScan()
-    def self.smartDirectoriesImportScan()
+    # NxSMDir1Auto::smartDirectoriesImportScan(verbose)
+    def self.smartDirectoriesImportScan(verbose)
 
         smartDirectoriesLocationEnumerator = (lambda{
             Enumerator.new do |filepaths|
@@ -36,7 +37,7 @@ class NxSMDir1Auto
         importId = SecureRandom.uuid
 
         smartDirectoriesLocationEnumerator.each{|folderpath|
-            puts "registering: #{folderpath}"
+            puts "registering: #{folderpath}" if verbose
             uuidfile = "#{folderpath}/.NxSD1-3945d937"
             if !File.exists?(uuidfile) then
                 File.open(uuidfile, "w"){|f| f.write(SecureRandom.uuid) }
@@ -167,6 +168,7 @@ class NxSmartDirectory1
             system("clear")
             mx = LCoreMenuItemsNX1.new()
             puts NxSmartDirectory1::toString(nxSmartD1).green
+            puts "uuid: #{nxSmartD1["uuid"]}"
             puts "directory: #{NxSmartDirectory1::getDirectoryFolderpathOrNull(nxSmartD1["uuid"])}"
             puts ""
             Arrows::parents(nxSmartD1["uuid"])
