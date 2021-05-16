@@ -1,17 +1,28 @@
 
-Nx19
-    {
-        "announce" : String
-        "type"     : "NxListing"
-        "payload"  : NxListing
-    }
-    {
-        "announce" : String
-        "type"     : "Nx27"
-        "payload"  : Nx27
-    }
-    {
-        "announce" : String
-        "type"     : "GalaxyLocation"
-        "payload"  : String, FS Location
-    }
+Ruby
+
+    Nx19
+        {
+            "announce" : String
+            "type"     : "NxListing"
+            "payload"  : NxListing
+        }
+        {
+            "announce" : String
+            "type"     : "Nx27"
+            "payload"  : Nx27
+        }
+        {
+            "announce" : String
+            "type"     : "GalaxyLocation"
+            "payload"  : String, FS Location
+        }
+
+Go
+    Nx19 
+        {
+            "announce" : String
+            "uuid"     : String # uuid of the NxEntity
+        }
+
+The reason why there is a difference in the Ruby version and the Go version is that the Ruby version is essentially a JSON object. I would have given the same shape to the Go version if Go had nice support for union types.
