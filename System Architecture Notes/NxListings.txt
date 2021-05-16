@@ -1,9 +1,17 @@
 
 CREATE TABLE _listings_ (_uuid_ text, datetime text, _description_ text);
 
-NxListing {
-    "entityType"  : "NxListing"
-    "uuid"        : String
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-}
+Ruby
+    NxListing {
+        "entityType"  : "NxListing"
+        "uuid"        : String
+        "datetime"    : DateTime Iso 8601 UTC Zulu
+        "description" : String
+    }
+
+Go
+    type NxListing struct {
+        uuid        string
+        datetime    string
+        description string
+    }
