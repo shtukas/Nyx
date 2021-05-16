@@ -8,7 +8,7 @@ import (
 )
 
 func pathToNyxNxQuarksFolder() string {
-	return "/Users/pascal/Galaxy/DataBank/Nyx/NxQuarks"
+	return "/Users/pascal/Galaxy/DataBank/Catalyst/Elbrams/quarks"
 }
 
 func SpaceIds() []string {
