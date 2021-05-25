@@ -6,41 +6,36 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-if ARGV[0] == "search" then
+Thread.new {
+    sleep 10
+    NxSMDir1Auto::smartDirectoriesImportScan(false)
+}
 
-    Thread.new {
-        sleep 10
-        NxSMDir1Auto::smartDirectoriesImportScan(false)
+def mainLoop()
+    loop {
+        operations = ["search", "insert new entity", "scan fs", "unique-string", "fsck"]
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+        return if operation.nil?
+        if operation == "search" then
+
+        end
+        if operation == "insert new entity" then
+            entity = NxEntities::interactivelyCreateNewEntityOrNull()
+            exit if entity.nil?
+            NxEntities::landing(entity)
+        end
+        if operation == "scan fs" then
+            NxSMDir1Auto::smartDirectoriesImportScan(true)
+        end
+        if operation == "unique-string" then
+            puts SecureRandom.hex(6)
+            LucilleCore::pressEnterToContinue()
+        end
+        if operation == "fsck" then
+
+        end
     }
-
-    Search::searchLoop()
-    exit
 end
 
-if ARGV[0] == "make" then
-    entity = NxEntities::interactivelyCreateNewEntityOrNull()
-    exit if entity.nil?
-    NxEntities::landing(entity)
-    exit
-end
-
-if ARGV[0] == "scan" then
-    NxSMDir1Auto::smartDirectoriesImportScan(true)
-    exit
-end
-
-if ARGV[0] == "unique-string" then
-    puts SecureRandom.hex(6)
-    exit
-end
-
-str = <<HELP
-usage:
-    nyx search
-    nyx make
-    nyx scan
-    nyx unique-string # Generates a unique string for type FSUniqueString
-    nyx help # help display
-HELP
-puts str
-
+Search::searchLoop()
+mainLoop()
