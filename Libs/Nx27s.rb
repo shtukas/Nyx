@@ -394,24 +394,10 @@ class Nx27s
             mx = LCoreMenuItemsNX1.new()
             puts Nx27s::toString(nx27).green
             puts ""
-            Arrows::parents(nx27["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[parent ] #{NxEntities::toString(entity)}", lambda {
-                        NxEntities::landing(entity)
-                    })
-                }
             Links::entities(nx27["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
                     mx.item("[related] #{NxEntities::toString(entity)}", lambda {
-                        NxEntities::landing(entity)
-                    })
-                }
-            Arrows::children(nx27["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[child  ] #{NxEntities::toString(entity)}", lambda {
                         NxEntities::landing(entity)
                     })
                 }
@@ -435,10 +421,10 @@ class Nx27s
                 Links::insert(nx27["uuid"], uuid)
             })
             mx.item("connect to other".yellow, lambda {
-                NxEntities::connectToOtherArchitectured(nx27)
+                NxEntities::linkToOtherArchitectured(nx27)
             })
-            mx.item("disconnect from other".yellow, lambda {
-                NxEntities::disconnectFromOther(nx27)
+            mx.item("unlink from other".yellow, lambda {
+                NxEntities::unlinkFromOther(nx27)
             })
             mx.item("transmute".yellow, lambda {
                 targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx27s::types())

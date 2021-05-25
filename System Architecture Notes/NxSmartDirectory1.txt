@@ -1,5 +1,4 @@
 
-
 smartdirectories1.sqlite3
 
 CREATE TABLE _smartdirectories1_ (_uuid_ text, _datetime_ text, _description_ text, _importId_ text);

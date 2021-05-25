@@ -98,34 +98,22 @@ class NxEntities
         NxEntities::interactivelyCreateNewEntityOrNull()
     end
 
-    # NxEntities::connectToOtherArchitectured(entity)
-    def self.connectToOtherArchitectured(entity)
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("connection type", ["parent -> child", "related", "child -> parent"])
-        return if type.nil?
+    # NxEntities::linkToOtherArchitectured(entity)
+    def self.linkToOtherArchitectured(entity)
         other = NxEntities::architectEntityOrNull()
         return if other.nil?
-        if type == "parent -> child" then
-            Arrows::insert(entity["uuid"], other["uuid"])
-        end
-        if type == "related" then
-            Links::insert(entity["uuid"], other["uuid"])
-        end
-        if type == "child -> parent" then
-            Arrows::insert(other["uuid"], entity["uuid"])
-        end
+        Links::insert(entity["uuid"], other["uuid"])
     end
 
-    # NxEntities::connected(entity)
-    def self.connected(entity)
-         Arrows::parents(entity["uuid"]) + Links::entities(entity["uuid"]) + Arrows::children(entity["uuid"])
+    # NxEntities::linked(entity)
+    def self.linked(entity)
+         Links::entities(entity["uuid"])
     end
 
-    # NxEntities::disconnectFromOther(entity)
-    def self.disconnectFromOther(entity)
-        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", NxEntities::connected(entity))
+    # NxEntities::unlinkFromOther(entity)
+    def self.unlinkFromOther(entity)
+        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", NxEntities::linked(entity))
         return if other.nil?
         Links::delete(entity["uuid"], other["uuid"])
-        Arrows::delete(entity["uuid"], other["uuid"])
-        Arrows::delete(other["uuid"], entity["uuid"])
     end
 end

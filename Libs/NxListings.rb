@@ -110,24 +110,10 @@ class NxListings
             mx = LCoreMenuItemsNX1.new()
             puts NxListings::toString(nxListing).green
             puts ""
-            Arrows::parents(nxListing["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[parent ] #{NxEntities::toString(entity)}", lambda {
-                        NxEntities::landing(entity)
-                    })
-                }
             Links::entities(nxListing["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
                     mx.item("[related] #{NxEntities::toString(entity)}", lambda {
-                        NxEntities::landing(entity)
-                    })
-                }
-            Arrows::children(nxListing["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[child  ] #{NxEntities::toString(entity)}", lambda {
                         NxEntities::landing(entity)
                     })
                 }
@@ -145,10 +131,10 @@ class NxListings
                 Links::insert(nxListing["uuid"], uuid)
             })
             mx.item("connect to other".yellow, lambda {
-                NxEntities::connectToOtherArchitectured(nxListing)
+                NxEntities::linkToOtherArchitectured(nxListing)
             })
-            mx.item("disconnect from other".yellow, lambda {
-                NxEntities::disconnectFromOther(nxListing)
+            mx.item("unlink from other".yellow, lambda {
+                NxEntities::unlinkFromOther(nxListing)
             })
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then

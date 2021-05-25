@@ -144,24 +144,10 @@ class NxSmartDirectory1
             puts "uuid: #{nxSmartDirectory1["uuid"]}"
             puts "directory: #{NxSmartDirectory1::getDirectoryFolderpathOrNull(nxSmartDirectory1["uuid"])}"
             puts ""
-            Arrows::parents(nxSmartDirectory1["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[parent ] #{NxEntities::toString(entity)}", lambda {
-                        NxEntities::landing(entity)
-                    })
-                }
             Links::entities(nxSmartDirectory1["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
                     mx.item("[related] #{NxEntities::toString(entity)}", lambda {
-                        NxEntities::landing(entity)
-                    })
-                }
-            Arrows::children(nxSmartDirectory1["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[child  ] #{NxEntities::toString(entity)}", lambda {
                         NxEntities::landing(entity)
                     })
                 }
@@ -180,10 +166,10 @@ class NxSmartDirectory1
                 Links::insert(nxSmartDirectory1["uuid"], uuid)
             })
             mx.item("connect to other".yellow, lambda {
-                NxEntities::connectToOtherArchitectured(nxSmartDirectory1)
+                NxEntities::linkToOtherArchitectured(nxSmartDirectory1)
             })
-            mx.item("disconnect from other".yellow, lambda {
-                NxEntities::disconnectFromOther(nxSmartDirectory1)
+            mx.item("unlink from other".yellow, lambda {
+                NxEntities::unlinkFromOther(nxSmartDirectory1)
             })
             puts ""
             status = mx.promptAndRunSandbox()
