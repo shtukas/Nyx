@@ -93,9 +93,15 @@ class NxEntities
 
     # NxEntities::architectEntityOrNull()
     def self.architectEntityOrNull()
-        entity = NxEntities::selectExistingEntityOrNull()
-        return entity if entity
-        NxEntities::interactivelyCreateNewEntityOrNull()
+        operations = ["existing", "new"]
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+        return nil if operation.nil?
+        if operation == "existing" then
+            return NxEntities::selectExistingEntityOrNull()
+        end
+        if operation == "new" then
+            return NxEntities::interactivelyCreateNewEntityOrNull()
+        end
     end
 
     # NxEntities::linkToOtherArchitectured(entity)
