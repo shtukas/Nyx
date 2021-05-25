@@ -84,14 +84,14 @@ end
 
 class Nx27s
 
+    # Nx27s::types()
+    def self.types()
+        ["node", "url", "text", "aion-point", "unique-string"]
+    end
+
     # Nx27s::databaseFilepath()
     def self.databaseFilepath()
         "#{Config::nyxFolderPath()}/Nx27s.sqlite3"
-    end
-
-    # Nx27s::types()
-    def self.types()
-        ["node", "unique-string", "url", "text", "aion-point"]
     end
 
     # Nx27s::insertNewNx27(uuid, datetime, type, description, payload1)
@@ -180,49 +180,89 @@ class Nx27s
         answer
     end
 
-    # Nx27s::interactivelyCreateNewNx27OrNull()
-    def self.interactivelyCreateNewNx27OrNull()
+    # Nx27s::interactivelyCreateNewNodeOrNull()
+    def self.interactivelyCreateNewNodeOrNull()
         uuid = SecureRandom.uuid
         datetime = Time.new.utc.iso8601
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        Nx27s::insertNewNx27(uuid, datetime, "node", description, nil)
+        Nx27s::getNx27ByIdOrNull(uuid)
+    end
+
+    # Nx27s::interactivelyCreateNewUrlOrNull()
+    def self.interactivelyCreateNewUrlOrNull()
+        uuid = SecureRandom.uuid
+        datetime = Time.new.utc.iso8601
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
+        return nil if url == ""
+        Nx27s::insertNewNx27(uuid, datetime, "url", description, url)
+        Nx27s::getNx27ByIdOrNull(uuid)
+    end
+
+    # Nx27s::interactivelyCreateNewTextOrNull()
+    def self.interactivelyCreateNewTextOrNull()
+        uuid = SecureRandom.uuid
+        datetime = Time.new.utc.iso8601
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        text = Utils::editTextSynchronously("")
+        return nil if text == ""
+        nhash = BinaryBlobsService::putBlob(text)
+        Nx27s::insertNewNx27(uuid, datetime, "text", description, nhash)
+        Nx27s::getNx27ByIdOrNull(uuid)
+    end
+
+    # Nx27s::interactivelyCreateNewAionPointOrNull()
+    def self.interactivelyCreateNewAionPointOrNull()
+        uuid = SecureRandom.uuid
+        datetime = Time.new.utc.iso8601
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        filename = LucilleCore::askQuestionAnswerAsString("filename on Desktop (empty to abort) : ")
+        return nil if filename == ""
+        location = "/Users/pascal/Desktop/#{filename}"
+        return nil if !File.exists?(location)
+        nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
+        Nx27s::insertNewNx27(uuid, datetime, "aion-point", description, nhash)
+        Nx27s::getNx27ByIdOrNull(uuid)
+    end
+
+    # Nx27s::interactivelyCreateNewUniqueStringOrNull()
+    def self.interactivelyCreateNewUniqueStringOrNull()
+        uuid = SecureRandom.uuid
+        datetime = Time.new.utc.iso8601
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
+        return nil if uniquestring == ""
+        Nx27s::insertNewNx27(uuid, datetime, "unique-string", description, uniquestring)
+        Nx27s::getNx27ByIdOrNull(uuid)
+    end
+
+    # Nx27s::interactivelyCreateNewNx27OrNull()
+    def self.interactivelyCreateNewNx27OrNull()
 
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx27s::types())
         return nil if type.nil?
 
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-
         if type == "node" then
-            datetime = Time.new.utc.iso8601
-            Nx27s::insertNewNx27(uuid, datetime, "node", description, nil)
-        end
-        if type == "unique-string" then
-            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
-            return nil if uniquestring == ""
-            datetime = Time.new.utc.iso8601
-            Nx27s::insertNewNx27(uuid, datetime, "unique-string", description, uniquestring)
+            return Nx27s::interactivelyCreateNewNodeOrNull()
         end
         if type == "url" then
-            url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
-            return nil if url == ""
-            datetime = Time.new.utc.iso8601
-            Nx27s::insertNewNx27(uuid, datetime, "url", description, url)
+            return Nx27s::interactivelyCreateNewUrlOrNull()
         end
         if type == "text" then
-            text = Utils::editTextSynchronously("")
-            return nil if text == ""
-            nhash = BinaryBlobsService::putBlob(text)
-            Nx27s::insertNewNx27(uuid, datetime, "text", description, nhash)
+            return Nx27s::interactivelyCreateNewTextOrNull()
         end
         if type == "aion-point" then
-            filename = LucilleCore::askQuestionAnswerAsString("filename on Desktop (empty to abort) : ")
-            return nil if filename == ""
-            location = "/Users/pascal/Desktop/#{filename}"
-            return nil if !File.exists?(location)
-            nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
-            Nx27s::insertNewNx27(uuid, datetime, "aion-point", description, nhash)
+            return Nx27s::interactivelyCreateNewAionPointOrNull()
         end
-
-        Nx27s::getNx27ByIdOrNull(uuid)
+        if type == "unique-string" then
+            return Nx27s::interactivelyCreateNewUniqueStringOrNull()
+        end
     end
 
     # Nx27s::nx27s(): Array[Nx27]

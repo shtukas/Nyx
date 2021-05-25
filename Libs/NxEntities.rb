@@ -77,10 +77,22 @@ class NxEntities
 
     # NxEntities::interactivelyCreateNewEntityOrNull()
     def self.interactivelyCreateNewEntityOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["(nx27)", "listing", "event"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["node", "url", "text", "aion-point", "unique-string", "listing", "event"])
         return nil if type.nil?
-        if type == "(nx27)" then
-            return Nx27s::interactivelyCreateNewNx27OrNull()
+        if type == "node" then
+            return Nx27s::interactivelyCreateNewNodeOrNull()
+        end
+        if type == "url" then
+            return Nx27s::interactivelyCreateNewUrlOrNull()
+        end
+        if type == "text" then
+            return Nx27s::interactivelyCreateNewTextOrNull()
+        end
+        if type == "aion-point" then
+            return Nx27s::interactivelyCreateNewAionPointOrNull()
+        end
+        if type == "unique-string" then
+            return Nx27s::interactivelyCreateNewUniqueStringOrNull()
         end
         if type == "listing" then
             return NxListings::interactivelyCreateNewNxListingOrNull()
