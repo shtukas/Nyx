@@ -1,0 +1,9 @@
+Catalyst versus Nyx. Diffferent approaches to data management.
+
+(This file exists in two versions, one in Catalyst, one in Nyx)
+
+Catalyst's approach is to keep eveything in one database table. Somehow, after a long detour using other schemes, the long direct descendent of the basic line oriented todo list. The only noticable feature of the list is the diffence between repeat items (anniversaries and waves) versus one time items (todos, quarks, calendar items).
+
+Nyx's approach is to tolerate an heterogeneous amount of specific types, coming from various data sources (some un-stable, coming from the file system, for instance elements of a [s] directory), with their own dedicated landings. The commonality between all those entities is the Nx19 type used by the search/explorer. Another noticeable feature is the links table.
+
+DocNet is the system with the most structure: [data storage as blob files] -> [object manager] -> [explorer / links between objects]
