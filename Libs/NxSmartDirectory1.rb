@@ -123,7 +123,7 @@ class NxSmartDirectory1
 
     # NxSmartDirectory1::toString(nxSmartDirectory1)
     def self.toString(nxSmartDirectory1)
-        "[smartD1] #{nxSmartDirectory1["description"]}"
+        "[smrd] #{nxSmartDirectory1["description"]}"
     end
 
     # ----------------------------------------------------------------------
@@ -147,7 +147,7 @@ class NxSmartDirectory1
             Links::entities(nxSmartDirectory1["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
-                    mx.item("[related] #{NxEntities::toString(entity)}", lambda {
+                    mx.item("[linked] #{NxEntities::toString(entity)}", lambda {
                         NxEntities::landing(entity)
                     })
                 }

@@ -12,8 +12,8 @@ On the ground, smart directories are recognised by the fact that their name ends
 They are automatically given a file ".NxSD1-3945d937" containing a UUID, the one used for registration in the database table.
 
 NxSmartDirectory1 {
-    "entityType"  : "NxSmartDirectory1"
     "uuid"        : String
+    "entityType"  : "NxSmartDirectory1"
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "desription"  : String
 }

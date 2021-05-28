@@ -3,14 +3,7 @@ CREATE TABLE _nx27s_ (_uuid_ text, _datetime_ text, _type_ text, _description_ t
 
 Ruby
 
-    Nx27 
-    {
-        "uuid"         : String
-        "entityType"   : "Nx27"
-        "datetime"     : DateTime Iso 8601 UTC Zulu
-        "type"         : "node"
-        "description"  : String
-    }
+    Nx27
     {
         "uuid"         : String
         "entityType"   : "Nx27"

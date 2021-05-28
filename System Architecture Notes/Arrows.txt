@@ -1,4 +1,0 @@
-
-CREATE TABLE _arrows_ (_sourceuuid_ text, _targetuuid_ text);
-
-arrows.sqlite3

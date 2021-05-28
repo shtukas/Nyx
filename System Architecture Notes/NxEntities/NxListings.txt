@@ -3,8 +3,8 @@ CREATE TABLE _listings_ (_uuid_ text, datetime text, _description_ text);
 
 Ruby
     NxListing {
-        "entityType"  : "NxListing"
         "uuid"        : String
+        "entityType"  : "NxListing"
         "datetime"    : DateTime Iso 8601 UTC Zulu
         "description" : String
     }

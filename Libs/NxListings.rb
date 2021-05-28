@@ -86,7 +86,7 @@ class NxListings
 
     # NxListings::toString(nxListing)
     def self.toString(nxListing)
-        "[listing] #{nxListing["description"]}"
+        "[list] #{nxListing["description"]}"
     end
 
     # NxListings::selectOneNxListingOrNull()
@@ -113,7 +113,7 @@ class NxListings
             Links::entities(nxListing["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
-                    mx.item("[related] #{NxEntities::toString(entity)}", lambda {
+                    mx.item("[linked] #{NxEntities::toString(entity)}", lambda {
                         NxEntities::landing(entity)
                     })
                 }

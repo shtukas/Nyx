@@ -90,7 +90,7 @@ class NxEvent1
 
     # NxEvent1::toString(nxEvent1)
     def self.toString(nxEvent1)
-        "[event] #{nxEvent1["description"]}"
+        "[evnt] #{nxEvent1["description"]}"
     end
 
     # NxEvent1::selectOneNxEvent1OrNull()
@@ -117,7 +117,7 @@ class NxEvent1
             Links::entities(nxEvent1["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
-                    mx.item("[related] #{NxEntities::toString(entity)}", lambda {
+                    mx.item("[linked] #{NxEntities::toString(entity)}", lambda {
                         NxEntities::landing(entity)
                     })
                 }

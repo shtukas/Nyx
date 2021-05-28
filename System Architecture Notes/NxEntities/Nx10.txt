@@ -1,0 +1,11 @@
+
+CREATE TABLE _nx10s_ (_uuid_ text, _datetime_ text, _description_ text);
+nx10s.sqlite3
+
+Nx10
+{
+    "uuid"         : String
+    "entityType"   : "Nx10"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "description"  : String
+}

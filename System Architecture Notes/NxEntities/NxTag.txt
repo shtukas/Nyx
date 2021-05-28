@@ -4,8 +4,8 @@ NxTag.sqlite3
 CREATE TABLE _tags_ (_uuid_ text, _string_ text);
 
 NxTag {
-    "entityType"  : "NxTag"
     "uuid"        : String
+    "entityType"  : "NxTag"
     "description" : String
 }
 

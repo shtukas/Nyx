@@ -70,7 +70,7 @@ class NxSD1Element
 
     # NxSD1Element::toString(element)
     def self.toString(element)
-        "[smart/e] #{element["locationName"]}"
+        "[sdel] #{element["locationName"]}"
     end
 
     # NxSD1Element::nx19s(nxSmartDirectory1)

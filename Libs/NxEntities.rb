@@ -7,6 +7,8 @@ class NxEntities
     def self.getEntityByIdOrNull(uuid)
         entity = Nx27s::getNx27ByIdOrNull(uuid)
         return entity if entity
+        entity = Nx10s::getNx10ByIdOrNull(uuid)
+        return entity if entity
         entity = NxListings::getListingByIdOrNull(uuid)
         return entity if entity
         entity = NxEvent1::getNxEvent1ByIdOrNull(uuid)
@@ -22,6 +24,9 @@ class NxEntities
     def self.toString(entity)
         if entity["entityType"] == "Nx27" then
             return Nx27s::toString(entity)
+        end
+        if entity["entityType"] == "Nx10" then
+            return Nx10s::toString(entity)
         end
         if entity["entityType"] == "NxListing" then
             return NxListings::toString(entity)
@@ -46,6 +51,9 @@ class NxEntities
         if entity["entityType"] == "Nx27" then
             return Nx27s::landing(entity)
         end
+        if entity["entityType"] == "Nx10" then
+            return Nx10s::landing(entity)
+        end
         if entity["entityType"] == "NxListing" then
             return NxListings::landing(entity)
         end
@@ -66,7 +74,7 @@ class NxEntities
 
     # NxEntities::entities()
     def self.entities()
-        Nx27s::nx27s() + NxListings::nxListings() + NxEvent1::nxEvent1s() + NxSmartDirectory1::nxSmartDirectories() + NxTag::nxTags()
+        Nx27s::nx27s() + Nx10s::nx10s() + NxListings::nxListings() + NxEvent1::nxEvent1s() + NxSmartDirectory1::nxSmartDirectories() + NxTag::nxTags()
     end
 
     # NxEntities::selectExistingEntityOrNull()
@@ -77,11 +85,8 @@ class NxEntities
 
     # NxEntities::interactivelyCreateNewEntityOrNull()
     def self.interactivelyCreateNewEntityOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["node", "url", "text", "aion-point", "unique-string", "listing", "event"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["url", "text", "aion-point", "unique-string", "node","listing", "event"])
         return nil if type.nil?
-        if type == "node" then
-            return Nx27s::interactivelyCreateNewNodeOrNull()
-        end
         if type == "url" then
             return Nx27s::interactivelyCreateNewUrlOrNull()
         end
@@ -93,6 +98,9 @@ class NxEntities
         end
         if type == "unique-string" then
             return Nx27s::interactivelyCreateNewUniqueStringOrNull()
+        end
+        if type == "node" then
+            return Nx10s::interactivelyCreateNewNx10OrNull()
         end
         if type == "listing" then
             return NxListings::interactivelyCreateNewNxListingOrNull()

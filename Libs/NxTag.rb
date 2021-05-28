@@ -111,7 +111,7 @@ class NxTag
             Links::entities(nxTag["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
-                    mx.item("[related] #{NxEntities::toString(entity)}", lambda {
+                    mx.item("[linked] #{NxEntities::toString(entity)}", lambda {
                         NxEntities::landing(entity)
                     })
                 }

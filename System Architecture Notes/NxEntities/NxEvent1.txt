@@ -5,8 +5,8 @@ events1.sqlite3
 
 Ruby
     NxEvent1 {
-        "entityType"  : "NxEvent1"
         "uuid"        : String
+        "entityType"  : "NxEvent1"
         "datetime"    : DateTime Iso 8601 UTC Zulu
         "date"        : YYYY-MM-DD
         "description" : String
