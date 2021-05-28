@@ -1,0 +1,17 @@
+
+NxFSPermaPoints are trying to maintain a reference to files and folders on the file system which may move, be renamed, or be edited. We associate them with NxSmartPoints (elements of a Smart Directory), the NxSmartPoint and its correspnding NxFSPermaPoint have the same `uuid`.
+
+NxFSPermaPoints {
+    "uuid"           : String
+    "type"           : "directory"
+    "location"       : String
+    "NxSD1-3945d937" : String <- what to look for on the file system to find it
+}
+
+NxFSPermaPoints {
+    "uuid"           : String
+    "type"           : "file"
+    "location"       : String
+    "inode"          : Integer
+    "SHA256"         : String
+}
