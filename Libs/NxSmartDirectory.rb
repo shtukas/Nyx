@@ -106,6 +106,9 @@ class NxSmartDirectory
         folderpath = NxSmartDirectory::getDirectoryFolderpathOrNull(nxsd["uuid"])
         return [] if folderpath.nil?
         LucilleCore::locationsAtFolder(folderpath)
+            .select{|location|
+                File.basename(location) != ".NxSD1-3945d937"
+            }
             .map{|location| NxFSPermaPoint::locationToNxFSPermaPoint(location)}
     end
 

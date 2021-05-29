@@ -3,14 +3,94 @@
 
 class NxFSPermaPoint
 
+    # NxFSPermaPoint::databaseFilepath()
+    def self.databaseFilepath()
+        "#{Config::nyxFolderPath()}/points.sqlite3"
+    end
+
+    # NxFSPermaPoint::commitElements(uuid, description, type, location, _1_, _2_)
+    def self.commitElements(uuid, description, type, location, _1_, _2_)
+        db = SQLite3::Database.new(NxFSPermaPoint::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _points_ where _uuid_=?", [uuid]
+        db.execute "insert into _points_ (_uuid_, _description_, _type_, _location_, _1_, _2_) values (?,?,?,?,?,?)", [uuid, description, type, location, _1_, _2_]
+        db.close
+    end
+
+    # NxFSPermaPoint::destroy(uuid)
+    def self.destroy(uuid)
+        db = SQLite3::Database.new(NxFSPermaPoint::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _points_ where _uuid_=?", [uuid]
+        db.close
+    end
+
+    # NxFSPermaPoint::databaseRowToNxFSPermaPoint(row)
+    def self.databaseRowToNxFSPermaPoint(row)
+        object = {
+            "uuid"        => row["_uuid_"],
+            "entityType"  => "NxFSPermaPoint",
+            "description" => row["_description_"],
+            "type"        => row["_type_"],
+            "location"    => row["_location_"],
+            "_1_"         => row["_1_"],
+            "_2_"         => row["_2_"],
+        }
+        if object["type"] == "directory" then
+            object["mark"] = object["_1_"]
+        end
+        if object["type"] == "file" then
+            object["inode"] = object["_1_"]
+            object["sha256"] = object["_2_"]
+        end
+        object.delete("_1_")
+        object.delete("_2_")
+        object
+    end
+
+    # NxFSPermaPoint::getPointByIdOrNull(id): null or NxEvent
+    def self.getPointByIdOrNull(id)
+        db = SQLite3::Database.new(NxFSPermaPoint::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute( "select * from _points_ where _uuid_=?" , [id] ) do |row|
+            answer = NxFSPermaPoint::databaseRowToNxFSPermaPoint(row)
+        end
+        db.close
+        answer
+    end
+
     # NxFSPermaPoint::getAll()
     def self.getAll()
-        BTreeSets::values(nil, "c68f25ea-f1e5-4724-9e62-27e9cc925536")
+        db = SQLite3::Database.new(NxFSPermaPoint::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _points_" , [] ) do |row|
+            answer << NxFSPermaPoint::databaseRowToNxFSPermaPoint(row)
+        end
+        db.close
+        answer
     end
+
+    # --------------------------------------------------------
 
     # NxFSPermaPoint::commit(point)
     def self.commit(point)
-        BTreeSets::set(nil, "c68f25ea-f1e5-4724-9e62-27e9cc925536", point["uuid"], point)
+        if point["type"] == "directory" then
+            NxFSPermaPoint::commitElements(point["uuid"], point["description"], point["type"], point["location"], point["mark"], nil)
+            return
+        end
+        if point["type"] == "file" then
+            NxFSPermaPoint::commitElements(point["uuid"], point["description"], point["type"], point["location"], point["inode"], point["sha256"])
+            return
+        end
+        raise "6D0B72A0-AF1C-40EC-92D6-F767F3D73B1B"
     end
 
     # NxFSPermaPoint::getOneByIdOrNull(uuid)

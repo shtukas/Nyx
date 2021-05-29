@@ -1,8 +1,11 @@
 
+create table _points_ (_uuid_ text, _description_ text, _type_ text, _location_ text, _1_ text, _2_ text);
+
 NxFSPermaPoints are trying to maintain a reference to files and folders on the file system which may move, be renamed, or be edited. We associate them with NxSmartPoints (elements of a Smart Directory), the NxSmartPoint and its correspnding NxFSPermaPoint have the same `uuid`.
 
 NxFSPermaPoint {
     "uuid"           : String
+    "entityType"     : "NxFSPermaPoint"
     "description"    : String
     "type"           : "directory"
     "location"       : String
@@ -11,6 +14,7 @@ NxFSPermaPoint {
 
 NxFSPermaPoint {
     "uuid"           : String
+    "entityType"     : "NxFSPermaPoint"
     "description"    : String
     "type"           : "file"
     "location"       : String
