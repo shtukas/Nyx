@@ -78,8 +78,6 @@ class NxFSPermaPoint
         answer
     end
 
-    # --------------------------------------------------------
-
     # NxFSPermaPoint::commit(point)
     def self.commit(point)
         if point["type"] == "directory" then
@@ -92,6 +90,8 @@ class NxFSPermaPoint
         end
         raise "6D0B72A0-AF1C-40EC-92D6-F767F3D73B1B"
     end
+
+    # --------------------------------------------------------
 
     # NxFSPermaPoint::issueNewNxFSPermaPoint(location)
     def self.issueNewNxFSPermaPoint(location)
@@ -125,10 +125,10 @@ class NxFSPermaPoint
         point
     end
 
-    # NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(point)
-    def self.updatePointToBeFullyConformingNoCommit(point)
-        location = point["location"]
+    # NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(location, point)
+    def self.updatePointToBeFullyConformingNoCommit(location, point)
         if point["type"] == "directory" then
+            point["location"] = location
             point["description"] = File.basename(location)
             uuidfile = "#{location}/.NxSD1-3945d937"
             if File.exists?(uuidfile) then
@@ -141,6 +141,7 @@ class NxFSPermaPoint
             return point
         end
         if point["type"] == "file" then
+            point["location"] = location
             point["description"] = File.basename(location)
             point["inode"] = File.stat(location).ino
             point["sha256"] = Digest::SHA256.file(location).hexdigest
@@ -149,16 +150,42 @@ class NxFSPermaPoint
         raise "d3a66dc4-0d1a-4d5a-8772-248f2d7f933a: #{point}"
     end
 
-    # NxFSPermaPoint::locationToExistingPossiblyUpdatedNxFSPermaPointIfAnyOrNull(location)
-    def self.locationToExistingPossiblyUpdatedNxFSPermaPointIfAnyOrNull(location)
-        NxFSPermaPoint::getAll().select{|point| point["location"] == location }.first
+    # NxFSPermaPoint::locationToExistingNxFSPermaPointIfAnyOrNull(location)
+    def self.locationToExistingNxFSPermaPointIfAnyOrNull(location)
+        if File.directory?(location) then
+            uuidfile = "#{location}/.NxSD1-3945d937"
+            if File.exists?(uuidfile) then
+                mark = IO.read(uuidfile).strip
+                point = NxFSPermaPoint::getAll()
+                            .select{|point| point["type"] == "directory" }
+                            .select{|point| point["mark"] == mark }.first
+                return point if point
+            end
+        else
+            point = NxFSPermaPoint::getAll().select{|point| point["location"] == location }.first
+            return point if point
+
+            inode = File.stat(location).ino
+            point = NxFSPermaPoint::getAll()
+                        .select{|point| point["type"] == "file" }
+                        .select{|point| point["inode"] == inode }.first
+            return point if point
+
+            sha256 = Digest::SHA256.file(location).hexdigest
+            point = NxFSPermaPoint::getAll()
+                        .select{|point| point["type"] == "file" }
+                        .select{|point| point["sha256"] == sha256 }.first
+            return point if point
+        end
+
+        nil
     end
 
     # NxFSPermaPoint::locationToNxFSPermaPoint(location)
     def self.locationToNxFSPermaPoint(location)
-        point = NxFSPermaPoint::locationToExistingPossiblyUpdatedNxFSPermaPointIfAnyOrNull(location)
+        point = NxFSPermaPoint::locationToExistingNxFSPermaPointIfAnyOrNull(location)
         if point then
-            point = NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(point)
+            point = NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(location, point)
             NxFSPermaPoint::commit(point)
             return point
         end
