@@ -49,7 +49,7 @@ class NxTag
         uuid = SecureRandom.uuid
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        NxTag::createNewTag(uuid, description)
+        NxTag::insertTag(uuid, description)
         NxTag::getTagByIdOrNull(uuid)
     end
 
@@ -71,8 +71,8 @@ class NxTag
         answer = []
         db.execute( "select * from _tags_" , [] ) do |row|
             answer << {
-                "entityType"  => "NxTag",
                 "uuid"        => row["_uuid_"],
+                "entityType"  => "NxTag",
                 "description" => row["_description_"],
             }
         end
@@ -106,7 +106,7 @@ class NxTag
             return if nxTag.nil?
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            puts NxTag::toString(nxTag).green
+            puts "#{NxTag::toString(nxTag)} ( uuid: #{nxTag["uuid"]} )".green 
             puts ""
             Links::entities(nxTag["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }

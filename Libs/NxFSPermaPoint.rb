@@ -93,11 +93,6 @@ class NxFSPermaPoint
         raise "6D0B72A0-AF1C-40EC-92D6-F767F3D73B1B"
     end
 
-    # NxFSPermaPoint::getOneByIdOrNull(uuid)
-    def self.getOneByIdOrNull(uuid)
-        BTreeSets::getOrNull(nil, "c68f25ea-f1e5-4724-9e62-27e9cc925536", uuid)
-    end
-
     # NxFSPermaPoint::issueNewNxFSPermaPoint(location)
     def self.issueNewNxFSPermaPoint(location)
         type = File.directory?(location) ? "directory" : "file"
@@ -177,8 +172,8 @@ class NxFSPermaPoint
         "[poin] #{point["description"]}"
     end
 
-    # NxFSPermaPoint::landing(point)
-    def self.landing(point)
+    # NxFSPermaPoint::access(point)
+    def self.access(point)
         location = point["location"]
         if location.nil? then
             puts "Interesting, I could not land on"
@@ -198,6 +193,36 @@ class NxFSPermaPoint
             end
         end
         LucilleCore::pressEnterToContinue()
+    end
+
+    # NxFSPermaPoint::landing(point)
+    def self.landing(point)
+        loop {
+            system("clear")
+            mx = LCoreMenuItemsNX1.new()
+            puts "#{NxFSPermaPoint::toString(point)} ( uuid: #{point["uuid"]} )".green
+            puts ""
+            Links::entities(point["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity|
+                    mx.item("[linked] #{NxEntity::toString(entity)}", lambda {
+                        NxEntity::landing(entity)
+                    })
+                }
+            puts ""
+            mx.item("access".yellow, lambda {
+                NxFSPermaPoint::access(point)
+            })
+            mx.item("connect".yellow, lambda {
+                NxEntity::linkToOtherArchitectured(point)
+            })
+            mx.item("disconnect".yellow, lambda {
+                NxEntity::unlinkFromOther(point)
+            })
+            puts ""
+            status = mx.promptAndRunSandbox()
+            break if !status
+        }
     end
 
     # NxFSPermaPoint::nx19s()

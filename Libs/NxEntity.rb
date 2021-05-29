@@ -17,7 +17,7 @@ class NxEntity
         return entity if entity
         entity = NxSmartDirectory::getNxSmartDirectoryByIdOrNull(uuid)
         return entity if entity
-        entity = NxFSPermaPoint::getOneByIdOrNull(uuid)
+        entity = NxFSPermaPoint::getPointByIdOrNull(uuid)
         return entity if entity
         nil
     end
@@ -87,7 +87,7 @@ class NxEntity
 
     # NxEntity::interactivelyCreateNewEntityOrNull()
     def self.interactivelyCreateNewEntityOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["url", "text", "aion-point", "unique-string", "node", "listing", "event"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["url", "text", "aion-point", "unique-string", "node", "tag", "listing", "event"])
         return nil if type.nil?
         if type == "url" then
             return Nx27::interactivelyCreateNewUrlOrNull()
@@ -103,6 +103,9 @@ class NxEntity
         end
         if type == "node" then
             return Nx10::interactivelyCreateNewNx10OrNull()
+        end
+        if type == "tag" then
+            return NxTag::interactivelyCreateNewNxTagOrNull()
         end
         if type == "listing" then
             return NxListing::interactivelyCreateNewNxListingOrNull()

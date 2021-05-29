@@ -123,10 +123,10 @@ class Nx10
                 return if description == ""
                 Nx10::updateDescription(nx10["uuid"], description)
             })
-            mx.item("connect to other".yellow, lambda {
+            mx.item("connect".yellow, lambda {
                 NxEntity::linkToOtherArchitectured(nx10)
             })
-            mx.item("unlink from other".yellow, lambda {
+            mx.item("disconnect".yellow, lambda {
                 NxEntity::unlinkFromOther(nx10)
             })
             mx.item("destroy".yellow, lambda {

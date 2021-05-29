@@ -123,17 +123,10 @@ class NxListing
                 return if description == ""
                 NxListing::updateDescription(nxListing["uuid"], description)
             })
-            mx.item("add tag".yellow, lambda {
-                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-                return if description == ""
-                uuid = SecureRandom.uuid
-                NxTag::insertTag(uuid, description)
-                Links::insert(nxListing["uuid"], uuid)
-            })
-            mx.item("connect to other".yellow, lambda {
+            mx.item("connect".yellow, lambda {
                 NxEntity::linkToOtherArchitectured(nxListing)
             })
-            mx.item("unlink from other".yellow, lambda {
+            mx.item("disconnect".yellow, lambda {
                 NxEntity::unlinkFromOther(nxListing)
             })
             mx.item("destroy".yellow, lambda {

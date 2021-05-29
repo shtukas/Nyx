@@ -10,6 +10,7 @@ class Links
 
     # Links::insert(uuid1, uuid2)
     def self.insert(uuid1, uuid2)
+        return if (uuid1 == uuid2)
         db = SQLite3::Database.new(Links::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }

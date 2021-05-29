@@ -35,8 +35,8 @@ class NxEvent
         answer = nil
         db.execute( "select * from _events1_ where _uuid_=?" , [id] ) do |row|
             answer = {
-                "entityType"  => "NxEvent",
                 "uuid"        => row["_uuid_"],
+                "entityType"  => "NxEvent",
                 "datetime"    => row["_datetime_"],
                 "date"        => row["_date_"],
                 "description" => row["_description_"],
@@ -127,17 +127,10 @@ class NxEvent
                 return if description == ""
                 NxEvent::updateDescription(event["uuid"], description)
             })
-            mx.item("add tag".yellow, lambda {
-                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-                return if description == ""
-                uuid = SecureRandom.uuid
-                NxTag::insertTag(uuid, description)
-                Links::insert(event["uuid"], uuid)
-            })
-            mx.item("connect to other".yellow, lambda {
+            mx.item("connect".yellow, lambda {
                 NxEntity::linkToOtherArchitectured(event)
             })
-            mx.item("unlink from other".yellow, lambda {
+            mx.item("disconnect".yellow, lambda {
                 NxEntity::unlinkFromOther(event)
             })
             mx.item("destroy".yellow, lambda {
