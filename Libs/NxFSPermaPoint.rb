@@ -203,7 +203,8 @@ class NxFSPermaPoint
     def self.access(point)
         location = point["location"]
         if location.nil? then
-            puts "Interesting, I could not land on"
+            puts "Interesting, I could not land on point: #{point}"
+            puts "(It could be that the file/directory has moved, but right now there is no code written to find a location from a point, might want to write that one day.)"
             puts JSON.pretty_generate(point)
             LucilleCore::pressEnterToContinue()
             return
