@@ -1,19 +1,19 @@
 
-NxSD1Element.sqlite3
+NxFSPoint.sqlite3
 
 CREATE TABLE _elements_ (_parentId_ text, _locationName_ text, _description_ text, _importId_ text);
 
-NxSD1Element
+NxFSPoint
     {
-        "entityType"       : "NxSD1Element"
+        "entityType"       : "NxFSPoint"
         "parentId"         : String # uuid of the parent smart directory
         "locationName"     : String
         "description"      : String # The location name without prefixes if there are some
     }
 
-Note: although NxSD1Elements are NxEntities, we cannot do with them as much as we do with the others.
+Note: although NxFSPoints are NxEntity, we cannot do with them as much as we do with the others.
 
 For intance, we cannot directly create them, nor can we architecture them. We cannot connect to them or connect from them.
 
-They return in search results, but are not returned by NxEntities::entities() and do not show up during NxEntities::selectExistingEntityOrNull()
+They return in search results, but are not returned by NxEntity::entities() and do not show up during NxEntity::selectExistingEntityOrNull()
 

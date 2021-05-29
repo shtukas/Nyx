@@ -1,34 +1,34 @@
 
 # encoding: UTF-8
 
-class NxListings
+class NxListing
 
-    # NxListings::databaseFilepath()
+    # NxListing::databaseFilepath()
     def self.databaseFilepath()
         "#{Config::nyxFolderPath()}/listings.sqlite3"
     end
 
-    # NxListings::createNewListing(uuid, datetime, description)
+    # NxListing::createNewListing(uuid, datetime, description)
     def self.createNewListing(uuid, datetime, description)
-        db = SQLite3::Database.new(NxListings::databaseFilepath())
+        db = SQLite3::Database.new(NxListing::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "insert into _listings_ (_uuid_, _datetime_, _description_) values (?,?,?)", [uuid, datetime, description]
         db.close
     end
 
-    # NxListings::destroyListing(uuid)
+    # NxListing::destroyListing(uuid)
     def self.destroyListing(uuid)
-        db = SQLite3::Database.new(NxListings::databaseFilepath())
+        db = SQLite3::Database.new(NxListing::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _listings_ where _uuid_=?", [uuid]
         db.close
     end
 
-    # NxListings::getListingByIdOrNull(id): null or NxListing
+    # NxListing::getListingByIdOrNull(id): null or NxListing
     def self.getListingByIdOrNull(id)
-        db = SQLite3::Database.new(NxListings::databaseFilepath())
+        db = SQLite3::Database.new(NxListing::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -45,27 +45,27 @@ class NxListings
         answer
     end
 
-    # NxListings::interactivelyCreateNewNxListingOrNull()
+    # NxListing::interactivelyCreateNewNxListingOrNull()
     def self.interactivelyCreateNewNxListingOrNull()
         uuid = SecureRandom.uuid
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        NxListings::createNewListing(uuid, Time.new.utc.iso8601, description)
-        NxListings::getListingByIdOrNull(uuid)
+        NxListing::createNewListing(uuid, Time.new.utc.iso8601, description)
+        NxListing::getListingByIdOrNull(uuid)
     end
 
-    # NxListings::updateDescription(uuid, description)
+    # NxListing::updateDescription(uuid, description)
     def self.updateDescription(uuid, description)
-        db = SQLite3::Database.new(NxListings::databaseFilepath())
+        db = SQLite3::Database.new(NxListing::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "update _listings_ set _description_=? where _uuid_=?", [description, uuid]
         db.close
     end
 
-    # NxListings::nxListings(): Array[NxListing]
+    # NxListing::nxListings(): Array[NxListing]
     def self.nxListings()
-        db = SQLite3::Database.new(NxListings::databaseFilepath())
+        db = SQLite3::Database.new(NxListing::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -84,44 +84,44 @@ class NxListings
 
     # ----------------------------------------------------------------------
 
-    # NxListings::toString(nxListing)
+    # NxListing::toString(nxListing)
     def self.toString(nxListing)
         "[list] #{nxListing["description"]}"
     end
 
-    # NxListings::selectOneNxListingOrNull()
+    # NxListing::selectOneNxListingOrNull()
     def self.selectOneNxListingOrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxListings::nxListings(), lambda{|nxListing| nxListing["description"] })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxListing::nxListings(), lambda{|nxListing| nxListing["description"] })
     end
 
-    # NxListings::architectOneNxListingOrNull()
+    # NxListing::architectOneNxListingOrNull()
     def self.architectOneNxListingOrNull()
-        nxListing = NxListings::selectOneNxListingOrNull()
+        nxListing = NxListing::selectOneNxListingOrNull()
         return nxListing if nxListing
-        NxListings::interactivelyCreateNewNxListingOrNull()
+        NxListing::interactivelyCreateNewNxListingOrNull()
     end
 
-    # NxListings::landing(nxListing)
+    # NxListing::landing(nxListing)
     def self.landing(nxListing)
         loop {
-            nxListing = NxListings::getListingByIdOrNull(nxListing["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            nxListing = NxListing::getListingByIdOrNull(nxListing["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if nxListing.nil?
             system("clear")
             mx = LCoreMenuItemsNX1.new()
-            puts NxListings::toString(nxListing).green
+            puts NxListing::toString(nxListing).green
             puts ""
             Links::entities(nxListing["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
-                    mx.item("[linked] #{NxEntities::toString(entity)}", lambda {
-                        NxEntities::landing(entity)
+                    mx.item("[linked] #{NxEntity::toString(entity)}", lambda {
+                        NxEntity::landing(entity)
                     })
                 }
             puts ""
             mx.item("update description".yellow, lambda {
                 description = Utils::editTextSynchronously(nxListing["description"]).strip
                 return if description == ""
-                NxListings::updateDescription(nxListing["uuid"], description)
+                NxListing::updateDescription(nxListing["uuid"], description)
             })
             mx.item("add tag".yellow, lambda {
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -131,14 +131,14 @@ class NxListings
                 Links::insert(nxListing["uuid"], uuid)
             })
             mx.item("connect to other".yellow, lambda {
-                NxEntities::linkToOtherArchitectured(nxListing)
+                NxEntity::linkToOtherArchitectured(nxListing)
             })
             mx.item("unlink from other".yellow, lambda {
-                NxEntities::unlinkFromOther(nxListing)
+                NxEntity::unlinkFromOther(nxListing)
             })
             mx.item("destroy".yellow, lambda {
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
-                    NxListings::destroyListing(nxListing["uuid"])
+                    NxListing::destroyListing(nxListing["uuid"])
                 end
             })
             puts ""
@@ -147,12 +147,12 @@ class NxListings
         }
     end
 
-    # NxListings::nx19s()
+    # NxListing::nx19s()
     def self.nx19s()
-        NxListings::nxListings().map{|nxListing|
+        NxListing::nxListings().map{|nxListing|
             volatileuuid = SecureRandom.hex[0, 8]
             {
-                "announce" => "#{volatileuuid} #{NxListings::toString(nxListing)}",
+                "announce" => "#{volatileuuid} #{NxListing::toString(nxListing)}",
                 "type"     => "NxListing",
                 "payload"  => nxListing
             }

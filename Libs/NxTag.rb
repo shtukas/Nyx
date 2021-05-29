@@ -5,7 +5,7 @@ class NxTag
 
     # NxTag::databaseFilepath()
     def self.databaseFilepath()
-        "#{Config::nyxFolderPath()}/NxTag.sqlite3"
+        "#{Config::nyxFolderPath()}/nxTags.sqlite3"
     end
 
     # NxTag::insertTag(uuid, description)
@@ -111,8 +111,8 @@ class NxTag
             Links::entities(nxTag["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity|
-                    mx.item("[linked] #{NxEntities::toString(entity)}", lambda {
-                        NxEntities::landing(entity)
+                    mx.item("[linked] #{NxEntity::toString(entity)}", lambda {
+                        NxEntity::landing(entity)
                     })
                 }
             puts ""

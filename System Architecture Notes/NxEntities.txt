@@ -1,9 +1,9 @@
 
-NxEntities common attributes
+NxEntity common attributes
 
 NxEntity
     - uuid       : String
-    - entityType : "Nx27" | "NxListing" | "NxEvent1" | "NxSmartDirectory1" | "NxTag"
+    - entityType : "Nx27" | "NxListing" | "NxEvent" | "NxSmartDirectory" | "NxTag"
     - datetime   : DateTime Iso 8601 UTC Zulu
 
 Go

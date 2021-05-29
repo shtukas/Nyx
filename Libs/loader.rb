@@ -59,6 +59,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
     KeyValueStore::destroy(repositorylocation or nil, key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
+=begin
+    BTreeSets::values(repositorylocation or nil, setuuid: String): Array[Value]
+    BTreeSets::set(repositorylocation or nil, setuuid: String, valueuuid: String, value)
+    BTreeSets::getOrNull(repositorylocation or nil, setuuid: String, valueuuid: String): nil | Value
+    BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
+=end
+
 # ------------------------------------------------------------
 
 require_relative "BinaryBlobsService.rb"
@@ -68,12 +76,12 @@ require_relative "Config.rb"
 require_relative "Galaxy.rb"
 
 require_relative "Nx10.rb"
-require_relative "Nx27s.rb"
-require_relative "NxEntities.rb"
-require_relative "NxEvent1.rb"
-require_relative "NxListings.rb"
-require_relative "NxSD1Element.rb"
-require_relative "NxSmartDirectory1.rb"
+require_relative "Nx27.rb"
+require_relative "NxEntity.rb"
+require_relative "NxEvent.rb"
+require_relative "NxListing.rb"
+require_relative "NxFSPermaPoint.rb"
+require_relative "NxSmartDirectory.rb"
 require_relative "NxTag.rb"
 
 require_relative "Links.rb"

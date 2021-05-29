@@ -5,18 +5,18 @@ class Search
 
     # Search::nx19s()
     def self.nx19s()
-        # NxSmartDirectory1::nx19s() also returns the NxSD1Elements
-        Nx27s::nx19s() + Nx10s::nx19s() + NxTag::nx19s() + NxListings::nx19s() + NxEvent1::nx19s() + NxSmartDirectory1::nx19s()
+        # NxSmartDirectory::nx19s() also returns the NxFSPoints
+        Nx27::nx19s() + Nx10::nx19s() + NxTag::nx19s() + NxListing::nx19s() + NxEvent::nx19s() + NxSmartDirectory::nx19s() + NxFSPermaPoint::nx19s()
     end
 
     # Search::mx19Landing(mx19)
     def self.mx19Landing(mx19)
         if mx19["type"] == "Nx27" then
-            Nx27s::landing(mx19["payload"])
+            Nx27::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "Nx10" then
-            Nx10s::landing(mx19["payload"])
+            Nx10::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "NxTag" then
@@ -24,19 +24,19 @@ class Search
             return
         end
         if mx19["type"] == "NxListing" then
-            NxListings::landing(mx19["payload"])
+            NxListing::landing(mx19["payload"])
             return
         end
-        if mx19["type"] == "NxEvent1" then
-            NxEvent1::landing(mx19["payload"])
+        if mx19["type"] == "NxEvent" then
+            NxEvent::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "NxSmartDirectory" then
-            NxSmartDirectory1::landing(mx19["payload"])
+            NxSmartDirectory::landing(mx19["payload"])
             return
         end
-        if mx19["type"] == "NxSD1Element" then
-            NxSD1Element::landing(mx19["payload"])
+        if mx19["type"] == "NxFSPermaPoint" then
+            NxFSPermaPoint::landing(mx19["payload"])
             return
         end
         raise "3a35f700-153a-484b-b4ac-c9489982b52b"

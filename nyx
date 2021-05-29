@@ -8,7 +8,7 @@ require_relative "Libs/loader.rb"
 
 Thread.new {
     sleep 10
-    NxSMDir1Auto::smartDirectoriesImportScan(false)
+    NxSmartDirectory::smartDirectoriesImportScan(false)
 }
 
 def mainLoop()
@@ -17,15 +17,15 @@ def mainLoop()
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return if operation.nil?
         if operation == "search" then
-
+            Search::searchLoop()
         end
         if operation == "insert new entity" then
-            entity = NxEntities::interactivelyCreateNewEntityOrNull()
+            entity = NxEntity::interactivelyCreateNewEntityOrNull()
             exit if entity.nil?
-            NxEntities::landing(entity)
+            NxEntity::landing(entity)
         end
         if operation == "scan fs" then
-            NxSMDir1Auto::smartDirectoriesImportScan(true)
+            NxSmartDirectory::smartDirectoriesImportScan(true)
         end
         if operation == "unique-string" then
             puts SecureRandom.hex(6)
