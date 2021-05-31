@@ -282,29 +282,40 @@ class NxFSPermaPoint
     def self.landing(point)
         loop {
             system("clear")
-            mx = LCoreMenuItemsNX1.new()
+
             puts "#{NxFSPermaPoint::toString(point)} ( uuid: #{point["uuid"]} )".green
-            puts ""
-            Links::entities(point["uuid"])
+
+            entities = Links::entities(point["uuid"])
+
+            entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[linked] #{NxEntity::toString(entity)}", lambda {
-                        NxEntity::landing(entity)
-                    })
-                }
+                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntity::toString(entity)}" }
+
             puts ""
-            mx.item("access".yellow, lambda {
+
+            puts "access | connect | disconnect".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = entities[indx]
+                next if entity.nil?
+                NxEntity::landing(entity)
+            end
+
+            if Interpreting::match("access", command) then
                 NxFSPermaPoint::access(point)
-            })
-            mx.item("connect".yellow, lambda {
+            end
+
+            if Interpreting::match("connect", command) then
                 NxEntity::linkToOtherArchitectured(point)
-            })
-            mx.item("disconnect".yellow, lambda {
+            end
+
+            if Interpreting::match("disconnect", command) then
                 NxEntity::unlinkFromOther(point)
-            })
-            puts ""
-            status = mx.promptAndRunSandbox()
-            break if !status
+            end
         }
     end
 
