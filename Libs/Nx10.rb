@@ -107,36 +107,49 @@ class Nx10
             nx10 = Nx10::getNx10ByIdOrNull(nx10["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if nx10.nil?
             system("clear")
-            mx = LCoreMenuItemsNX1.new()
+
             puts Nx10::toString(nx10).green
             puts ""
-            Links::entities(nx10["uuid"])
+
+            entities = Links::entities(nx10["uuid"])
+
+            entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[linked] #{NxEntity::toString(entity)}", lambda {
-                        NxEntity::landing(entity)
-                    })
-                }
+                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntity::toString(entity)}" }
+
             puts ""
-            mx.item("update description".yellow, lambda {
+
+            puts "update description | connect | connect | destroy".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = entities[indx]
+                next if entity.nil?
+                NxEntity::landing(entity)
+            end
+
+            if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(nx10["description"]).strip
                 return if description == ""
                 Nx10::updateDescription(nx10["uuid"], description)
-            })
-            mx.item("connect".yellow, lambda {
+            end
+
+            if Interpreting::match("connect", command) then
                 NxEntity::linkToOtherArchitectured(nx10)
-            })
-            mx.item("disconnect".yellow, lambda {
+            end
+
+            if Interpreting::match("disconnect", command) then
                 NxEntity::unlinkFromOther(nx10)
-            })
-            mx.item("destroy".yellow, lambda {
-                if LucilleCore::askQuestionAnswerAsBoolean("Destroy node ? : ") then
+            end
+
+            if Interpreting::match("destroy", command) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
                     Nx10::destroyNx10(nx10["uuid"])
                 end
-            })
-            puts ""
-            status = mx.promptAndRunSandbox()
-            break if !status
+            end
         }
     end
 
