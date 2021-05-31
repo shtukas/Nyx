@@ -111,36 +111,48 @@ class NxEvent
             event = NxEvent::getNxEventByIdOrNull(event["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if event.nil?
             system("clear")
-            mx = LCoreMenuItemsNX1.new()
+
             puts NxEvent::toString(event).green
-            puts ""
-            Links::entities(event["uuid"])
+
+            entities = Links::entities(event["uuid"])
+
+            entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[linked] #{NxEntity::toString(entity)}", lambda {
-                        NxEntity::landing(entity)
-                    })
-                }
+                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntity::toString(entity)}" }
+
             puts ""
-            mx.item("update description".yellow, lambda {
+
+            puts "update description | connect | disconnect | destroy".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = entities[indx]
+                next if entity.nil?
+                NxEntity::landing(entity)
+            end
+
+            if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(event["description"]).strip
                 return if description == ""
-                NxEvent::updateDescription(event["uuid"], description)
-            })
-            mx.item("connect".yellow, lambda {
+                Nx10::updateDescription(event["uuid"], description)
+            end
+
+            if Interpreting::match("connect", command) then
                 NxEntity::linkToOtherArchitectured(event)
-            })
-            mx.item("disconnect".yellow, lambda {
+            end
+
+            if Interpreting::match("disconnect", command) then
                 NxEntity::unlinkFromOther(event)
-            })
-            mx.item("destroy".yellow, lambda {
+            end
+
+            if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
-                    NxEvent::destroyEvent(event["uuid"])
+                    Nx10::destroyNx10(event["uuid"])
                 end
-            })
-            puts ""
-            status = mx.promptAndRunSandbox()
-            break if !status
+            end
         }
     end
 
