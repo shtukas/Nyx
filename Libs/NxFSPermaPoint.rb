@@ -42,7 +42,7 @@ class NxFSPermaPoint
             object["mark"] = object["_1_"]
         end
         if object["type"] == "file" then
-            object["inode"] = object["_1_"]
+            object["inode"] = object["_1_"].to_i
             object["sha256"] = object["_2_"]
         end
         object.delete("_1_")
@@ -91,8 +91,6 @@ class NxFSPermaPoint
         raise "6D0B72A0-AF1C-40EC-92D6-F767F3D73B1B"
     end
 
-    # --------------------------------------------------------
-
     # NxFSPermaPoint::issueNewNxFSPermaPoint(location)
     def self.issueNewNxFSPermaPoint(location)
         type = File.directory?(location) ? "directory" : "file"
@@ -125,8 +123,16 @@ class NxFSPermaPoint
         point
     end
 
-    # NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(location, point)
+    # --------------------------------------------------------
+
+    # When we look at a Smart Directory, we are given the location of its elements.
+    # The three following functions are meant to receover the right point from that location.
+    # As we do so, we update the points which need to be updated (meaning the look up from a location to a point
+    # did succeed but the point was partially outdated). 
+
+    # NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(location, point): [point: Point, hasBeenUpdated: Boolean]
     def self.updatePointToBeFullyConformingNoCommit(location, point)
+        trace1 = JSON.generate(point)
         if point["type"] == "directory" then
             point["location"] = location
             point["description"] = File.basename(location)
@@ -134,18 +140,22 @@ class NxFSPermaPoint
             if File.exists?(uuidfile) then
                 point["mark"] = IO.read(uuidfile).strip
             else
+                # It could be that the .NxSD1-3945d937 file has been manually deleted or forgotten, 
+                # so I should probably use the existing point["mark"], but let's use SecureRandom.hex.
                 mark = SecureRandom.hex
                 File.open(uuidfile, "w"){|f| f.write(mark) }
                 point["mark"] = mark
             end
-            return point
+            trace2 = JSON.generate(point)
+            return [point, trace1 != trace2]
         end
         if point["type"] == "file" then
             point["location"] = location
             point["description"] = File.basename(location)
             point["inode"] = File.stat(location).ino
             point["sha256"] = Digest::SHA256.file(location).hexdigest
-            return point
+            trace2 = JSON.generate(point)
+            return [point, trace1 != trace2]
         end
         raise "d3a66dc4-0d1a-4d5a-8772-248f2d7f933a: #{point}"
     end
@@ -185,11 +195,56 @@ class NxFSPermaPoint
     def self.locationToNxFSPermaPoint(location)
         point = NxFSPermaPoint::locationToExistingNxFSPermaPointIfAnyOrNull(location)
         if point then
-            point = NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(location, point)
-            NxFSPermaPoint::commit(point)
+            point, hasBeenUpdated = NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(location, point)
+            if hasBeenUpdated then
+                NxFSPermaPoint::commit(point)
+            end
             return point
         end
         NxFSPermaPoint::issueNewNxFSPermaPoint(location)
+    end
+
+    # --------------------------------------------------------
+
+    # Another type of job we need to do is to review the points from the database and update / garbage collect them,
+    # This is done as a background thread
+    # We review each point, try and identfy the correct location and then perform NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(location, point)
+
+    # NxFSPermaPoint::dataMaintenance()
+    def self.dataMaintenance()
+        # As of today, 31st May, we are only doing that for the points that are directories. 
+        # which are most of the children of smart directories.
+        NxFSPermaPoint::getAll().each{|point|
+            pretty1 = JSON.pretty_generate(point)
+
+            if point["type"] == "directory" then
+                if File.exists?(point["location"]) then
+                    point, hasBeenUpdated = NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(point["location"], point)
+                    if hasBeenUpdated then
+                        puts "UPDATING:"
+                        puts pretty1
+                        puts JSON.pretty_generate(point)
+                        NxFSPermaPoint::commit(point)
+                    end
+                else
+                    # TODO: We need to look for the location by mark
+                end
+            end
+
+            if point["type"] == "file" then
+                if File.exists?(point["location"]) then
+                    point, hasBeenUpdated = NxFSPermaPoint::updatePointToBeFullyConformingNoCommit(point["location"], point)
+                    if hasBeenUpdated then
+                        puts "UPDATING:"
+                        puts pretty1
+                        puts JSON.pretty_generate(point)
+                        NxFSPermaPoint::commit(point)
+                    end
+                else
+                    # TODO: We need to look for the file by inode or hash
+                end
+            end
+        }
     end
 
     # ---------------------------------------------------------
@@ -263,10 +318,5 @@ class NxFSPermaPoint
                 "payload"  => point
             }
         }
-    end
-
-    # NxFSPermaPoint::garbageCollection()
-    def self.garbageCollection()
-
     end
 end

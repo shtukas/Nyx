@@ -75,6 +75,8 @@ require_relative "Config.rb"
 
 require_relative "Galaxy.rb"
 
+require_relative "Interpreting.rb"
+
 require_relative "Nx10.rb"
 require_relative "Nx27.rb"
 require_relative "NxEntity.rb"
