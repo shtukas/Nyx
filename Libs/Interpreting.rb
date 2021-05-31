@@ -10,11 +10,17 @@ Interpreting::tokenizer
 
 Usage:
 
-    puts "listing: .. (access top) | select / expose / start / done (<n>) | no work today | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | agents | numbers on/off".yellow
+    puts "select / expose / start / done (<n>) | no work today | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | agents | numbers on/off".yellow
 
     command = LucilleCore::askQuestionAnswerAsString("> ")
 
     break if command == ""
+
+    if (indx = Interpreting::readAsIntegerOrNull(command)) then
+        item = projectItems[indx]
+        next if item.nil?
+        ProjectItems::landing(item)
+    end
 
     if Interpreting::match("select *", command) then
         _, ordinal = Interpreting::tokenizer(command)
