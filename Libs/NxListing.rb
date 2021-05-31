@@ -119,7 +119,7 @@ class NxListing
 
             puts ""
 
-            puts "update description | connect | connect | destroy".yellow
+            puts "update description | connect | disconnect | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

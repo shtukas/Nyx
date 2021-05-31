@@ -396,47 +396,63 @@ class Nx27
             nx27 = Nx27::getNx27ByIdOrNull(nx27["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if nx27.nil?
             system("clear")
-            mx = LCoreMenuItemsNX1.new()
+
             puts Nx27::toString(nx27).green
             puts ""
-            Links::entities(nx27["uuid"])
+
+            entities = Links::entities(nx27["uuid"])
+
+            entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[linked] #{NxEntity::toString(entity)}", lambda {
-                        NxEntity::landing(entity)
-                    })
-                }
+                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntity::toString(entity)}" }
+
             puts ""
-            mx.item("access".yellow, lambda {
+
+            puts "access | edit | update description | connect | disconnect | transmute | destroy".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = entities[indx]
+                next if entity.nil?
+                NxEntity::landing(entity)
+            end
+
+            if Interpreting::match("access", command) then
                 Nx27::access(nx27)
-            })
-            mx.item("edit".yellow, lambda {
+            end
+
+            if Interpreting::match("edit", command) then
                 Nx27::edit(nx27)
-            })
-            mx.item("update description".yellow, lambda {
+            end
+
+            if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(nx27["description"]).strip
                 return if description == ""
                 Nx27::updateDescription(nx27["uuid"], description)
-            })
-            mx.item("connect".yellow, lambda {
+            end
+
+            if Interpreting::match("connect", command) then
                 NxEntity::linkToOtherArchitectured(nx27)
-            })
-            mx.item("disconnect".yellow, lambda {
+            end
+
+            if Interpreting::match("disconnect", command) then
                 NxEntity::unlinkFromOther(nx27)
-            })
-            mx.item("transmute".yellow, lambda {
+            end
+
+            if Interpreting::match("transmute", command) then
                 targetType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx27::types())
                 return if targetType.nil?
                 Nx27::transmute(nx27, targetType)
-            })
-            mx.item("destroy".yellow, lambda {
+            end
+
+            if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
                     Nx27::destroyNx27(nx27["uuid"])
                 end
-            })
-            puts ""
-            status = mx.promptAndRunSandbox()
-            break if !status
+            end
         }
     end
 
