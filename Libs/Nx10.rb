@@ -119,7 +119,7 @@ class Nx10
 
             puts ""
 
-            puts "update description | connect | disconnect | destroy".yellow
+            puts "<index> | update description | connect | disconnect | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

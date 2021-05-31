@@ -293,7 +293,7 @@ class NxFSPermaPoint
 
             puts ""
 
-            puts "access | connect | disconnect".yellow
+            puts "<index> | access | connect | disconnect".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

@@ -408,7 +408,7 @@ class Nx27
 
             puts ""
 
-            puts "access | edit | update description | connect | disconnect | transmute | destroy".yellow
+            puts "<index> | access | edit | update description | connect | disconnect | transmute | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

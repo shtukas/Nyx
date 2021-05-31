@@ -137,34 +137,51 @@ class NxSmartDirectory
             nxsd = NxSmartDirectory::getNxSmartDirectoryByIdOrNull(nxsd["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if nxsd.nil?
             system("clear")
-            mx = LCoreMenuItemsNX1.new()
+
             puts NxSmartDirectory::toString(nxsd).green
+
             puts "uuid: #{nxsd["uuid"]}"
             puts "directory: #{NxSmartDirectory::getDirectoryFolderpathOrNull(nxsd["uuid"])}"
+
             puts ""
+
+            connected = []
+
             Links::entities(nxsd["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[linked] #{NxEntity::toString(entity)}", lambda {
-                        NxEntity::landing(entity)
-                    })
+                .each_with_index{|entity, indx| 
+                    connected << entity
+                    puts "[#{indx}] [linked] #{NxEntity::toString(entity)}"
                 }
+
             puts ""
-            NxSmartDirectory::nxsdToNxFSPermaPointsFromDisk(nxsd).each{|point|
-                mx.item(NxFSPermaPoint::toString(point), lambda {
-                    NxFSPermaPoint::landing(point)
-                })
+
+            NxSmartDirectory::nxsdToNxFSPermaPointsFromDisk(nxsd).each_with_index{|point, indx|
+                connected << point
+                puts "[#{indx}] #{NxFSPermaPoint::toString(point)}"
             }
+
             puts ""
-            mx.item("connect".yellow, lambda {
+
+            puts "<index> | connect | disconnect".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = connected[indx]
+                next if entity.nil?
+                NxEntity::landing(entity)
+            end
+
+            if Interpreting::match("connect", command) then
                 NxEntity::linkToOtherArchitectured(nxsd)
-            })
-            mx.item("disconnect".yellow, lambda {
+            end
+
+            if Interpreting::match("disconnect", command) then
                 NxEntity::unlinkFromOther(nxsd)
-            })
-            puts ""
-            status = mx.promptAndRunSandbox()
-            break if !status
+            end
         }
     end
 
