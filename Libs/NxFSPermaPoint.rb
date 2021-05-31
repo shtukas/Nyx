@@ -251,7 +251,7 @@ class NxFSPermaPoint
 
     # NxFSPermaPoint::toString(point)
     def self.toString(point)
-        "[poin] #{point["description"]}"
+        "[fs perma point] #{point["description"]}"
     end
 
     # NxFSPermaPoint::access(point)

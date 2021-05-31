@@ -90,7 +90,7 @@ class NxEvent
 
     # NxEvent::toString(event)
     def self.toString(event)
-        "[evnt] #{event["description"]}"
+        "[event] #{event["description"]}"
     end
 
     # NxEvent::selectOneNxEventOrNull()
@@ -112,7 +112,7 @@ class NxEvent
             return if event.nil?
             system("clear")
 
-            puts NxEvent::toString(event).green
+            puts NxEvent::toString(event).gsub("[event]", "[evnt]").green
 
             entities = Links::entities(event["uuid"])
 

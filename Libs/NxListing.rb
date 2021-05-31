@@ -86,7 +86,7 @@ class NxListing
 
     # NxListing::toString(nxListing)
     def self.toString(nxListing)
-        "[list] #{nxListing["description"]}"
+        "[listing] #{nxListing["description"]}"
     end
 
     # NxListing::selectOneNxListingOrNull()
@@ -108,7 +108,7 @@ class NxListing
             return if nxListing.nil?
             system("clear")
 
-            puts NxListing::toString(nxListing).green
+            puts NxListing::toString(nxListing).gsub("[listing]", "[list]").green
             puts ""
 
             entities = Links::entities(nxListing["uuid"])

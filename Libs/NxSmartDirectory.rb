@@ -123,7 +123,7 @@ class NxSmartDirectory
 
     # NxSmartDirectory::toString(nxsd)
     def self.toString(nxsd)
-        "[smrd] #{nxsd["description"]}"
+        "[smart directory] #{nxsd["description"]}"
     end
 
     # NxSmartDirectory::selectOneNxSmartDirectoryOrNull()
@@ -138,7 +138,7 @@ class NxSmartDirectory
             return if nxsd.nil?
             system("clear")
 
-            puts NxSmartDirectory::toString(nxsd).green
+            puts NxSmartDirectory::toString(nxsd).gsub("[smart directory]", "[smrd]").green
 
             puts "uuid: #{nxsd["uuid"]}"
             puts "directory: #{NxSmartDirectory::getDirectoryFolderpathOrNull(nxsd["uuid"])}"
@@ -158,7 +158,7 @@ class NxSmartDirectory
 
             NxSmartDirectory::nxsdToNxFSPermaPointsFromDisk(nxsd).each_with_index{|point, indx|
                 connected << point
-                puts "[#{indx}] #{NxFSPermaPoint::toString(point)}"
+                puts "[#{indx}] #{NxFSPermaPoint::toString(point).gsub("[fs perma point]", "[fspp]")}"
             }
 
             puts ""

@@ -105,30 +105,43 @@ class NxTag
             nxTag = NxTag::getTagByIdOrNull(nxTag["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if nxTag.nil?
             system("clear")
-            mx = LCoreMenuItemsNX1.new()
-            puts "#{NxTag::toString(nxTag)} ( uuid: #{nxTag["uuid"]} )".green 
-            puts ""
-            Links::entities(nxTag["uuid"])
+
+            puts "#{NxTag::toString(nxTag).gsub("[tag]", "[tag ]")} ( uuid: #{nxTag["uuid"]} )".green 
+
+
+            entities = Links::entities(nxTag["uuid"])
+
+            entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity|
-                    mx.item("[linked] #{NxEntity::toString(entity)}", lambda {
-                        NxEntity::landing(entity)
-                    })
-                }
+                .each_with_index{|entity, indx| puts "[#{indx}] [linked] #{NxEntity::toString(entity)}" }
+
             puts ""
-            mx.item("update description".yellow, lambda {
+
+            puts "<index> | update description | destroy".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = entities[indx]
+                next if entity.nil?
+                NxEntity::landing(entity)
+            end
+
+            puts ""
+
+            if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(nxTag["description"]).strip
                 return if description == ""
                 NxTag::updateDescription(nxTag["uuid"], description)
-            })
-            mx.item("destroy".yellow, lambda {
+            end
+
+            if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
                     NxTag::destroyTag(nxTag["uuid"])
                 end
-            })
-            puts ""
-            status = mx.promptAndRunSandbox()
-            break if !status
+            end
         }
     end
 
