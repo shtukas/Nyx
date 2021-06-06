@@ -126,7 +126,7 @@ class NxFSPermaPoint
     # --------------------------------------------------------
 
     # When we look at a Smart Directory, we are given the location of its elements.
-    # The three following functions are meant to receover the right point from that location.
+    # The three following functions are meant to recover the right point from that location.
     # As we do so, we update the points which need to be updated (meaning the look up from a location to a point
     # did succeed but the point was partially outdated). 
 

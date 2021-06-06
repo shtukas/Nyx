@@ -9,6 +9,7 @@ require_relative "Libs/loader.rb"
 Thread.new {
     sleep 10
     NxSmartDirectory::smartDirectoriesImportScan(false)
+    NxFSPermaPoint::dataMaintenance()
 }
 
 def mainLoop()
