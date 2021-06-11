@@ -1,9 +1,0 @@
-$ go run nyx.go
-
-$ go run . # Noticed that here: https://golang.org/doc/tutorial/call-module-code
-
-$ go test
-
-$ go build
-
-$ go install # moves the file to $GOBIN, currently set to /Users/pascal/.local/bin
