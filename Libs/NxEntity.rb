@@ -83,6 +83,7 @@ class NxEntity
     def self.selectExistingEntityOrNull()
         nx19 = Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxEntity::entities(), lambda{|entity| NxEntity::toString(entity) })
         return nil if nx19.nil?
+        nx19
     end
 
     # NxEntity::interactivelyCreateNewEntityOrNull()
