@@ -1,51 +1,36 @@
 
 CREATE TABLE _nx27s_ (_uuid_ text, _datetime_ text, _type_ text, _description_ text, _payload1_ text);
 
-Ruby
-
-    Nx27
-    {
-        "uuid"         : String
-        "entityType"   : "Nx27"
-        "datetime"     : DateTime Iso 8601 UTC Zulu
-        "type"         : "unique-string"
-        "description"  : String
-        "uniquestring" : String # payload1
-    }
-    {
-        "uuid"         : String
-        "entityType"   : "Nx27"
-        "datetime"     : DateTime Iso 8601 UTC Zulu
-        "type"         : "url"
-        "description"  : String
-        "url"          : String # payload1, the url
-    }
-    {
-        "uuid"         : String
-        "entityType"   : "Nx27"
-        "datetime"     : DateTime Iso 8601 UTC Zulu
-        "type"         : "text"
-        "description"  : String
-        "nhash"        : String # payload1, text is stored in the Binary Blobs Service
-    }
-    {
-        "uuid"         : String
-        "entityType"   : "Nx27"
-        "datetime"     : DateTime Iso 8601 UTC Zulu
-        "type"         : "aion-point"
-        "description"  : String
-        "nhash"        : String # payload1, nhash is the root of an Aion Point
-    }
-
-Go
-    type Nx27 struct {
-        uuid     string
-        datetime string
-        type_    string
-        payload  string
-    }
-
-    In the Go case, the Nx27 is simplier because we just call the payload that way, instead of giving it a specific name. TODO: We should probably do the same for the Ruby case as well
-
-    Also here we are not carrying the "entityType" : "Nx27".
-
+Nx27 (Data Carrier)
+{
+    "uuid"         : String
+    "entityType"   : "Nx27"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "type"         : "unique-string"
+    "description"  : String
+    "uniquestring" : String # payload1
+}
+{
+    "uuid"         : String
+    "entityType"   : "Nx27"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "type"         : "url"
+    "description"  : String
+    "url"          : String # payload1, the url
+}
+{
+    "uuid"         : String
+    "entityType"   : "Nx27"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "type"         : "text"
+    "description"  : String
+    "nhash"        : String # payload1, text is stored in the Binary Blobs Service
+}
+{
+    "uuid"         : String
+    "entityType"   : "Nx27"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "type"         : "aion-point"
+    "description"  : String
+    "nhash"        : String # payload1, nhash is the root of an Aion Point
+}

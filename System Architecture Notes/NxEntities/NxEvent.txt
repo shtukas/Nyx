@@ -3,19 +3,10 @@ CREATE TABLE _events1_ (_uuid_ text, _datetime_ text, _date_ text, _description_
 
 events1.sqlite3
 
-Ruby
-    NxEvent {
-        "uuid"        : String
-        "entityType"  : "NxEvent"
-        "datetime"    : DateTime Iso 8601 UTC Zulu
-        "date"        : YYYY-MM-DD
-        "description" : String
-    }
-
-Go
-    type NxEvent struct {
-        uuid        string
-        datetime    string
-        date        string
-        description string
-    }
+NxEvent {
+    "uuid"        : String
+    "entityType"  : "NxEvent"
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "date"        : YYYY-MM-DD
+    "description" : String
+}

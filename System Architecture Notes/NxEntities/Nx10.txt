@@ -2,7 +2,7 @@
 CREATE TABLE _nx10s_ (_uuid_ text, _datetime_ text, _description_ text);
 nx10s.sqlite3
 
-Nx10
+Nx10 (Node)
 {
     "uuid"         : String
     "entityType"   : "Nx10"
