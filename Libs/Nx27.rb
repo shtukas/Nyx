@@ -315,15 +315,25 @@ class Nx27
             system("open '#{nx27["url"]}'")
         end
         if type == "text" then
-            nhash = nx27["nhash"]
-            text = BinaryBlobsService::getBlobOrNull(nhash)
-            puts ""
-            puts text
-            puts ""
-            LucilleCore::pressEnterToContinue()
+            nhash1 = nx27["nhash"]
+            text1 = BinaryBlobsService::getBlobOrNull(nhash1)
+            text2 = Utils::editTextSynchronously(nx27["url"])
+            if text1 != text2 then
+                nhash2 = BinaryBlobsService::putBlob(text2)
+                Nx27::updatePayload1(nx27["uuid"], nhash2)
+            end
         end
         if type == "aion-point" then
             nhash = nx27["nhash"]
+
+            object = AionCore::getAionObjectByHash(El1zabeth.new(), nhash)
+            location = "/Users/pascal/Desktop/#{object["name"]}"
+            if File.exists?(location) then
+                puts "Cannot export nhash: '#{nhash}' at '#{location}' because file is already on Desktop"
+                LucilleCore::pressEnterToContinue()
+                return nil
+            end
+
             AionCore::exportHashAtFolder(Elizabeth.new(), nhash, "/Users/pascal/Desktop")
             puts "Structure exported to Desktop"
             LucilleCore::pressEnterToContinue()
@@ -357,7 +367,13 @@ class Nx27
             puts "Editing the Aion-Point"
             LucilleCore::pressEnterToContinue()
             nhash = nx27["nhash"]
-            AionCore::exportHashAtFolder(Elizabeth.new(), nhash, "/Users/pascal/Desktop")
+
+            object = AionCore::getAionObjectByHash(El1zabeth.new(), nhash)
+            location = "/Users/pascal/Desktop/#{object["name"]}"
+            if !File.exists?(location) then
+                AionCore::exportHashAtFolder(Elizabeth.new(), nhash, "/Users/pascal/Desktop")
+            end
+
             puts "Modify the Aion-Point and press enter to continue"
             LucilleCore::pressEnterToContinue()
             filename = LucilleCore::askQuestionAnswerAsString("filename on Desktop (empty to abort) : ")
@@ -387,7 +403,8 @@ class Nx27
             return
         end
 
-        puts "I do not know how to transmute #{nx27["description"]} of type '#{nx27["type"]}' into a '#{targetType}'"
+        puts "I do not know how to transmute '#{nx27["description"]}' of type '#{nx27["type"]}' into a '#{targetType}'"
+        LucilleCore::pressEnterToContinue()
     end
 
     # Nx27::landing(nx27)
