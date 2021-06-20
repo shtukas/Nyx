@@ -1,21 +1,26 @@
 
-CREATE TABLE _timeline_ (_uuid_ text, _datetime_ text, _description_ text);
+CREATE TABLE _timeline_ (_uuid_ text, _unixtime_ text, _description_ text, _date_ text, _datetime_ text, pointType text, _contentType_ text, _payload_ text);
+
 timelime.sqlite3
 
 NxTimelinePoint represents an event mostly associated to a point in time. It comes in different flavours:
+
+NxTimelinePtType
     - NxDiaryEntry
     - NxAppointment
     - NxPrivateEvent
     - NxPublicEvent
-    - NxTravelAndEntertDocuments
+    - NxTravelAndEntertainmentDocuments
 
 NxTimelinePoint
 {
     "uuid"         : String
     "entityType"   : "NxTimelinePoint"
     "unixtime"     : Integer # point creation unixtime
-    "date"         : Date (YYYY-MM-DD)
-    "datetime"     : DateTime Iso 8601 UTC Zulu
     "description"  : String
-    
+    "date"         : Date (YYYY-MM-DD)
+    "datetime"     : null or DateTime Iso 8601 UTC Zulu
+    "pointType"    : NxTimelinePtType
+    "contentType"  : Nx102 content type
+    "payload"      : Nx102 payload
 }
