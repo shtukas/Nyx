@@ -67,11 +67,15 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
     BTreeSets::destroy(repositorylocation or nil, setuuid: String, valueuuid: String)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
+
 # ------------------------------------------------------------
 
 require_relative "BinaryBlobsService.rb"
 
 require_relative "Config.rb"
+
+require_relative "Elizabeth.rb"
 
 require_relative "Galaxy.rb"
 
@@ -79,6 +83,7 @@ require_relative "Interpreting.rb"
 
 require_relative "Nx10.rb"
 require_relative "Nx27.rb"
+require_relative "Nx102.rb"
 require_relative "NxEntity.rb"
 require_relative "NxEvent.rb"
 require_relative "NxListing.rb"
