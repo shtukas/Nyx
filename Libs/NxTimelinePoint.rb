@@ -53,7 +53,7 @@ class NxTimelinePoint
 
     # NxTimelinePoint::types()
     def self.types()
-        ["NxDiaryEntry", "NxAppointment", "NxPrivateEvent", "NxPublicEvent", "NxTravelAndEntertainmentDocuments"]
+        ["NxDiaryEntry", "NxAppointment", "NxPrivateEvent", "NxPublicEvent", "NxTravelAndEntertainmentDocuments", "NxTodoOnDate"]
     end
 
     # NxTimelinePoint::selectTimePointTypeOrNull()
