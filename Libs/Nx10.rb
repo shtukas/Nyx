@@ -8,8 +8,8 @@ class Nx10
         "#{Config::nyxFolderPath()}/nx10s.sqlite3"
     end
 
-    # Nx10::createNewNx10(uuid, datetime, description)
-    def self.createNewNx10(uuid, datetime, description)
+    # Nx10::insertNewNx10(uuid, datetime, description)
+    def self.insertNewNx10(uuid, datetime, description)
         db = SQLite3::Database.new(Nx10::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -50,7 +50,7 @@ class Nx10
         uuid = SecureRandom.uuid
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        Nx10::createNewNx10(uuid, Time.new.utc.iso8601, description)
+        Nx10::insertNewNx10(uuid, Time.new.utc.iso8601, description)
         Nx10::getNx10ByIdOrNull(uuid)
     end
 

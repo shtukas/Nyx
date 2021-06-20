@@ -1,5 +1,5 @@
 
-CREATE TABLE _timeline_ (_uuid_ text, _unixtime_ text, _description_ text, _date_ text, _datetime_ text, pointType text, _contentType_ text, _payload_ text);
+CREATE TABLE _timeline_ (_uuid_ text, _unixtime_ text, _description_ text, _date_ text, _datetime_ text, _pointType_ text, _contentType_ text, _payload_ text);
 
 timelime.sqlite3
 

@@ -8,8 +8,8 @@ The copy in Nyx is not exactly the same as the name of Elizabeth is not the same
 
 class Nx102
 
-    # Nx102::interactivelyIssueNewCoordinates3OrNull(): nil or coordinates = [contentType, payload]
-    def self.interactivelyIssueNewCoordinates3OrNull()
+    # Nx102::interactivelyIssueNewCoordinatesOrNull(): nil or coordinates = [contentType, payload]
+    def self.interactivelyIssueNewCoordinatesOrNull()
 
         contentType = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Line", "Url", "Text", "ClickableType", "AionPoint"])
 
@@ -200,7 +200,7 @@ class Nx102
 
     # Nx102::transmute(contentType, payload)
     def self.transmute(contentType, payload)
-        puts "Nx102::transmute is not implemented yet"
-        LucilleCore::pressEnterToContinue()
+        # Transmute is not going to attempt to "transform" the content. We are simply issuing a new pair...
+        Nx102::interactivelyIssueNewCoordinatesOrNull()
     end
 end

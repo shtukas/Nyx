@@ -90,6 +90,7 @@ require_relative "NxListing.rb"
 require_relative "NxFSPermaPoint.rb"
 require_relative "NxSmartDirectory.rb"
 require_relative "NxTag.rb"
+require_relative "NxTimelinePoint.rb"
 
 require_relative "Links.rb"
 
