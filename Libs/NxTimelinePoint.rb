@@ -3,18 +3,19 @@
 
 class NxTimelinePoint
 
+    # -- Database Operations ----------------------------------------------------------------------------------
 
     # NxTimelinePoint::databaseFilepath()
     def self.databaseFilepath()
         "#{Config::nyxFolderPath()}/timelime.sqlite3"
     end
 
-    # NxTimelinePoint::insertNewTimelinePoint(uuid, unixtime, description, date, datetime, pointType, contentType, payload)
-    def self.insertNewTimelinePoint(uuid, unixtime, description, date, datetime, pointType, contentType, payload)
+    # NxTimelinePoint::insertNewTimelinePoint(uuid, datetime, description, pdate, pdatetime, pointType, contentType, payload)
+    def self.insertNewTimelinePoint(uuid, datetime, description, pdate, pdatetime, pointType, contentType, payload)
         db = SQLite3::Database.new(NxTimelinePoint::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _timeline_ (_uuid_, _unixtime_, _description_, _date_, _datetime_, _pointType_, _contentType_, _payload_) values (?, ?, ?, ?, ?, ?, ?, ?)", [uuid, unixtime, description, date, datetime, pointType, contentType, payload]
+        db.execute "insert into _timeline_ (_uuid_, _datetime_, _description_, _pdate_, _pdatetime_, _pointType_, _contentType_, _payload_) values (?, ?, ?, ?, ?, ?, ?, ?)", [uuid, datetime, description, pdate, pdatetime, pointType, contentType, payload]
         db.close
     end
 
@@ -27,6 +28,21 @@ class NxTimelinePoint
         db.close
     end
 
+    # NxTimelinePoint::databaseRowToPoint(row)
+    def self.databaseRowToPoint(row)
+        {
+            "uuid"        => row["_uuid_"],
+            "entityType"  => "NxTimelinePoint",
+            "datetime"    => row["_datetime_"],
+            "description" => row["_description_"],
+            "pdate"       => row["_pdate_"],
+            "pdatetime"   => row["_pdatetime_"],
+            "pointType"   => row["_pointType_"],
+            "contentType" => row["_contentType_"],
+            "payload"     => row["_payload_"],
+        }
+    end
+
     # NxTimelinePoint::getNxTimelinePointByIdOrNull(id): null or NxTimelinePoint
     def self.getNxTimelinePointByIdOrNull(id)
         db = SQLite3::Database.new(NxTimelinePoint::databaseFilepath())
@@ -35,46 +51,24 @@ class NxTimelinePoint
         db.results_as_hash = true
         answer = nil
         db.execute( "select * from _timeline_ where _uuid_=?" , [id] ) do |row|
-            answer = {
-                "uuid"        => row["_uuid_"],
-                "entityType"  => "NxTimelinePoint",
-                "unixtime"    => row["_unixtime_"],
-                "description" => row["_description_"],
-                "date"        => row["_date_"],
-                "datetime"    => row["_datetime_"],
-                "pointType"   => row["_pointType_"],
-                "contentType" => row["_contentType_"],
-                "payload"     => row["_payload_"],
-            }
+            answer = NxTimelinePoint::databaseRowToPoint(row)
         end
         db.close
         answer
     end
 
-    # NxTimelinePoint::types()
-    def self.types()
-        ["NxDiaryEntry", "NxAppointment", "NxPrivateEvent", "NxPublicEvent", "NxTravelAndEntertainmentDocuments", "NxTodoOnDate"]
-    end
-
-    # NxTimelinePoint::selectTimePointTypeOrNull()
-    def self.selectTimePointTypeOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", NxTimelinePoint::types())
-    end
-
-    # NxTimelinePoint::interactivelyCreateNewPointOrNull()
-    def self.interactivelyCreateNewPointOrNull()
-        uuid = SecureRandom.uuid
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        date = LucilleCore::askQuestionAnswerAsString("date YYYY-MM-DD (empty to abort): ")
-        return nil if date == ""
-        datetime = LucilleCore::askQuestionAnswerAsString("dateime DateTime Iso 8601 UTC Zulu (empty for missing): ")
-        pointType = NxTimelinePoint::selectTimePointTypeOrNull()
-        return nil if pointType.nil?
-        coordinates = Nx102::interactivelyIssueNewCoordinatesOrNull()
-        return nil if coordinates.nil?
-        NxTimelinePoint::insertNewTimelinePoint(uuid, Time.new.to_i, description, date, datetime, pointType, coordinates[0], coordinates[1])
-        NxTimelinePoint::getNxTimelinePointByIdOrNull(uuid)
+    # NxTimelinePoint::points(): Array[NxTimelinePoint]
+    def self.points()
+        db = SQLite3::Database.new(NxTimelinePoint::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _timeline_" , [] ) do |row|
+            answer << NxTimelinePoint::databaseRowToPoint(row)
+        end
+        db.close
+        answer
     end
 
     # NxTimelinePoint::updateDescription(uuid, description)
@@ -86,55 +80,64 @@ class NxTimelinePoint
         db.close
     end
 
-    # NxTimelinePoint::nx10s(): Array[Nx10]
-    def self.nx10s()
-        db = SQLite3::Database.new(NxTimelinePoint::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _timeline_" , [] ) do |row|
-            answer << {
-                "uuid"        => row["_uuid_"],
-                "entityType"  => "Nx10",
-                "datetime"    => row["_datetime_"],
-                "description" => row["_description_"],
-            }
-        end
-        db.close
-        answer
+    # ------------------------------------------------------------------------------------
+
+    # NxTimelinePoint::pointTypes()
+    def self.pointTypes()
+        ["NxDiaryEntry", "NxAppointment", "NxPrivateEvent", "NxPublicEvent", "NxTravelAndEntertainmentDocuments", "NxTodoOnDate"]
+    end
+
+    # NxTimelinePoint::selectTimePointTypeOrNull()
+    def self.selectTimePointTypeOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", NxTimelinePoint::pointTypes())
+    end
+
+    # NxTimelinePoint::interactivelyCreateNewPointOrNull()
+    def self.interactivelyCreateNewPointOrNull()
+        uuid = SecureRandom.uuid
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        date = LucilleCore::askQuestionAnswerAsString("date YYYY-MM-DD (empty to abort): ") # TODO: have something to validate dates
+        return nil if date == ""
+        datetime = LucilleCore::askQuestionAnswerAsString("dateime DateTime Iso 8601 UTC Zulu (empty for missing): ") # TODO: have something to validate Iso 8601 UTC Zulu
+        pointType = NxTimelinePoint::selectTimePointTypeOrNull()
+        return nil if pointType.nil?
+        coordinates = Nx102::interactivelyIssueNewCoordinatesOrNull()
+        return nil if coordinates.nil?
+        NxTimelinePoint::insertNewTimelinePoint(uuid, Time.new.to_i, description, date, datetime, pointType, coordinates[0], coordinates[1])
+        NxTimelinePoint::getNxTimelinePointByIdOrNull(uuid)
     end
 
     # ----------------------------------------------------------------------
 
-    # NxTimelinePoint::toString(nx10)
-    def self.toString(nx10)
-        "[node] #{nx10["description"]}"
+    # NxTimelinePoint::toString(point)
+    def self.toString(point)
+        "[timeline point] [#{point["pointType"]}] #{point["description"]}"
     end
 
-    # NxTimelinePoint::selectOneNx10OrNull()
-    def self.selectOneNx10OrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxTimelinePoint::nx10s(), lambda{|nx10| NxTimelinePoint::toString(nx10) })
+    # NxTimelinePoint::selectOnePointOrNull()
+    def self.selectOnePointOrNull()
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxTimelinePoint::points(), lambda{|point| NxTimelinePoint::toString(point) })
     end
 
-    # NxTimelinePoint::architectOneNx10OrNull()
-    def self.architectOneNx10OrNull()
-        nx10 = NxTimelinePoint::selectOneNx10OrNull()
-        return nx10 if nx10
+    # NxTimelinePoint::architectOnePointOrNull()
+    def self.architectOnePointOrNull()
+        point = NxTimelinePoint::selectOnePointOrNull()
+        return point if point
         NxTimelinePoint::interactivelyCreateNewPointOrNull()
     end
 
-    # NxTimelinePoint::landing(nx10)
-    def self.landing(nx10)
+    # NxTimelinePoint::landing(point)
+    def self.landing(point)
         loop {
-            nx10 = NxTimelinePoint::getNxTimelinePointByIdOrNull(nx10["uuid"]) # Could have been destroyed or metadata updated in the previous loop
-            return if nx10.nil?
+            point = NxTimelinePoint::getNxTimelinePointByIdOrNull(point["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            return if point.nil?
             system("clear")
 
-            puts NxTimelinePoint::toString(nx10).green
+            puts NxTimelinePoint::toString(point).green
             puts ""
 
-            entities = Links::entities(nx10["uuid"])
+            entities = Links::entities(point["uuid"])
 
             entities
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
@@ -155,22 +158,22 @@ class NxTimelinePoint
             end
 
             if Interpreting::match("update description", command) then
-                description = Utils::editTextSynchronously(nx10["description"]).strip
+                description = Utils::editTextSynchronously(point["description"]).strip
                 return if description == ""
-                NxTimelinePoint::updateDescription(nx10["uuid"], description)
+                NxTimelinePoint::updateDescription(point["uuid"], description)
             end
 
             if Interpreting::match("connect", command) then
-                NxEntity::linkToOtherArchitectured(nx10)
+                NxEntity::linkToOtherArchitectured(point)
             end
 
             if Interpreting::match("disconnect", command) then
-                NxEntity::unlinkFromOther(nx10)
+                NxEntity::unlinkFromOther(point)
             end
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
-                    NxTimelinePoint::destroyEntry(nx10["uuid"])
+                    NxTimelinePoint::destroyEntry(point["uuid"])
                 end
             end
         }
@@ -178,12 +181,12 @@ class NxTimelinePoint
 
     # NxTimelinePoint::nx19s()
     def self.nx19s()
-        NxTimelinePoint::nx10s().map{|nx10|
+        NxTimelinePoint::points().map{|point|
             volatileuuid = SecureRandom.hex[0, 8]
             {
-                "announce" => "#{volatileuuid} #{NxTimelinePoint::toString(nx10)}",
-                "type"     => "Nx10",
-                "payload"  => nx10
+                "announce" => "#{volatileuuid} #{NxTimelinePoint::toString(point)}",
+                "type"     => "NxTimelinePoint",
+                "payload"  => point
             }
         }
     end

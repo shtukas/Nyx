@@ -15,5 +15,5 @@ NxSmartDirectory {
     "uuid"        : String
     "entityType"  : "NxSmartDirectory"
     "datetime"    : DateTime Iso 8601 UTC Zulu
-    "desription"  : String
+    "description" : String
 }
