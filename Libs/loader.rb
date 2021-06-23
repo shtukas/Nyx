@@ -77,6 +77,8 @@ require_relative "Config.rb"
 
 require_relative "Elizabeth.rb"
 
+require_relative "Fsck.rb"
+
 require_relative "Galaxy.rb"
 
 require_relative "Interpreting.rb"

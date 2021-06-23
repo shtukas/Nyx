@@ -38,7 +38,7 @@ def mainLoop()
             LucilleCore::pressEnterToContinue()
         end
         if operation == "fsck" then
-
+            Fsck::fsckEntities()
         end
     }
 end
