@@ -5,8 +5,14 @@ class Search
 
     # Search::nx19s()
     def self.nx19s()
-        # NxSmartDirectory::nx19s() also returns the NxFSPoints
-        Nx27::nx19s() + Nx10::nx19s() + NxTag::nx19s() + NxListing::nx19s() + NxEvent::nx19s() + NxSmartDirectory::nx19s() + NxFSPermaPoint::nx19s()
+        Nx27::nx19s() +
+        Nx10::nx19s() +
+        NxTag::nx19s() +
+        NxListing::nx19s() +
+        NxEvent::nx19s() +
+        NxSmartDirectory::nx19s() +
+        NxFSPermaPoint::nx19s() +
+        NxTimelinePoint::nx19s()
     end
 
     # Search::mx19Landing(mx19)
@@ -37,6 +43,10 @@ class Search
         end
         if mx19["type"] == "NxFSPermaPoint" then
             NxFSPermaPoint::landing(mx19["payload"])
+            return
+        end
+        if mx19["type"] == "NxTimelinePoint" then
+            NxTimelinePoint::landing(mx19["payload"])
             return
         end
         raise "3a35f700-153a-484b-b4ac-c9489982b52b"
