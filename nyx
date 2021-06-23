@@ -14,7 +14,7 @@ Thread.new {
 
 def mainLoop()
     loop {
-        operations = ["search", "insert new entity", "scan fs", "unique-string", "fsck"]
+        operations = ["search", "insert new entity", "timelime", "scan fs", "unique-string", "fsck"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return if operation.nil?
         if operation == "search" then
@@ -24,6 +24,11 @@ def mainLoop()
             entity = NxEntity::interactivelyCreateNewEntityOrNull()
             exit if entity.nil?
             NxEntity::landing(entity)
+        end
+        if operation == "timelime" then
+            point = NxTimelinePoint::selectOnePointOrNull()
+            exit if point.nil?
+            NxTimelinePoint::landing(point)
         end
         if operation == "scan fs" then
             NxSmartDirectory::smartDirectoriesImportScan(true)

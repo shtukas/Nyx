@@ -112,7 +112,7 @@ class NxTimelinePoint
 
     # NxTimelinePoint::toString(point)
     def self.toString(point)
-        "[timeline point] (#{point["pdate"]}, #{point["pdatetime"]}) [#{point["pointType"]}] #{point["description"]}"
+        "[timeline point] (#{point["pdate"]}, #{point["pdatetime"]}) [#{point["pointType"]}] [#{point["contentType"]}] #{point["description"]}"
     end
 
     # NxTimelinePoint::selectOnePointOrNull()
