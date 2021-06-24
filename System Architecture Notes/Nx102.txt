@@ -1,0 +1,16 @@
+[ The master copy of this page is in Catalyst ]
+
+Nx102 is a library that manages the creation, access, edition and transmuation of [description, contentType, payload] arrays
+
+Those array can then be stored in objects that are interested in those type of contents.
+
+Quark was the first type to ue them:
+
+- contentType : "Line" | "Url" | "Text" | "ClickableType" | "AionPoint"
+- payload
+    [contentType]     -> [payload]
+    "Line"            -> "" # empty string, the description is the payload
+    "Url"             -> String
+    "Text"            -> String # reference to a blob
+    "ClickableType"   -> <nhash>|<dottedExtension>
+    "AionPoint"       -> <nhash>

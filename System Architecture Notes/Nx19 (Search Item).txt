@@ -1,16 +1,6 @@
 Nx19
 {
     "announce" : String
-    "type"     : "NxListing"
-    "payload"  : NxListing
-}
-{
-    "announce" : String
-    "type"     : "Nx27"
-    "payload"  : Nx27
-}
-{
-    "announce" : String
-    "type"     : "GalaxyLocation"
-    "payload"  : String, FS Location
+    "type"     : String
+    "payload"  : value
 }
