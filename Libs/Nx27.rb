@@ -236,7 +236,7 @@ class Nx27
         if type == "text" then
             nhash1 = nx27["nhash"]
             text1 = BinaryBlobsService::getBlobOrNull(nhash1)
-            text2 = Utils::editTextSynchronously(nx27["url"])
+            text2 = Utils::editTextSynchronously(text1)
             if text1 != text2 then
                 nhash2 = BinaryBlobsService::putBlob(text2)
                 Nx27::updatePayload1(nx27["uuid"], nhash2)
