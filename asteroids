@@ -1,0 +1,97 @@
+#!/usr/bin/ruby
+
+# encoding: utf-8
+
+# --------------------------------------------
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "1ac4eb69"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv('oldname', 'newname')
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'json'
+
+require 'date'
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
+=begin
+
+    KeyValueStore::set(repositorypath or nil, key, value)
+    KeyValueStore::getOrNull(repositorypath or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorypath or nil, key)
+
+=end
+
+require 'sqlite3'
+
+# -------------------------------------------------------
+
+class Asteroids
+
+    # Asteroids::databaseFilepath()
+    def self.databaseFilepath()
+        "/Users/pascal/Galaxy/DataBank/Nyx/asteroids.sqlite3"
+    end
+
+    # Asteroids::insertNewAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
+    def self.insertNewAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
+        db = SQLite3::Database.new(Asteroids::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "insert into _asteroids_ (_recordId_, _asteroidId_, _nyxId_, _location_, _lastLocationConfirmationUnixtime_) values (?, ?, ?, ?, ?)", [recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime]
+        db.close
+    end
+
+    # Asteroids::updateAsteroidLocation(asteroidId, location, lastLocationConfirmationUnixtime)
+    def self.updateAsteroidLocation(asteroidId, location, lastLocationConfirmationUnixtime)
+        db = SQLite3::Database.new(Asteroids::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "update _asteroids_ set _location_=?, _lastLocationConfirmationUnixtime_=? where _asteroidId_=?", [location, lastLocationConfirmationUnixtime, asteroidId]
+        db.close
+    end
+end
+
+# -------------------------------------------------------
+
+if ARGV[0] == 'make' then
+    recordId = SecureRandom.uuid
+    nyxId = LucilleCore::askQuestionAnswerAsString("nyxId: ")
+    instanceId = LucilleCore::askQuestionAnswerAsString("instanceId: ")
+    asteroidId = "asteroid|#{nyxId}|#{instanceId}"
+    location = LucilleCore::askQuestionAnswerAsString("location (empty for nothing): ")
+    lastLocationConfirmationUnixtime = Time.new.to_i
+    Asteroids::insertNewAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
+    exit
+end
+
+if ARGV[0] == 'update-location' and ARGV[1] and ARGV[2] then
+    asteroidId = ARGV[1]
+    location = ARGV[2]
+    raise "error, ecb9f13e-29a9-4934-b9f4-139d64c8db78, #{asteroidId}, #{location}" if !File.exists?(location)
+    Asteroids::updateAsteroidLocation(asteroidId, location, Time.new.to_i)
+    exit
+end
+
+# -------------------------------------------------------
+
+puts "asteroids usage:"
+puts "    asteroids make"
+puts "    asteroids update-location <asteroidId> <location>"
+
