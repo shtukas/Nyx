@@ -49,11 +49,12 @@ class Asteroids
         "/Users/pascal/Galaxy/DataBank/Nyx/asteroids.sqlite3"
     end
 
-    # Asteroids::insertNewAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
-    def self.insertNewAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
+    # Asteroids::setAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
+    def self.setAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
         db = SQLite3::Database.new(Asteroids::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
+        db.execute "delete from _asteroids_ where _asteroidId_=?", [asteroidId]
         db.execute "insert into _asteroids_ (_recordId_, _asteroidId_, _nyxId_, _location_, _lastLocationConfirmationUnixtime_) values (?, ?, ?, ?, ?)", [recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime]
         db.close
     end
@@ -66,9 +67,57 @@ class Asteroids
         db.execute "update _asteroids_ set _location_=?, _lastLocationConfirmationUnixtime_=? where _asteroidId_=?", [location, lastLocationConfirmationUnixtime, asteroidId]
         db.close
     end
+
+    # Asteroids::extractAsteroidIdsOrNull(filename)
+    def self.extractAsteroidIdsOrNull(filename)
+        loop {
+            return nil if filename == "" 
+            if filename[0, 9] == "asteroid|" then
+                break
+            end
+            filename = filename[1, filename.length]
+        }
+
+        # At this point filename is "asteroid|..."
+
+        filename = filename[9, filename.length]
+
+        nyxId = ""
+
+        loop {
+            return nil if filename == "" 
+            break if filename[0, 1] == "|"
+            nyxId = nyxId + filename[0, 1]
+            filename = filename[1, filename.length]
+        }
+
+        return nil if nyxId == ""
+
+        # At this point filename is "|..."
+
+        filename = filename[1, filename.length]
+
+        instanceId = ""
+
+        loop {
+            break if filename == ""
+            break if filename[0, 1] == " "
+            break if filename[0, 1] == ")"
+            instanceId = instanceId + filename[0, 1]
+            filename = filename[1, filename.length]
+        }
+
+        return nil if instanceId == ""
+
+        [nyxId, "asteroid|#{nyxId}|#{instanceId}"]
+    end
+
 end
 
 # -------------------------------------------------------
+
+raise "b9c75def-3b91-4291-bd7b-1f8aaf72cacd" if (Asteroids::extractAsteroidIdsOrNull("something else asteroid|40b8dc12-aea6|68be3e9952fc something")[1] != "asteroid|40b8dc12-aea6|68be3e9952fc")
+raise "460fdd20-2ab0-41af-92c5-a081bcd84a50" if (Asteroids::extractAsteroidIdsOrNull("something else (asteroid|40b8dc12-aea6|68be3e9952fc) something")[1] != "asteroid|40b8dc12-aea6|68be3e9952fc")
 
 if ARGV[0] == 'make' then
     recordId = SecureRandom.uuid
@@ -77,7 +126,7 @@ if ARGV[0] == 'make' then
     asteroidId = "asteroid|#{nyxId}|#{instanceId}"
     location = LucilleCore::askQuestionAnswerAsString("location (empty for nothing): ")
     lastLocationConfirmationUnixtime = Time.new.to_i
-    Asteroids::insertNewAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
+    Asteroids::setAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
     exit
 end
 
@@ -89,9 +138,20 @@ if ARGV[0] == 'update-location' and ARGV[1] and ARGV[2] then
     exit
 end
 
+if ARGV[0] == "scan" then
+    Find.find("/Users/pascal/Galaxy") do |path|
+        asteroidIds = Asteroids::extractAsteroidIdsOrNull(File.basename(path))
+        next if asteroidIds.nil?
+        nyxId, asteroidId = asteroidIds
+        Asteroids::setAsteroidRecords(SecureRandom.uuid, asteroidId, nyxId, path, Time.new.to_i)
+    end
+    exit
+end
+
 # -------------------------------------------------------
 
 puts "asteroids usage:"
 puts "    asteroids make"
 puts "    asteroids update-location <asteroidId> <location>"
+puts "    asteroids scan"
 
