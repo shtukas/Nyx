@@ -49,8 +49,8 @@ class Asteroids
         "/Users/pascal/Galaxy/DataBank/Nyx/asteroids.sqlite3"
     end
 
-    # Asteroids::setAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
-    def self.setAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
+    # Asteroids::setAsteroidRecord(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
+    def self.setAsteroidRecord(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
         db = SQLite3::Database.new(Asteroids::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -126,7 +126,7 @@ if ARGV[0] == 'make' then
     asteroidId = "asteroid|#{nyxId}|#{instanceId}"
     location = LucilleCore::askQuestionAnswerAsString("location (empty for nothing): ")
     lastLocationConfirmationUnixtime = Time.new.to_i
-    Asteroids::setAsteroidRecords(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
+    Asteroids::setAsteroidRecord(recordId, asteroidId, nyxId, location, lastLocationConfirmationUnixtime)
     exit
 end
 
@@ -143,7 +143,7 @@ if ARGV[0] == "scan" then
         asteroidIds = Asteroids::extractAsteroidIdsOrNull(File.basename(path))
         next if asteroidIds.nil?
         nyxId, asteroidId = asteroidIds
-        Asteroids::setAsteroidRecords(SecureRandom.uuid, asteroidId, nyxId, path, Time.new.to_i)
+        Asteroids::setAsteroidRecord(SecureRandom.uuid, asteroidId, nyxId, path, Time.new.to_i)
     end
     exit
 end
