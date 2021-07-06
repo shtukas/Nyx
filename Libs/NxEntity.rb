@@ -9,6 +9,8 @@ class NxEntity
         return entity if entity
         entity = Nx10::getNx10ByIdOrNull(uuid)
         return entity if entity
+        entity = Nx45::getNx45ByIdOrNull(uuid)
+        return entity if entity
         entity = NxTag::getTagByIdOrNull(uuid)
         return entity if entity
         entity = NxListing::getListingByIdOrNull(uuid)
@@ -31,6 +33,9 @@ class NxEntity
         end
         if entity["entityType"] == "Nx10" then
             return Nx10::toString(entity)
+        end
+        if entity["entityType"] == "Nx45" then
+            return Nx45::toString(entity)
         end
         if entity["entityType"] == "NxTag" then
             return NxTag::toString(entity)
@@ -61,6 +66,9 @@ class NxEntity
         if entity["entityType"] == "Nx10" then
             return Nx10::landing(entity)
         end
+        if entity["entityType"] == "Nx45" then
+            return Nx45::landing(entity)
+        end
         if entity["entityType"] == "NxTag" then
             return NxTag::landing(entity)
         end
@@ -86,6 +94,7 @@ class NxEntity
     def self.entities()
         Nx27::nx27s() + 
         Nx10::nx10s() + 
+        Nx45::nx45s() + 
         NxTag::nxTags() + 
         NxListing::nxListings() + 
         NxEvent::events() + 
