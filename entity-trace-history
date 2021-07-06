@@ -1,0 +1,124 @@
+#!/usr/bin/ruby
+
+# encoding: utf-8
+
+# --------------------------------------------
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "1ac4eb69"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'fileutils'
+# FileUtils.mkpath '/a/b/c'
+# FileUtils.cp(src, dst)
+# FileUtils.mv('oldname', 'newname')
+# FileUtils.rm(path_to_image)
+# FileUtils.rm_rf('dir/to/remove')
+
+require 'json'
+
+require 'date'
+
+require 'digest/sha1'
+# Digest::SHA1.hexdigest 'foo'
+# Digest::SHA1.file(myFile).hexdigest
+
+require 'find'
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
+
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
+=begin
+
+    KeyValueStore::set(repositorypath or nil, key, value)
+    KeyValueStore::getOrNull(repositorypath or nil, key)
+    KeyValueStore::getOrDefaultValue(repositorypath or nil, key, defaultValue)
+    KeyValueStore::destroy(repositorypath or nil, key)
+
+=end
+
+require 'sqlite3'
+
+# -------------------------------------------------------
+
+class EntityTraceHistory
+
+    # EntityTraceHistory::databaseFilepath()
+    def self.databaseFilepath()
+        "/Users/pascal/Galaxy/DataBank/Nyx/entity-trace-history.sqlite3"
+    end
+
+    # EntityTraceHistory::setRecord(recordId, entityId, trace, unixtime)
+    def self.setRecord(recordId, entityId, trace, unixtime)
+        db = SQLite3::Database.new(EntityTraceHistory::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "insert into _history_ (_recordId_, _entityId_, _trace_, _unixtime_) values (?, ?, ?, ?)", [recordId, entityId, trace, unixtime]
+        db.close
+    end
+
+    # EntityTraceHistory::getEntityRecordsInOrder(entityId)
+    def self.getEntityRecordsInOrder(entityId)
+        db = SQLite3::Database.new(EntityTraceHistory::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _history_ where _entityId_=? order by _unixtime_" , [entityId] ) do |row|
+            answer << {
+                "recordId" => row["_recordId_"],
+                "entityId" => row["_entityId_"],
+                "trace"    => row["_trace_"],
+                "unixtime" => row["_unixtime_"],
+            }
+        end
+        db.close
+        answer
+    end
+end
+
+# -------------------------------------------------------
+
+if ARGV[0] == 'insert' and ARGV[1] and ARGV[2] then
+    recordId = SecureRandom.uuid
+    entityId = ARGV[1]
+    trace    = ARGV[2]
+    EntityTraceHistory::setRecord(recordId, entityId, trace, Time.new.to_f)
+    exit
+end
+
+if ARGV[0] == 'entity-records' and ARGV[1] then
+    entityId = ARGV[1]
+    puts JSON.generate(EntityTraceHistory::getEntityRecordsInOrder(entityId))
+    exit
+end
+
+if ARGV[0] == 'in-upgradable-sequence' and ARGV[1] and ARGV[2] then
+    entityId1 = ARGV[1]
+    entityId2 = ARGV[2]
+    # prints "true\n" if the latest trace of Entity1 is a trace of Entity2 (that is not the last one)
+    # This means that Entity2 is ahead of time of Entity1 and that Entity1 can be upgraded to Entity2.
+    # Otherwise prints "false\n"
+    records1 = EntityTraceHistory::getEntityRecordsInOrder(entityId1)
+    if records1.empty? then
+        puts "false"
+        exit
+    end
+    entity1Latest = records1.last
+    records2 = EntityTraceHistory::getEntityRecordsInOrder(entityId2)
+    if records2.empty? then
+        puts "false"
+        exit
+    end
+    records2.pop
+    records2.include?(entity1Latest)
+    exit
+end
+
+# -------------------------------------------------------
+
+puts "entity-trace-history usage:"
+puts "    entity-trace-history insert <entityId> <trace>"
+puts "    entity-trace-history entity-records <entityId>"
+
