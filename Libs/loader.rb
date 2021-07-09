@@ -85,7 +85,7 @@ require_relative "Interpreting.rb"
 
 require_relative "Nx10.rb"
 require_relative "Nx27.rb"
-require_relative "Nx45-Asteroids.rb"
+require_relative "Nx45AstPointer.rb"
 require_relative "Nx102.rb"
 require_relative "NxEntity.rb"
 require_relative "NxEvent.rb"

@@ -90,18 +90,6 @@ class Nx27
         answer
     end
 
-    # Nx27::interactivelyCreateNewUrlOrNull()
-    def self.interactivelyCreateNewUrlOrNull()
-        uuid = SecureRandom.uuid
-        datetime = Time.new.utc.iso8601
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
-        return nil if url == ""
-        Nx27::insertNewNx27(uuid, datetime, "url", description, url)
-        Nx27::getNx27ByIdOrNull(uuid)
-    end
-
     # Nx27::interactivelyCreateNewTextOrNull()
     def self.interactivelyCreateNewTextOrNull()
         uuid = SecureRandom.uuid
@@ -397,22 +385,12 @@ class Nx27
             .gsub("'", "-")
     end
 
-    # Nx27::asteroidExportFolder()
-    def self.asteroidExportFolder()
-        "/Users/pascal/Galaxy/Asteroid-Belt/2021/2021-07/urls"
-    end
-
     # Nx27::exportAsAsteroid(nx27, description, asteroidId, exportFolder)
     def self.exportAsAsteroid(nx27, description, asteroidId, exportFolder)
         if nx27["type"] == "url" then
-            contents = [
-                "[InternetShortcut]",
-                "URL=#{nx27["url"]}",
-                ""
-            ].join("\n")
             filename = "#{Nx27::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).url"
-            filepath = "#{Nx27::asteroidExportFolder()}/#{filename}"
-            File.open(filepath, "w"){|f| f.puts(contents) }
+            filepath = "#{Nx45AstPointer::asteroidExportFolder()}/#{filename}"
+            Nx45AstPointer::issueOSURLFile(filepath, nx27["url"])
             return
         end
         raise "dbfe8a4f-9787-4571-97b3-48864183e9ae: #{nx27}"

@@ -9,7 +9,7 @@ class NxEntity
         return entity if entity
         entity = Nx10::getNx10ByIdOrNull(uuid)
         return entity if entity
-        entity = Nx45::getNx45ByIdOrNull(uuid)
+        entity = Nx45AstPointer::getNx45ByIdOrNull(uuid)
         return entity if entity
         entity = NxTag::getTagByIdOrNull(uuid)
         return entity if entity
@@ -35,7 +35,7 @@ class NxEntity
             return Nx10::toString(entity)
         end
         if entity["entityType"] == "Nx45" then
-            return Nx45::toString(entity)
+            return Nx45AstPointer::toString(entity)
         end
         if entity["entityType"] == "NxTag" then
             return NxTag::toString(entity)
@@ -67,7 +67,7 @@ class NxEntity
             return Nx10::landing(entity)
         end
         if entity["entityType"] == "Nx45" then
-            return Nx45::landing(entity)
+            return Nx45AstPointer::landing(entity)
         end
         if entity["entityType"] == "NxTag" then
             return NxTag::landing(entity)
@@ -94,7 +94,7 @@ class NxEntity
     def self.entities()
         Nx27::nx27s() + 
         Nx10::nx10s() + 
-        Nx45::nx45s() + 
+        Nx45AstPointer::nx45s() + 
         NxTag::nxTags() + 
         NxListing::nxListings() + 
         NxEvent::events() + 
@@ -115,7 +115,7 @@ class NxEntity
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["url", "text", "aion-point", "unique-string", "node", "tag", "listing", "event", "timeline point"])
         return nil if type.nil?
         if type == "url" then
-            return Nx27::interactivelyCreateNewUrlOrNull()
+            return Nx45AstPointer::interactivelyCreateNewUrlOrNull()
         end
         if type == "text" then
             return Nx27::interactivelyCreateNewTextOrNull()

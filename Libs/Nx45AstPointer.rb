@@ -1,16 +1,16 @@
 
 # encoding: UTF-8
 
-class Nx45
+class Nx45AstPointer
 
-    # Nx45::databaseFilepath()
+    # Nx45AstPointer::databaseFilepath()
     def self.databaseFilepath()
         "#{Config::nyxFolderPath()}/nx45s-asteroids.sqlite3"
     end
 
-    # Nx45::insertNewNx45(uuid, datetime, asteroidId, description)
+    # Nx45AstPointer::insertNewNx45(uuid, datetime, asteroidId, description)
     def self.insertNewNx45(uuid, datetime, asteroidId, description)
-        db = SQLite3::Database.new(Nx45::databaseFilepath())
+        db = SQLite3::Database.new(Nx45AstPointer::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _nx45s_ where _uuid_=?", [uuid]
@@ -19,18 +19,18 @@ class Nx45
         db.close
     end
 
-    # Nx45::destroyNx45(uuid)
+    # Nx45AstPointer::destroyNx45(uuid)
     def self.destroyNx45(uuid)
-        db = SQLite3::Database.new(Nx45::databaseFilepath())
+        db = SQLite3::Database.new(Nx45AstPointer::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _nx45s_ where _uuid_=?", [uuid]
         db.close
     end
 
-    # Nx45::getNx45ByIdOrNull(id): null or Nx45
+    # Nx45AstPointer::getNx45ByIdOrNull(id): null or Nx45
     def self.getNx45ByIdOrNull(id)
-        db = SQLite3::Database.new(Nx45::databaseFilepath())
+        db = SQLite3::Database.new(Nx45AstPointer::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -48,9 +48,9 @@ class Nx45
         answer
     end
 
-    # Nx45::getNx45ByAsteroidIdOrNull(asteroidId): null or Nx45
+    # Nx45AstPointer::getNx45ByAsteroidIdOrNull(asteroidId): null or Nx45
     def self.getNx45ByAsteroidIdOrNull(asteroidId)
-        db = SQLite3::Database.new(Nx45::databaseFilepath())
+        db = SQLite3::Database.new(Nx45AstPointer::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -68,18 +68,18 @@ class Nx45
         answer
     end
 
-    # Nx45::updateDescription(uuid, description)
+    # Nx45AstPointer::updateDescription(uuid, description)
     def self.updateDescription(uuid, description)
-        db = SQLite3::Database.new(Nx45::databaseFilepath())
+        db = SQLite3::Database.new(Nx45AstPointer::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "update _nx45s_ set _description_=? where _uuid_=?", [description, uuid]
         db.close
     end
 
-    # Nx45::nx45s(): Array[Nx45]
+    # Nx45AstPointer::nx45s(): Array[Nx45]
     def self.nx45s()
-        db = SQLite3::Database.new(Nx45::databaseFilepath())
+        db = SQLite3::Database.new(Nx45AstPointer::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -97,42 +97,82 @@ class Nx45
         answer
     end
 
-    # Nx45::interactivelyCreateNewNx45OrNull()
+    # Nx45AstPointer::interactivelyCreateNewNx45OrNull()
     def self.interactivelyCreateNewNx45OrNull()
-        puts "Nx45::interactivelyCreateNewNx45OrNull() is not implemented yet"
+        puts "Nx45AstPointer::interactivelyCreateNewNx45OrNull() is not implemented yet"
         LucilleCore::pressEnterToContinue()
         nil
     end
 
     # ----------------------------------------------------------------------
 
-    # Nx45::toString(nx45)
+    # Nx45AstPointer::asteroidExportFolder()
+    def self.asteroidExportFolder()
+        "/Users/pascal/Galaxy/Asteroid-Belt/2021/2021-07/urls"
+    end
+
+    # Nx45AstPointer::issueOSURLFile(filepath, url)
+    def self.issueOSURLFile(filepath, url)
+        contents = [
+            "[InternetShortcut]",
+            "URL=#{nx27["url"]}",
+            ""
+        ].join("\n")
+        File.open(filepath, "w"){|f| f.puts(contents) }
+    end
+
+    # Nx45AstPointer::interactivelyCreateNewUrlOrNull()
+    def self.interactivelyCreateNewUrlOrNull()
+
+        uuid = SecureRandom.uuid
+
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+
+        url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
+        return nil if url == ""
+
+        primaryId = SecureRandom.uuid
+        instanceId = SecureRandom.hex[0, 8]
+        asteroidId = "asteroid|#{primaryId}|#{instanceId}"
+
+        filename = "#{Nx27::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).url"
+        filepath = "#{Nx45AstPointer::asteroidExportFolder()}/#{filename}"
+        Nx45AstPointer::issueOSURLFile(filepath, url)
+
+        Nx45AstPointer::insertNewNx45(uuid, Time.new.utc.iso8601, asteroidId, description)
+        Nx45AstPointer::getNx45ByIdOrNull(uuid)
+    end
+
+    # ----------------------------------------------------------------------
+
+    # Nx45AstPointer::toString(nx45)
     def self.toString(nx45)
         "[asteroid] #{nx45["description"]}"
     end
 
-    # Nx45::selectOneNx45OrNull()
+    # Nx45AstPointer::selectOneNx45OrNull()
     def self.selectOneNx45OrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Nx45::nx45s(), lambda{|nx45| Nx45::toString(nx45) })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Nx45AstPointer::nx45s(), lambda{|nx45| Nx45AstPointer::toString(nx45) })
     end
 
-    # Nx45::architectOneNx45OrNull()
+    # Nx45AstPointer::architectOneNx45OrNull()
     def self.architectOneNx45OrNull()
-        # nx45 = Nx45::selectOneNx45OrNull()
+        # nx45 = Nx45AstPointer::selectOneNx45OrNull()
         #return nx45 if nx45
-        puts "Nx45::architectOneNx45OrNull() has not been implemented yet"
+        puts "Nx45AstPointer::architectOneNx45OrNull() has not been implemented yet"
         LucilleCore::pressEnterToContinue()
         nil
     end
 
-    # Nx45::landing(nx45)
+    # Nx45AstPointer::landing(nx45)
     def self.landing(nx45)
         loop {
-            nx45 = Nx45::getNx45ByIdOrNull(nx45["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            nx45 = Nx45AstPointer::getNx45ByIdOrNull(nx45["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if nx45.nil?
             system("clear")
 
-            puts Nx45::toString(nx45).green
+            puts Nx45AstPointer::toString(nx45).green
             puts ""
 
             entities = Links::entities(nx45["uuid"])
@@ -158,7 +198,7 @@ class Nx45
             if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(nx45["description"]).strip
                 return if description == ""
-                Nx45::updateDescription(nx45["uuid"], description)
+                Nx45AstPointer::updateDescription(nx45["uuid"], description)
             end
 
             if Interpreting::match("connect", command) then
@@ -171,18 +211,18 @@ class Nx45
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
-                    Nx45::destroyNx45(nx45["uuid"])
+                    Nx45AstPointer::destroyNx45(nx45["uuid"])
                 end
             end
         }
     end
 
-    # Nx45::nx19s()
+    # Nx45AstPointer::nx19s()
     def self.nx19s()
-        Nx45::nx45s().map{|nx45|
+        Nx45AstPointer::nx45s().map{|nx45|
             volatileuuid = SecureRandom.hex[0, 8]
             {
-                "announce" => "#{volatileuuid} #{Nx45::toString(nx45)}",
+                "announce" => "#{volatileuuid} #{Nx45AstPointer::toString(nx45)}",
                 "type"     => "Nx45",
                 "payload"  => nx45
             }
