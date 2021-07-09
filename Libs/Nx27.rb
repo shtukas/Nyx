@@ -403,4 +403,37 @@ class Nx27
             }
         }
     end
+
+    # ----------------------------------------------------------------------
+    # Asteroid export
+
+    # Nx27::sanitizeDescriptionForUseAsFilename(description)
+    def self.sanitizeDescriptionForUseAsFilename(description)
+        description
+            .gsub(":", "-")
+            .gsub("/", "-")
+            .gsub("'", "-")
+    end
+
+    # Nx27::asteroidExportFolder()
+    def self.asteroidExportFolder()
+        "/Users/pascal/Galaxy/Asteroid-Belt/2021/2021-07/urls"
+    end
+
+    # Nx27::exportAsAsteroid(nx27, description, asteroidId, exportFolder)
+    def self.exportAsAsteroid(nx27, description, asteroidId, exportFolder)
+        if nx27["type"] == "url" then
+            contents = [
+                "[InternetShortcut]",
+                "URL=#{nx27["url"]}",
+                ""
+            ].join("\n")
+            filename = "#{Nx27::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).url"
+            filepath = "#{Nx27::asteroidExportFolder()}/#{filename}"
+            File.open(filepath, "w"){|f| f.puts(contents) }
+            return
+        end
+        raise "dbfe8a4f-9787-4571-97b3-48864183e9ae: #{nx27}"
+    end
+
 end
