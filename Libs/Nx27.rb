@@ -142,24 +142,6 @@ class Nx27
         Nx27::getNx27ByIdOrNull(uuid)
     end
 
-    # Nx27::interactivelyCreateNewNx27OrNull()
-    def self.interactivelyCreateNewNx27OrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx27::types())
-        return nil if type.nil?
-        if type == "url" then
-            return Nx27::interactivelyCreateNewUrlOrNull()
-        end
-        if type == "text" then
-            return Nx27::interactivelyCreateNewTextOrNull()
-        end
-        if type == "aion-point" then
-            return Nx27::interactivelyCreateNewAionPointOrNull()
-        end
-        if type == "unique-string" then
-            return Nx27::interactivelyCreateNewUniqueStringOrNull()
-        end
-    end
-
     # Nx27::nx27s(): Array[Nx27]
     def self.nx27s()
         db = SQLite3::Database.new(Nx27::databaseFilepath())
