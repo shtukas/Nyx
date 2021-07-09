@@ -129,6 +129,13 @@ class Nx45AstPointer
         File.open(filepath, "w"){|f| f.puts(contents) }
     end
 
+    # Nx45AstPointer::issueNewAsteroidId()
+    def self.issueNewAsteroidId()
+        primaryId = SecureRandom.uuid
+        instanceId = SecureRandom.hex[0, 8]
+        "asteroid|#{primaryId}|#{instanceId}"
+    end
+
     # Nx45AstPointer::interactivelyCreateNewUrlOrNull()
     def self.interactivelyCreateNewUrlOrNull()
 
@@ -140,9 +147,7 @@ class Nx45AstPointer
         url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
         return nil if url == ""
 
-        primaryId = SecureRandom.uuid
-        instanceId = SecureRandom.hex[0, 8]
-        asteroidId = "asteroid|#{primaryId}|#{instanceId}"
+        asteroidId = Nx45AstPointer::issueNewAsteroidId()
 
         filename = "#{Nx45AstPointer::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).url"
         filepath = "#{Nx45AstPointer::asteroidExportFolder()}/#{filename}"
@@ -162,9 +167,7 @@ class Nx45AstPointer
         text = Utils::editTextSynchronously("")
         return nil if text == ""
 
-        primaryId = SecureRandom.uuid
-        instanceId = SecureRandom.hex[0, 8]
-        asteroidId = "asteroid|#{primaryId}|#{instanceId}"
+        asteroidId = Nx45AstPointer::issueNewAsteroidId()
 
         filename = "#{Nx45AstPointer::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).txt"
         filepath = "#{Nx45AstPointer::asteroidExportFolder()}/#{filename}"
@@ -187,12 +190,11 @@ class Nx45AstPointer
         location = "/Users/pascal/Desktop/#{filename}"
         return nil if !File.exists?(location)
 
-        primaryId = SecureRandom.uuid
-        instanceId = SecureRandom.hex[0, 8]
-        asteroidId = "asteroid|#{primaryId}|#{instanceId}"
+        asteroidId = Nx45AstPointer::issueNewAsteroidId()
 
         name2 = "#{Nx45AstPointer::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId})"
         path2 = "#{Nx45AstPointer::asteroidExportFolder()}/#{name2}"
+        FileUtils.mkpath(path2)
 
         LucilleCore::copyFileSystemLocation(location, path2)
 
