@@ -106,9 +106,17 @@ class Nx45AstPointer
 
     # ----------------------------------------------------------------------
 
+    # Nx45AstPointer::sanitizeDescriptionForUseAsFilename(description)
+    def self.sanitizeDescriptionForUseAsFilename(description)
+        description
+            .gsub(":", "-")
+            .gsub("/", "-")
+            .gsub("'", "-")
+    end
+
     # Nx45AstPointer::asteroidExportFolder()
     def self.asteroidExportFolder()
-        "/Users/pascal/Galaxy/Asteroid-Belt/2021/2021-07/urls"
+        "/Users/pascal/Galaxy/Asteroid-Belt/2021/2021-06/aion-point"
     end
 
     # Nx45AstPointer::issueOSURLFile(filepath, url)
@@ -136,9 +144,57 @@ class Nx45AstPointer
         instanceId = SecureRandom.hex[0, 8]
         asteroidId = "asteroid|#{primaryId}|#{instanceId}"
 
-        filename = "#{Nx27::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).url"
+        filename = "#{Nx45AstPointer::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).url"
         filepath = "#{Nx45AstPointer::asteroidExportFolder()}/#{filename}"
         Nx45AstPointer::issueOSURLFile(filepath, url)
+
+        Nx45AstPointer::insertNewNx45(uuid, Time.new.utc.iso8601, asteroidId, description)
+        Nx45AstPointer::getNx45ByIdOrNull(uuid)
+    end
+
+    # Nx45AstPointer::interactivelyCreateNewTextOrNull()
+    def self.interactivelyCreateNewTextOrNull()
+
+        uuid = SecureRandom.uuid
+
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        text = Utils::editTextSynchronously("")
+        return nil if text == ""
+
+        primaryId = SecureRandom.uuid
+        instanceId = SecureRandom.hex[0, 8]
+        asteroidId = "asteroid|#{primaryId}|#{instanceId}"
+
+        filename = "#{Nx45AstPointer::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).txt"
+        filepath = "#{Nx45AstPointer::asteroidExportFolder()}/#{filename}"
+        File.open(filepath, "w") {|f| f.puts(text) }
+
+        Nx45AstPointer::insertNewNx45(uuid, Time.new.utc.iso8601, asteroidId, description)
+        Nx45AstPointer::getNx45ByIdOrNull(uuid)
+    end
+
+    # Nx45AstPointer::interactivelyCreateNewAionPointOrNull()
+    def self.interactivelyCreateNewAionPointOrNull()
+
+        uuid = SecureRandom.uuid
+
+        datetime = Time.new.utc.iso8601
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        filename = LucilleCore::askQuestionAnswerAsString("filename on Desktop (empty to abort) : ")
+        return nil if filename == ""
+        location = "/Users/pascal/Desktop/#{filename}"
+        return nil if !File.exists?(location)
+
+        primaryId = SecureRandom.uuid
+        instanceId = SecureRandom.hex[0, 8]
+        asteroidId = "asteroid|#{primaryId}|#{instanceId}"
+
+        name2 = "#{Nx45AstPointer::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId})"
+        path2 = "#{Nx45AstPointer::asteroidExportFolder()}/#{name2}"
+
+        LucilleCore::copyFileSystemLocation(location, path2)
 
         Nx45AstPointer::insertNewNx45(uuid, Time.new.utc.iso8601, asteroidId, description)
         Nx45AstPointer::getNx45ByIdOrNull(uuid)

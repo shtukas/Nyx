@@ -14,22 +14,6 @@ Nx27 (Data Carrier)
     "uuid"         : String
     "entityType"   : "Nx27"
     "datetime"     : DateTime Iso 8601 UTC Zulu
-    "type"         : "url"
-    "description"  : String
-    "url"          : String # payload1, the url
-}
-{
-    "uuid"         : String
-    "entityType"   : "Nx27"
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "type"         : "text"
-    "description"  : String
-    "nhash"        : String # payload1, text is stored in the Binary Blobs Service
-}
-{
-    "uuid"         : String
-    "entityType"   : "Nx27"
-    "datetime"     : DateTime Iso 8601 UTC Zulu
     "type"         : "aion-point"
     "description"  : String
     "nhash"        : String # payload1, nhash is the root of an Aion Point

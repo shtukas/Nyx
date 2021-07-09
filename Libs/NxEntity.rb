@@ -118,10 +118,10 @@ class NxEntity
             return Nx45AstPointer::interactivelyCreateNewUrlOrNull()
         end
         if type == "text" then
-            return Nx27::interactivelyCreateNewTextOrNull()
+            return Nx45AstPointer::interactivelyCreateNewTextOrNull()
         end
         if type == "aion-point" then
-            return Nx27::interactivelyCreateNewAionPointOrNull()
+            return Nx45AstPointer::interactivelyCreateNewAionPointOrNull()
         end
         if type == "unique-string" then
             return Nx27::interactivelyCreateNewUniqueStringOrNull()

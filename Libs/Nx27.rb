@@ -5,7 +5,7 @@ class Nx27
 
     # Nx27::types()
     def self.types()
-        ["url", "text", "aion-point", "unique-string"]
+        ["aion-point", "unique-string"]
     end
 
     # Nx27::databaseFilepath()
@@ -90,34 +90,6 @@ class Nx27
         answer
     end
 
-    # Nx27::interactivelyCreateNewTextOrNull()
-    def self.interactivelyCreateNewTextOrNull()
-        uuid = SecureRandom.uuid
-        datetime = Time.new.utc.iso8601
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        text = Utils::editTextSynchronously("")
-        return nil if text == ""
-        nhash = BinaryBlobsService::putBlob(text)
-        Nx27::insertNewNx27(uuid, datetime, "text", description, nhash)
-        Nx27::getNx27ByIdOrNull(uuid)
-    end
-
-    # Nx27::interactivelyCreateNewAionPointOrNull()
-    def self.interactivelyCreateNewAionPointOrNull()
-        uuid = SecureRandom.uuid
-        datetime = Time.new.utc.iso8601
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        filename = LucilleCore::askQuestionAnswerAsString("filename on Desktop (empty to abort) : ")
-        return nil if filename == ""
-        location = "/Users/pascal/Desktop/#{filename}"
-        return nil if !File.exists?(location)
-        nhash = AionCore::commitLocationReturnHash(Elizabeth.new(), location)
-        Nx27::insertNewNx27(uuid, datetime, "aion-point", description, nhash)
-        Nx27::getNx27ByIdOrNull(uuid)
-    end
-
     # Nx27::interactivelyCreateNewUniqueStringOrNull()
     def self.interactivelyCreateNewUniqueStringOrNull()
         uuid = SecureRandom.uuid
@@ -198,18 +170,6 @@ class Nx27
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
                     Nx27::destroyNx27(nx27["uuid"])
                 end
-            end
-        end
-        if type == "url" then
-            system("open '#{nx27["url"]}'")
-        end
-        if type == "text" then
-            nhash1 = nx27["nhash"]
-            text1 = BinaryBlobsService::getBlobOrNull(nhash1)
-            text2 = Utils::editTextSynchronously(text1)
-            if text1 != text2 then
-                nhash2 = BinaryBlobsService::putBlob(text2)
-                Nx27::updatePayload1(nx27["uuid"], nhash2)
             end
         end
         if type == "aion-point" then
@@ -373,27 +333,4 @@ class Nx27
             }
         }
     end
-
-    # ----------------------------------------------------------------------
-    # Asteroid export
-
-    # Nx27::sanitizeDescriptionForUseAsFilename(description)
-    def self.sanitizeDescriptionForUseAsFilename(description)
-        description
-            .gsub(":", "-")
-            .gsub("/", "-")
-            .gsub("'", "-")
-    end
-
-    # Nx27::exportAsAsteroid(nx27, description, asteroidId, exportFolder)
-    def self.exportAsAsteroid(nx27, description, asteroidId, exportFolder)
-        if nx27["type"] == "url" then
-            filename = "#{Nx27::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).url"
-            filepath = "#{Nx45AstPointer::asteroidExportFolder()}/#{filename}"
-            Nx45AstPointer::issueOSURLFile(filepath, nx27["url"])
-            return
-        end
-        raise "dbfe8a4f-9787-4571-97b3-48864183e9ae: #{nx27}"
-    end
-
 end
