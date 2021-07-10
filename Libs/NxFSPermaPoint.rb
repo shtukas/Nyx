@@ -284,6 +284,7 @@ class NxFSPermaPoint
             system("clear")
 
             puts "#{NxFSPermaPoint::toString(point)} ( uuid: #{point["uuid"]} )".green
+            puts "location: #{point["location"]}".green
 
             entities = Links::entities(point["uuid"])
 
