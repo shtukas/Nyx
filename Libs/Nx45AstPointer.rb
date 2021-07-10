@@ -127,7 +127,7 @@ class Nx45AstPointer
     def self.issueOSURLFile(filepath, url)
         contents = [
             "[InternetShortcut]",
-            "URL=#{nx27["url"]}",
+            "URL=#{url}",
             ""
         ].join("\n")
         File.open(filepath, "w"){|f| f.puts(contents) }
@@ -272,7 +272,7 @@ class Nx45AstPointer
             end
 
             if Interpreting::match("destroy", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy asteroid reference ? : ") then
                     Nx45AstPointer::destroyNx45(nx45["uuid"])
                 end
             end
