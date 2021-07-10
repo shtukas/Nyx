@@ -9,7 +9,7 @@ class NxEntity
         return entity if entity
         entity = NxNode::getNx10ByIdOrNull(uuid)
         return entity if entity
-        entity = Nx45AstPointer::getNx45ByIdOrNull(uuid)
+        entity = NxAsteroid::getNx45ByIdOrNull(uuid)
         return entity if entity
         entity = NxTag::getTagByIdOrNull(uuid)
         return entity if entity
@@ -33,7 +33,7 @@ class NxEntity
             return NxNode::toString(entity)
         end
         if entity["entityType"] == "Nx45" then
-            return Nx45AstPointer::toString(entity)
+            return NxAsteroid::toString(entity)
         end
         if entity["entityType"] == "NxTag" then
             return NxTag::toString(entity)
@@ -62,7 +62,7 @@ class NxEntity
             return NxNode::landing(entity)
         end
         if entity["entityType"] == "Nx45" then
-            return Nx45AstPointer::landing(entity)
+            return NxAsteroid::landing(entity)
         end
         if entity["entityType"] == "NxTag" then
             return NxTag::landing(entity)
@@ -86,7 +86,7 @@ class NxEntity
     def self.entities()
         NxUniqueString::nx27s() + 
         NxNode::nx10s() + 
-        Nx45AstPointer::nx45s() + 
+        NxAsteroid::nx45s() + 
         NxTag::nxTags() + 
         NxListing::nxListings() + 
         NxEvent::events() + 
@@ -106,13 +106,13 @@ class NxEntity
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["url", "text", "aion-point", "unique-string", "node", "NxDirectory2", "tag", "listing", "event", "timeline point"])
         return nil if type.nil?
         if type == "url" then
-            return Nx45AstPointer::interactivelyCreateNewUrlOrNull()
+            return NxAsteroid::interactivelyCreateNewUrlOrNull()
         end
         if type == "text" then
-            return Nx45AstPointer::interactivelyCreateNewTextOrNull()
+            return NxAsteroid::interactivelyCreateNewTextOrNull()
         end
         if type == "aion-point" then
-            return Nx45AstPointer::interactivelyCreateNewAionPointOrNull()
+            return NxAsteroid::interactivelyCreateNewAionPointOrNull()
         end
         if type == "unique-string" then
             return NxUniqueString::interactivelyCreateNewUniqueStringOrNull()
