@@ -1,12 +1,9 @@
-
-nx45s-asteroids.sqlite3
-CREATE TABLE _nx45s_ (_uuid_ text, _datetime_ text, _asteroidId_ text, _description_ text);
-
-Nx45 (Asteroid)
+NxAsteroid
 {
-    "uuid"         : String
+    "uuid"         : String # Within Nyx that uuid is the asteroid primaryId
     "entityType"   : "Nx45"
     "datetime"     : DateTime Iso 8601 UTC Zulu
-    "asteroidId"   : String
-    "description"  : String
+    "primaryId"    : String
+    "instanceId"   : String
+    "location"     : String
 }

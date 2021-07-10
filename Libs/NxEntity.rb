@@ -9,7 +9,7 @@ class NxEntity
         return entity if entity
         entity = NxNode::getNx10ByIdOrNull(uuid)
         return entity if entity
-        entity = NxAsteroid::getNx45ByIdOrNull(uuid)
+        entity = NxAsteroid::getAsteroidByUUIDOrNull(uuid)
         return entity if entity
         entity = NxTag::getTagByIdOrNull(uuid)
         return entity if entity
