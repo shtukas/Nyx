@@ -7,6 +7,7 @@ class Search
     def self.nx19s()
         Nx27USR::nx19s() +
         Nx10Node::nx19s() +
+        NxDirectory2::nx19s() +
         NxTag::nx19s() +
         NxListing::nx19s() +
         NxEvent::nx19s() +
@@ -35,6 +36,10 @@ class Search
         end
         if mx19["type"] == "NxEvent" then
             NxEvent::landing(mx19["payload"])
+            return
+        end
+        if mx19["type"] == "NxDirectory2" then
+            NxDirectory2::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "NxSmartDirectory" then

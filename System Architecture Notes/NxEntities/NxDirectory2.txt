@@ -17,3 +17,21 @@ NxSmartDirectory {
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
 }
+
+# -----------------------------------
+
+NxDirectory2
+
+nx-directories-v2.sqlite3
+create table _directories_ (_directoryId_ text);
+
+The directory id is a unique string that is part of the name of a string. In fact NxDirectory2s are unique string referred directories of the file system with content highlights. 
+
+{
+    "uuid"        : String
+    "entityType"  : "NxDirectory2"
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+
+    "description" : String
+}
+

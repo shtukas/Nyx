@@ -17,6 +17,8 @@ class NxEntity
         return entity if entity
         entity = NxEvent::getNxEventByIdOrNull(uuid)
         return entity if entity
+        entity = NxDirectory2::directoryIdToNxDirectory2(uuid)
+        return entity if entity
         entity = NxSmartDirectory::getNxSmartDirectoryByIdOrNull(uuid)
         return entity if entity
         entity = NxFSPermaPoint::getPointByIdOrNull(uuid)
@@ -45,6 +47,9 @@ class NxEntity
         end
         if entity["entityType"] == "NxEvent" then
             return NxEvent::toString(entity)
+        end
+        if entity["entityType"] == "NxDirectory2" then
+            return NxDirectory2::toString(entity)
         end
         if entity["entityType"] == "NxSmartDirectory" then
             return NxSmartDirectory::toString(entity)
@@ -78,6 +83,9 @@ class NxEntity
         if entity["entityType"] == "NxEvent" then
             return NxEvent::landing(entity)
         end
+        if entity["entityType"] == "NxDirectory2" then
+            return NxDirectory2::landing(entity)
+        end
         if entity["entityType"] == "NxSmartDirectory" then
             return NxSmartDirectory::landing(entity)
         end
@@ -98,6 +106,7 @@ class NxEntity
         NxTag::nxTags() + 
         NxListing::nxListings() + 
         NxEvent::events() + 
+        NxDirectory2::directories() + 
         NxSmartDirectory::nxSmartDirectories() + 
         NxFSPermaPoint::getAll() +
         NxTimelinePoint::points()
@@ -112,7 +121,7 @@ class NxEntity
 
     # NxEntity::interactivelyCreateNewEntityOrNull()
     def self.interactivelyCreateNewEntityOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["url", "text", "aion-point", "unique-string", "node", "tag", "listing", "event", "timeline point"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("entity type", ["url", "text", "aion-point", "unique-string", "node", "NxDirectory2", "tag", "listing", "event", "timeline point"])
         return nil if type.nil?
         if type == "url" then
             return Nx45AstPointer::interactivelyCreateNewUrlOrNull()
@@ -128,6 +137,9 @@ class NxEntity
         end
         if type == "node" then
             return Nx10Node::interactivelyCreateNewNx10OrNull()
+        end
+        if type == "NxDirectory2" then
+            return NxDirectory2::interactivelyRegisterNewNxDirectoryOrNull()
         end
         if type == "tag" then
             return NxTag::interactivelyCreateNewNxTagOrNull()
