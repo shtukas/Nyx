@@ -5,6 +5,7 @@ class Search
 
     # Search::nx19s()
     def self.nx19s()
+        NxAsteroid::nx19s() +
         NxUniqueString::nx19s() +
         NxNode::nx19s() +
         NxDirectory2::nx19s() +
@@ -18,6 +19,10 @@ class Search
     def self.mx19Landing(mx19)
         if mx19["type"] == "Nx27" then
             NxUniqueString::landing(mx19["payload"])
+            return
+        end
+        if mx19["type"] == "Nx45" then
+            NxAsteroid::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "Nx10" then

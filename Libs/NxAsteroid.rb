@@ -11,9 +11,10 @@ NxAsteroid
     "uuid"         : String
     "entityType"   : "Nx45"
     "datetime"     : DateTime Iso 8601 UTC Zulu
+    "location"     : String
     "primaryId"    : String
     "instanceId"   : String
-    "location"     : String
+    "asteroidId"   : String
 }
 
 =end
@@ -42,9 +43,11 @@ class NxAsteroid
             "uuid"        => row["_primaryId_"],
             "entityType"  => "Nx45",
             "datetime"    => Time.at(row["_lastLocationConfirmationUnixtime_"]).utc.iso8601,
+            "location"    => row["_location_"],
             "primaryId"   => row["_primaryId_"],
             "instanceId"  => row["_instanceId_"],
-            "location"    => row["_location_"],
+            "asteroidId"  => "asteroid|#{row["_primaryId_"]}|#{row["_instanceId_"]}"
+
         }
     end
 
@@ -55,7 +58,7 @@ class NxAsteroid
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = nil
-        db.execute( "select * from _asteroids_ where _uuid_=?" , [uuid] ) do |row|
+        db.execute( "select * from _asteroids_ where _primaryId_=?" , [uuid] ) do |row|
             answer = NxAsteroid::databaseRowToNxAsteroid(row)
         end
         db.close
@@ -69,7 +72,7 @@ class NxAsteroid
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute( "select * from _nx45s_" , [] ) do |row|
+        db.execute( "select * from _asteroids_" , [] ) do |row|
             answer << NxAsteroid::databaseRowToNxAsteroid(row)
         end
         db.close
@@ -186,7 +189,16 @@ class NxAsteroid
 
     # NxAsteroid::toString(nx45)
     def self.toString(nx45)
-        "[asteroid] #{nx45["description"]}"
+        location = nx45["location"]
+        description = 
+            if File.exists?(location) then
+                File.basename(location)
+                    .gsub("(#{nx45["asteroidId"]})", "")
+                    .gsub("#{nx45["asteroidId"]}", "")
+            else
+                "file not found for asteroid #{nx45["primaryId"]}"
+            end
+        "[asteroid] #{description}"
     end
 
     # NxAsteroid::selectOneNx45OrNull()
@@ -213,7 +225,7 @@ class NxAsteroid
 
             puts ""
 
-            puts "connect | disconnect".yellow
+            puts "access | connect | disconnect".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -223,6 +235,16 @@ class NxAsteroid
                 entity = entities[indx]
                 next if entity.nil?
                 NxEntity::landing(entity)
+            end
+
+            if Interpreting::match("access", command) then
+                if File.exists?(nx45["location"]) then
+                    system("open '#{nx45["location"]}'")
+                else
+                    puts "Could not find location for asteroid: #{nx45["asteroidId"]}"
+                    puts "The latest known location (#{nx45["location"]}) does not exist"
+                    LucilleCore::pressEnterToContinue()
+                end
             end
 
             if Interpreting::match("connect", command) then
