@@ -83,8 +83,8 @@ require_relative "Galaxy.rb"
 
 require_relative "Interpreting.rb"
 
-require_relative "Nx10.rb"
-require_relative "Nx27.rb"
+require_relative "Nx10Node.rb"
+require_relative "Nx27USR.rb"
 require_relative "Nx45AstPointer.rb"
 require_relative "Nx102.rb"
 require_relative "NxEntity.rb"
