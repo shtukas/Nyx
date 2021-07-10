@@ -11,8 +11,6 @@ class Search
         NxTag::nx19s() +
         NxListing::nx19s() +
         NxEvent::nx19s() +
-        NxSmartDirectory::nx19s() +
-        NxFSPermaPoint::nx19s() +
         NxTimelinePoint::nx19s()
     end
 
@@ -40,14 +38,6 @@ class Search
         end
         if mx19["type"] == "NxDirectory2" then
             NxDirectory2::landing(mx19["payload"])
-            return
-        end
-        if mx19["type"] == "NxSmartDirectory" then
-            NxSmartDirectory::landing(mx19["payload"])
-            return
-        end
-        if mx19["type"] == "NxFSPermaPoint" then
-            NxFSPermaPoint::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "NxTimelinePoint" then

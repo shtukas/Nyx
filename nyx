@@ -6,15 +6,9 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-Thread.new {
-    sleep 10
-    NxSmartDirectory::smartDirectoriesImportScan(false)
-    NxFSPermaPoint::dataMaintenance()
-}
-
 def mainLoop()
     loop {
-        operations = ["search", "insert new entity", "timelime", "scan fs", "unique-string", "fsck"]
+        operations = ["search", "insert new entity", "timelime", "unique-string", "fsck"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return if operation.nil?
         if operation == "search" then
@@ -29,9 +23,6 @@ def mainLoop()
             point = NxTimelinePoint::selectOnePointOrNull()
             exit if point.nil?
             NxTimelinePoint::landing(point)
-        end
-        if operation == "scan fs" then
-            NxSmartDirectory::smartDirectoriesImportScan(true)
         end
         if operation == "unique-string" then
             puts SecureRandom.hex(6)

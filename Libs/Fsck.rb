@@ -36,10 +36,7 @@ class Fsck
         if object["entityType"] == "NxEvent" then
             return true
         end
-        if object["entityType"] == "NxSmartDirectory" then
-            return true
-        end
-        if object["entityType"] == "NxFSPermaPoint" then
+        if object["entityType"] == "NxDirectory2" then
             return true
         end
         if object["entityType"] == "NxTimelinePoint" then

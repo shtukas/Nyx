@@ -3,5 +3,5 @@ NxEntity common attributes
 
 NxEntity
     - uuid       : String
-    - entityType : "Nx27" | "NxListing" | "NxEvent" | "NxSmartDirectory" | "NxTag"
+    - entityType : String
     - datetime   : DateTime Iso 8601 UTC Zulu

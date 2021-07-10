@@ -19,10 +19,6 @@ class NxEntity
         return entity if entity
         entity = NxDirectory2::directoryIdToNxDirectory2(uuid)
         return entity if entity
-        entity = NxSmartDirectory::getNxSmartDirectoryByIdOrNull(uuid)
-        return entity if entity
-        entity = NxFSPermaPoint::getPointByIdOrNull(uuid)
-        return entity if entity
         entity = NxTimelinePoint::getNxTimelinePointByIdOrNull(uuid)
         return entity if entity
         nil
@@ -50,12 +46,6 @@ class NxEntity
         end
         if entity["entityType"] == "NxDirectory2" then
             return NxDirectory2::toString(entity)
-        end
-        if entity["entityType"] == "NxSmartDirectory" then
-            return NxSmartDirectory::toString(entity)
-        end
-        if entity["entityType"] == "NxFSPermaPoint" then
-            return NxFSPermaPoint::toString(entity)
         end
         if entity["entityType"] == "NxTimelinePoint" then
             return NxTimelinePoint::toString(entity)
@@ -86,12 +76,6 @@ class NxEntity
         if entity["entityType"] == "NxDirectory2" then
             return NxDirectory2::landing(entity)
         end
-        if entity["entityType"] == "NxSmartDirectory" then
-            return NxSmartDirectory::landing(entity)
-        end
-        if entity["entityType"] == "NxFSPermaPoint" then
-            return NxFSPermaPoint::landing(entity)
-        end
         if entity["entityType"] == "NxTimelinePoint" then
             return NxTimelinePoint::landing(entity)
         end
@@ -106,9 +90,7 @@ class NxEntity
         NxTag::nxTags() + 
         NxListing::nxListings() + 
         NxEvent::events() + 
-        NxDirectory2::directories() + 
-        NxSmartDirectory::nxSmartDirectories() + 
-        NxFSPermaPoint::getAll() +
+        NxDirectory2::directories() +
         NxTimelinePoint::points()
     end
 

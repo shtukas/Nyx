@@ -103,10 +103,7 @@ class NxDirectory2
 
             puts ""
 
-            #NxDirectory2::objToNxFSPermaPointsFromDisk(obj).each_with_index{|point, indx|
-            #    connected << point
-            #    puts "[#{indx}] #{NxFSPermaPoint::toString(point).gsub("[fs perma point]", "[fspp]")}"
-            #}
+
 
             puts ""
 

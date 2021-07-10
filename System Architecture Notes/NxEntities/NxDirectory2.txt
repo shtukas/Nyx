@@ -1,25 +1,4 @@
 
-smartdirectories1.sqlite3
-
-CREATE TABLE _smartdirectories1_ (_uuid_ text, _datetime_ text, _description_ text, _importId_ text);
-
-The _description_ is the filename at scan time. We cache it here for faster retrieval when building the dataset for search.
-
-The _importId_ is used by the routine that import smartfolders from disk for garbage collection.
-
-On the ground, smart directories are recognised by the fact that their name ends with '[s]'
-
-They are automatically given a file ".NxSD1-3945d937" containing a UUID, the one used for registration in the database table.
-
-NxSmartDirectory {
-    "uuid"        : String # The uuid is stored inside the .NxSD1-3945d937 in the directory.
-    "entityType"  : "NxSmartDirectory"
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-}
-
-# -----------------------------------
-
 NxDirectory2
 
 nx-directories-v2.sqlite3
