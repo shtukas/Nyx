@@ -3,6 +3,56 @@
 
 # create table _directories_ (_directoryId_ text);
 
+=begin
+
+NxDirectory2 {
+    "uuid"        : String
+    "entityType"  : "NxDirectory2"
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+
+    "description"   : String
+    "locationnames" : Array[String]
+}
+
+NxDirectoryElement
+{
+    "uuid"        : String
+    "entityType"  : "NxDirectoryElement"
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "parentuuid"  : String # uuid of the parent directory
+    "filename"    : String
+    "description" : String
+}
+
+=end
+
+class NxDirectoryElement
+    # NxDirectoryElement::landing(element)
+    def self.landing(element)
+        parent = NxDirectory2::getNxDirectory2ByIdOrNull(element["parentuuid"])
+        if parent.nil? then
+            puts "Attempting to display NxDirectoryElement #{element}, could not find parent directory (uuid: #{uuid})"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        location = Utils::locationByUniqueStringOrNull(element["parentuuid"])
+        if location.nil? then
+            puts "How did you manage to find parent #{parent}, but not its location? 🤔"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        elementlocation = "#{location}/#{element["filename"]}"
+        if !File.exists?(elementlocation) then
+            puts "Element location was determined to be (#{elementlocation}) but we could not find it on disk"
+            LucilleCore::pressEnterToContinue()
+            return 
+        end
+        puts "accessing: #{elementlocation}"
+        LucilleCore::pressEnterToContinue()
+        system("open '#{elementlocation}'")
+    end
+end
+
 class NxDirectory2
 
     # NxDirectory2::databaseFilepath()
@@ -26,6 +76,26 @@ class NxDirectory2
         db.busy_handler { |count| true }
         db.execute "delete from _directories_ where _directoryId_=?", [directoryId]
         db.close
+    end
+
+    # NxDirectory2::directoryIdToNxDirectory2OrNull(directoryId)
+    def self.directoryIdToNxDirectory2OrNull(directoryId)
+        location = Utils::locationByUniqueStringOrNull(directoryId)
+        if location.nil? then
+            puts "the directory #{directoryId} cannot be found in Galaxy, let's get rid of the record in Nyx"
+            LucilleCore::pressEnterToContinue()
+            NxDirectory2::delete(directoryId)
+            return nil
+        end
+        description = File.basename(location)
+        elements = Dir.entries(location).select{|filename| filename[0, 1] != "." }
+        {
+            "uuid"        => directoryId,
+            "entityType"  => "NxDirectory2",
+            "datetime"    => Time.new.utc.iso8601,
+            "description"   => description,
+            "locationnames" => elements
+        }
     end
 
     # NxDirectory2::directories(): Array[NxDirectory2]
@@ -57,24 +127,6 @@ class NxDirectory2
         NxDirectory2::directoryIdToNxDirectory2OrNull(directoryId)
     end
 
-    # NxDirectory2::directoryIdToNxDirectory2OrNull(directoryId)
-    def self.directoryIdToNxDirectory2OrNull(directoryId)
-        location = Utils::locationByUniqueStringOrNull(directoryId)
-        if location.nil? then
-            puts "the directory #{directoryId} cannot be found in Galaxy, let's get rid of the record in Nyx"
-            LucilleCore::pressEnterToContinue()
-            NxDirectory2::delete(directoryId)
-            return nil
-        end
-        description = File.basename(location)
-        {
-            "uuid"        => directoryId,
-            "entityType"  => "NxDirectory2",
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => description
-        }
-    end
-
     # NxDirectory2::interactivelyRegisterNewNxDirectoryOrNull()
     def self.interactivelyRegisterNewNxDirectoryOrNull()
         directoryId = LucilleCore::askQuestionAnswerAsString("directoryId (empty to abort): ")
@@ -95,32 +147,28 @@ class NxDirectory2
         Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NxDirectory2::directories(), lambda{|obj| obj["description"] })
     end
 
-    # NxDirectory2::landing(obj)
-    def self.landing(obj)
+    # NxDirectory2::landing(directory)
+    def self.landing(directory)
         loop {
-            obj = NxDirectory2::getNxDirectory2ByIdOrNull(obj["uuid"]) # Could have been destroyed or metadata updated in the previous loop
-            return if obj.nil?
+            directory = NxDirectory2::getNxDirectory2ByIdOrNull(directory["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            return if directory.nil?
             system("clear")
 
-            puts NxDirectory2::toString(obj).gsub("[smart directory]", "[smrd]").green
+            puts NxDirectory2::toString(directory).gsub("[smart directory]", "[smrd]").green
 
-            puts "uuid: #{obj["uuid"]}"
-            #puts "directory: #{NxDirectory2::getDirectoryFolderpathOrNull(obj["uuid"])}"
+            puts "uuid: #{directory["uuid"]}"
+            puts "directory: #{directory["location"]}"
 
             puts ""
 
             connected = []
 
-            Links::entities(obj["uuid"])
+            Links::entities(directory["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each_with_index{|entity, indx| 
                     connected << entity
                     puts "[#{indx}] [linked] #{NxEntity::toString(entity)}"
                 }
-
-            puts ""
-
-
 
             puts ""
 
@@ -137,25 +185,25 @@ class NxDirectory2
             end
 
             if Interpreting::match("access", command) then
-                folderpath = Utils::locationByUniqueStringOrNull(obj["uuid"])
+                folderpath = Utils::locationByUniqueStringOrNull(directory["uuid"])
                 if folderpath then
                     system("open '#{folderpath}'")
                 else
-                    puts "Interestingly I could not find the location for directory object #{obj}"
+                    puts "Interestingly I could not find the location for directory #{directory}"
                     LucilleCore::pressEnterToContinue()
                 end
             end
 
             if Interpreting::match("connect", command) then
-                NxEntity::linkToOtherArchitectured(obj)
+                NxEntity::linkToOtherArchitectured(directory)
             end
 
             if Interpreting::match("disconnect", command) then
-                NxEntity::unlinkFromOther(obj)
+                NxEntity::unlinkFromOther(directory)
             end
 
             if Interpreting::match("destroy", command) then
-                NxDirectory2::delete(object["uuid"])
+                NxDirectory2::delete(directory["uuid"])
             end
         }
     end
@@ -163,13 +211,31 @@ class NxDirectory2
     # NxDirectory2::nx19s()
     def self.nx19s()
         NxDirectory2::directories()
-            .map{|object|
+            .map{|directory|
                 volatileuuid = SecureRandom.hex[0, 8]
-                {
-                    "announce" => "#{volatileuuid} #{NxDirectory2::toString(object)}",
+                nx19 = {
+                    "announce" => "#{volatileuuid} #{NxDirectory2::toString(directory)}",
                     "type"     => "NxDirectory2",
-                    "payload"  => object
+                    "payload"  => directory
+                }
+
+                [nx19] + directory["locationnames"].map{|element|
+                    directoryElement = {
+                        "uuid"        => SecureRandom.hex,
+                        "entityType"  => "NxDirectoryElement",
+                        "datetime"    => Time.new.utc.iso8601,
+                        "parentuuid"  => directory["uuid"],
+                        "filename"    => element,
+                        "description" => element
+                    }
+                    volatileuuid = SecureRandom.hex[0, 8]
+                    {
+                        "announce" => "#{volatileuuid} #{NxDirectory2::toString(directory)} / #{directoryElement["description"]}",
+                        "type"     => "NxDirectoryElement",
+                        "payload"  => directoryElement
+                    }
                 }
             }
+            .flatten
     end
 end

@@ -6,11 +6,21 @@ create table _directories_ (_directoryId_ text);
 
 The directory id is a unique string that is part of the name of a string. In fact NxDirectory2s are unique string referred directories of the file system with content highlights. 
 
-{
+NxDirectory2 {
     "uuid"        : String
     "entityType"  : "NxDirectory2"
     "datetime"    : DateTime Iso 8601 UTC Zulu
 
-    "description" : String
+    "description"   : String
+    "locationnames" : Array[String]
 }
 
+NxDirectoryElement
+{
+    "uuid"        : String
+    "entityType"  : "NxDirectoryElement"
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "parentuuid"  : String # uuid of the parent directory
+    "filename"    : String
+    "description" : String
+}

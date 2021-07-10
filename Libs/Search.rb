@@ -45,6 +45,10 @@ class Search
             NxDirectory2::landing(mx19["payload"])
             return
         end
+        if mx19["type"] == "NxDirectoryElement" then
+            NxDirectoryElement::landing(mx19["payload"])
+            return
+        end
         if mx19["type"] == "NxTimelinePoint" then
             NxTimelinePoint::landing(mx19["payload"])
             return
