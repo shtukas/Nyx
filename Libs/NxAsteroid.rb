@@ -4,7 +4,7 @@
 =begin
 
 asteroids.sqlite3
-create table _asteroids_ (_recordId_ text, _primaryId_ text, _instanceId_ text, _location_ text, _lastLocationConfirmationUnixtime_ real);
+create table _asteroids_ (_primaryId_ text, _instanceId_ text, _location_ text, _lastLocationConfirmationUnixtime_ real);
 
 NxAsteroid
 {
@@ -26,14 +26,14 @@ class NxAsteroid
         "/Users/pascal/Galaxy/DataBank/Asteriods/asteroids.sqlite3"
     end
 
-    # NxAsteroid::setAsteroidRecord(recordId, primaryId, instanceId, location, lastLocationConfirmationUnixtime)
+    # NxAsteroid::setAsteroidRecord(primaryId, instanceId, location, lastLocationConfirmationUnixtime)
     # This function was taken from the Asteroid code
-    def self.setAsteroidRecord(recordId, primaryId, instanceId, location, lastLocationConfirmationUnixtime)
+    def self.setAsteroidRecord(primaryId, instanceId, location, lastLocationConfirmationUnixtime)
         db = SQLite3::Database.new(NxAsteroid::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _asteroids_ where _primaryId_=? and _instanceId_=?", [primaryId, instanceId]
-        db.execute "insert into _asteroids_ (_recordId_, _primaryId_, _instanceId_, _location_, _lastLocationConfirmationUnixtime_) values (?, ?, ?, ?, ?)", [recordId, primaryId, instanceId, location, lastLocationConfirmationUnixtime]
+        db.execute "insert into _asteroids_ (_primaryId_, _instanceId_, _location_, _lastLocationConfirmationUnixtime_) values (?, ?, ?, ?)", [primaryId, instanceId, location, lastLocationConfirmationUnixtime]
         db.close
     end
 
