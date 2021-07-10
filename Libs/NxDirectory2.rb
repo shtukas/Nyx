@@ -39,7 +39,7 @@ class NxDirectory2
             directoryIds << row["_directoryId_"]
         end
         db.close
-        directoryIds.map{|id| NxDirectory2::directoryIdToNxDirectory2(id) }
+        directoryIds.map{|id| NxDirectory2::directoryIdToNxDirectory2OrNull(id) }.compact
     end
 
     # NxDirectory2::getNxDirectory2ByIdOrNull(id): null or NxDirectory2
@@ -54,16 +54,24 @@ class NxDirectory2
         end
         db.close
         return nil if directoryId.nil?
-        NxDirectory2::directoryIdToNxDirectory2(directoryId)
+        NxDirectory2::directoryIdToNxDirectory2OrNull(directoryId)
     end
 
-    # NxDirectory2::directoryIdToNxDirectory2(directoryId)
-    def self.directoryIdToNxDirectory2(directoryId)
+    # NxDirectory2::directoryIdToNxDirectory2OrNull(directoryId)
+    def self.directoryIdToNxDirectory2OrNull(directoryId)
+        location = Utils::locationByUniqueStringOrNull(directoryId)
+        if location.nil? then
+            puts "the directory #{directoryId} cannot be found in Galaxy, let's get rid of the record in Nyx"
+            LucilleCore::pressEnterToContinue()
+            NxDirectory2::delete(directoryId)
+            return nil
+        end
+        description = File.basename(location)
         {
             "uuid"        => directoryId,
             "entityType"  => "NxDirectory2",
             "datetime"    => Time.new.utc.iso8601,
-            "description" => directoryId
+            "description" => description
         }
     end
 
@@ -116,7 +124,7 @@ class NxDirectory2
 
             puts ""
 
-            puts "connect | disconnect | destroy".yellow
+            puts "access | connect | disconnect | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -126,6 +134,16 @@ class NxDirectory2
                 entity = connected[indx]
                 next if entity.nil?
                 NxEntity::landing(entity)
+            end
+
+            if Interpreting::match("access", command) then
+                folderpath = Utils::locationByUniqueStringOrNull(obj["uuid"])
+                if folderpath then
+                    system("open '#{folderpath}'")
+                else
+                    puts "Interestingly I could not find the location for directory object #{obj}"
+                    LucilleCore::pressEnterToContinue()
+                end
             end
 
             if Interpreting::match("connect", command) then

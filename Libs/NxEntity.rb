@@ -17,7 +17,7 @@ class NxEntity
         return entity if entity
         entity = NxEvent::getNxEventByIdOrNull(uuid)
         return entity if entity
-        entity = NxDirectory2::directoryIdToNxDirectory2(uuid)
+        entity = NxDirectory2::directoryIdToNxDirectory2OrNull(uuid)
         return entity if entity
         entity = NxTimelinePoint::getNxTimelinePointByIdOrNull(uuid)
         return entity if entity
