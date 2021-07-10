@@ -137,7 +137,7 @@ class NxEvent
             if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(event["description"]).strip
                 return if description == ""
-                Nx10Node::updateDescription(event["uuid"], description)
+                NxNode::updateDescription(event["uuid"], description)
             end
 
             if Interpreting::match("connect", command) then
@@ -150,7 +150,7 @@ class NxEvent
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy listing ? : ") then
-                    Nx10Node::destroyNx10(event["uuid"])
+                    NxNode::destroyNx10(event["uuid"])
                 end
             end
         }

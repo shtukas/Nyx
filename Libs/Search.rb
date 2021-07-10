@@ -6,7 +6,7 @@ class Search
     # Search::nx19s()
     def self.nx19s()
         Nx27USR::nx19s() +
-        Nx10Node::nx19s() +
+        NxNode::nx19s() +
         NxDirectory2::nx19s() +
         NxTag::nx19s() +
         NxListing::nx19s() +
@@ -21,7 +21,7 @@ class Search
             return
         end
         if mx19["type"] == "Nx10" then
-            Nx10Node::landing(mx19["payload"])
+            NxNode::landing(mx19["payload"])
             return
         end
         if mx19["type"] == "NxTag" then

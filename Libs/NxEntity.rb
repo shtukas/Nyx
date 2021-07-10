@@ -7,7 +7,7 @@ class NxEntity
     def self.getEntityByIdOrNull(uuid)
         entity = Nx27USR::getNx27ByIdOrNull(uuid)
         return entity if entity
-        entity = Nx10Node::getNx10ByIdOrNull(uuid)
+        entity = NxNode::getNx10ByIdOrNull(uuid)
         return entity if entity
         entity = Nx45AstPointer::getNx45ByIdOrNull(uuid)
         return entity if entity
@@ -30,7 +30,7 @@ class NxEntity
             return Nx27USR::toString(entity)
         end
         if entity["entityType"] == "Nx10" then
-            return Nx10Node::toString(entity)
+            return NxNode::toString(entity)
         end
         if entity["entityType"] == "Nx45" then
             return Nx45AstPointer::toString(entity)
@@ -59,7 +59,7 @@ class NxEntity
             return Nx27USR::landing(entity)
         end
         if entity["entityType"] == "Nx10" then
-            return Nx10Node::landing(entity)
+            return NxNode::landing(entity)
         end
         if entity["entityType"] == "Nx45" then
             return Nx45AstPointer::landing(entity)
@@ -85,7 +85,7 @@ class NxEntity
     # NxEntity::entities()
     def self.entities()
         Nx27USR::nx27s() + 
-        Nx10Node::nx10s() + 
+        NxNode::nx10s() + 
         Nx45AstPointer::nx45s() + 
         NxTag::nxTags() + 
         NxListing::nxListings() + 
@@ -118,7 +118,7 @@ class NxEntity
             return Nx27USR::interactivelyCreateNewUniqueStringOrNull()
         end
         if type == "node" then
-            return Nx10Node::interactivelyCreateNewNx10OrNull()
+            return NxNode::interactivelyCreateNewNx10OrNull()
         end
         if type == "NxDirectory2" then
             return NxDirectory2::interactivelyRegisterNewNxDirectoryOrNull()
