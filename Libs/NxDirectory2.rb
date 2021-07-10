@@ -19,6 +19,15 @@ class NxDirectory2
         db.close
     end
 
+    # NxDirectory2::delete(directoryId)
+    def self.delete(directoryId)
+        db = SQLite3::Database.new(NxDirectory2::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _directories_ where _directoryId_=?", [directoryId]
+        db.close
+    end
+
     # NxDirectory2::directories(): Array[NxDirectory2]
     def self.directories()
         db = SQLite3::Database.new(NxDirectory2::databaseFilepath())
@@ -107,7 +116,7 @@ class NxDirectory2
 
             puts ""
 
-            puts "connect | disconnect".yellow
+            puts "connect | disconnect | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -125,6 +134,10 @@ class NxDirectory2
 
             if Interpreting::match("disconnect", command) then
                 NxEntity::unlinkFromOther(obj)
+            end
+
+            if Interpreting::match("destroy", command) then
+                NxDirectory2::delete(object["uuid"])
             end
         }
     end
