@@ -116,7 +116,11 @@ class Nx45AstPointer
 
     # Nx45AstPointer::asteroidExportFolder()
     def self.asteroidExportFolder()
-        "/Users/pascal/Galaxy/Asteroid-Belt/2021/2021-06/aion-point"
+        path = "/Users/pascal/Galaxy/Asteroid-Belt/#{Time.new.strftime("%Y")}/#{Time.new.strftime("%Y-%m")}"
+        if !File.exists?(path) then
+            FileUtils.mkpath(path)
+        end
+        path
     end
 
     # Nx45AstPointer::issueOSURLFile(filepath, url)
