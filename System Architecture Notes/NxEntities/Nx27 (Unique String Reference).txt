@@ -1,0 +1,11 @@
+
+CREATE TABLE _nx27s_ (_uuid_ text, _datetime_ text, _type_ text, _description_ text, _payload1_ text);
+
+Nx27 (Unique String Reference)
+{
+    "uuid"         : String
+    "entityType"   : "Nx27"
+    "datetime"     : DateTime Iso 8601 UTC Zulu
+    "description"  : String
+    "uniquestring" : String # payload1
+}
