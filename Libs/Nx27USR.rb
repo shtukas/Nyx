@@ -13,7 +13,7 @@ class Nx27USR
         db = SQLite3::Database.new(Nx27USR::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _nx27s_ (_uuid_, _datetime_, _type_, _description_, _payload1_) values (?,?,?,?,?)", [uuid, datetime, "", description, uniquestring]
+        db.execute "insert into _nx27s_ (_uuid_, _datetime_, _description_, _payload1_) values (?,?,?,?,?)", [uuid, datetime, description, uniquestring]
         db.close
     end
 
@@ -98,26 +98,23 @@ class Nx27USR
 
     # Nx27USR::toString(nx27)
     def self.toString(nx27)
-        "[data] #{nx27["description"]} {#{nx27["type"]}}"
+        "[ustr] #{nx27["description"]}"
     end
 
     # Nx27USR::access(nx27)
     def self.access(nx27)
-        type = nx27["type"]
-        if type == "unique-string" then
-            uniquestring = nx27["uniquestring"]
-            puts "Looking for location..."
-            location = Utils::locationByUniqueStringOrNull(uniquestring)
-            if location then
-                puts "location: #{location}"
-                if LucilleCore::askQuestionAnswerAsBoolean("access ? ") then
-                    system("open '#{location}'")
-                end
-            else
-                puts "I could not determine the location for uniquestring: '#{uniquestring}'"
-                if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    Nx27USR::destroyNx27(nx27["uuid"])
-                end
+        uniquestring = nx27["uniquestring"]
+        puts "Looking for location..."
+        location = Utils::locationByUniqueStringOrNull(uniquestring)
+        if location then
+            puts "location: #{location}"
+            if LucilleCore::askQuestionAnswerAsBoolean("access ? ") then
+                system("open '#{location}'")
+            end
+        else
+            puts "I could not determine the location for uniquestring: '#{uniquestring}'"
+            if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
+                Nx27USR::destroyNx27(nx27["uuid"])
             end
         end
     end
