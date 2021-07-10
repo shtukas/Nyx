@@ -117,7 +117,7 @@ class NxTag
 
             puts ""
 
-            puts "<index> | update description | destroy".yellow
+            puts "update description | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

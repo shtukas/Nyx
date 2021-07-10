@@ -145,7 +145,7 @@ class Nx27USR
 
             puts ""
 
-            puts "<index> | access | edit | update description | connect | disconnect | destroy".yellow
+            puts "access | edit | update description | connect | disconnect | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

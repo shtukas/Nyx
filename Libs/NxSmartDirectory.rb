@@ -163,7 +163,7 @@ class NxSmartDirectory
 
             puts ""
 
-            puts "<index> | connect | disconnect".yellow
+            puts "connect | disconnect".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
