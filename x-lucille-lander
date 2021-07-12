@@ -1,0 +1,13 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+exit if ARGV[0].nil?
+entityId = ARGV[0]
+entity = NxEntity::getEntityByIdOrNull(entityId)
+exit if entity.nil?
+NxEntity::landing(entity)

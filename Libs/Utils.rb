@@ -39,7 +39,7 @@ class Utils
 
     # Utils::locationByUniqueStringOrNull(uniquestring)
     def self.locationByUniqueStringOrNull(uniquestring)
-        location = `atlas locate '#{uniquestring}'`.strip
+        location = `atlas '#{uniquestring}'`.strip
         location.size > 0 ? location : nil
     end
 

@@ -13,7 +13,7 @@ class NxUniqueString
         db = SQLite3::Database.new(NxUniqueString::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _nx27s_ (_uuid_, _datetime_, _description_, _payload1_) values (?,?,?,?,?)", [uuid, datetime, description, uniquestring]
+        db.execute "insert into _nx27s_ (_uuid_, _datetime_, _description_, _payload1_) values (?,?,?,?)", [uuid, datetime, description, uniquestring]
         db.close
     end
 
