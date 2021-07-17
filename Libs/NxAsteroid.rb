@@ -1,24 +1,6 @@
 
 # encoding: UTF-8
 
-=begin
-
-asteroids.sqlite3
-create table _asteroids_ (_primaryId_ text, _instanceId_ text, _location_ text, _lastLocationConfirmationUnixtime_ real);
-
-NxAsteroid
-{
-    "uuid"         : String
-    "entityType"   : "Nx45"
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "location"     : String
-    "primaryId"    : String
-    "instanceId"   : String
-    "asteroidId"   : String
-}
-
-=end
-
 class NxAsteroid
 
     # NxAsteroid::databaseFilepath()
@@ -26,28 +8,24 @@ class NxAsteroid
         "/Users/pascal/Galaxy/DataBank/Asteriods/asteroids.sqlite3"
     end
 
-    # NxAsteroid::setAsteroidRecord(primaryId, instanceId, location, lastLocationConfirmationUnixtime)
     # This function was taken from the Asteroid code
-    def self.setAsteroidRecord(primaryId, instanceId, location, lastLocationConfirmationUnixtime)
+    # NxAsteroid::setAsteroidRecord(nyxId, location, unixtime)
+    def self.setAsteroidRecord(nyxId, location, unixtime)
         db = SQLite3::Database.new(NxAsteroid::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "delete from _asteroids_ where _primaryId_=? and _instanceId_=?", [primaryId, instanceId]
-        db.execute "insert into _asteroids_ (_primaryId_, _instanceId_, _location_, _lastLocationConfirmationUnixtime_) values (?, ?, ?, ?)", [primaryId, instanceId, location, lastLocationConfirmationUnixtime]
+        db.execute "delete from _asteroids_ where _nyxId_=? and _location_=?", [nyxId, location]
+        db.execute "insert into _asteroids_ (_nyxId_, _location_, _unixtime_) values (?, ?, ?)", [nyxId, location, unixtime]
         db.close
     end
 
     # NxAsteroid::databaseRowToNxAsteroid(row): NxAsteroid
     def self.databaseRowToNxAsteroid(row)
         {
-            "uuid"        => row["_primaryId_"],
+            "uuid"        => row["_nyxId_"],
             "entityType"  => "Nx45",
-            "datetime"    => Time.at(row["_lastLocationConfirmationUnixtime_"]).utc.iso8601,
-            "location"    => row["_location_"],
-            "primaryId"   => row["_primaryId_"],
-            "instanceId"  => row["_instanceId_"],
-            "asteroidId"  => "asteroid|#{row["_primaryId_"]}|#{row["_instanceId_"]}"
-
+            "datetime"    => Time.at(row["_unixtime_"]).utc.iso8601,
+            "location"    => row["_location_"]
         }
     end
 
@@ -58,7 +36,7 @@ class NxAsteroid
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = nil
-        db.execute( "select * from _asteroids_ where _primaryId_=?" , [uuid] ) do |row|
+        db.execute( "select * from _asteroids_ where _nyxId_=?" , [uuid] ) do |row|
             answer = NxAsteroid::databaseRowToNxAsteroid(row)
         end
         db.close
@@ -77,6 +55,13 @@ class NxAsteroid
         end
         db.close
         answer
+            .reduce([]){|selected, item|
+                if selected.none?{|obj| obj["uuid"] == item["uuid"] } then
+                    selected + [item]
+                else
+                    selected
+                end
+            }
     end
 
     # ----------------------------------------------------------------------
@@ -108,18 +93,8 @@ class NxAsteroid
         File.open(filepath, "w"){|f| f.puts(contents) }
     end
 
-    # NxAsteroid::issueNewAsteroidIds()
-    def self.issueNewAsteroidIds()
-        primaryId = SecureRandom.uuid
-        instanceId = SecureRandom.hex[0, 8]
-        asteroidId = "asteroid|#{primaryId}|#{instanceId}"
-        [primaryId, instanceId, asteroidId]
-    end
-
     # NxAsteroid::interactivelyCreateNewUrlOrNull()
     def self.interactivelyCreateNewUrlOrNull()
-
-        uuid = SecureRandom.uuid
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -127,42 +102,40 @@ class NxAsteroid
         url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
         return nil if url == ""
 
-        primaryId, instanceId, asteroidId = NxAsteroid::issueNewAsteroidIds()
+        uuid = SecureRandom.uuid
+        asteroidId = "Ax16-#{uuid}"
 
         filename = "#{NxAsteroid::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).url"
         filepath = "#{NxAsteroid::asteroidExportFolder()}/#{filename}"
         NxAsteroid::issueURLFile(filepath, url)
 
-        NxAsteroid::setAsteroidRecord(uuid, primaryId, instanceId, filepath, Time.new.to_i)
+        NxAsteroid::setAsteroidRecord(uuid, filepath, Time.new.to_i)
 
-        NxAsteroid::getAsteroidByUUIDOrNull(primaryId)
+        NxAsteroid::getAsteroidByUUIDOrNull(uuid)
     end
 
     # NxAsteroid::interactivelyCreateNewTextOrNull()
     def self.interactivelyCreateNewTextOrNull()
-
-        uuid = SecureRandom.uuid
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         text = Utils::editTextSynchronously("")
         return nil if text == ""
 
-        primaryId, instanceId, asteroidId = NxAsteroid::issueNewAsteroidIds()
+        uuid = SecureRandom.uuid
+        asteroidId = "Ax16-#{uuid}"
 
         filename = "#{NxAsteroid::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId}).txt"
         filepath = "#{NxAsteroid::asteroidExportFolder()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(text) }
 
-        NxAsteroid::setAsteroidRecord(uuid, primaryId, instanceId, filepath, Time.new.to_i)
+        NxAsteroid::setAsteroidRecord(uuid, filepath, Time.new.to_i)
 
-        NxAsteroid::getAsteroidByUUIDOrNull(primaryId)
+        NxAsteroid::getAsteroidByUUIDOrNull(uuid)
     end
 
     # NxAsteroid::interactivelyCreateNewAionPointOrNull()
     def self.interactivelyCreateNewAionPointOrNull()
-
-        uuid = SecureRandom.uuid
 
         datetime = Time.new.utc.iso8601
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -172,7 +145,8 @@ class NxAsteroid
         location = "/Users/pascal/Desktop/#{filename}"
         return nil if !File.exists?(location)
 
-        primaryId, instanceId, asteroidId = NxAsteroid::issueNewAsteroidIds()
+        uuid = SecureRandom.uuid
+        asteroidId = "Ax16-#{uuid}"
 
         name2 = "#{NxAsteroid::sanitizeDescriptionForUseAsFilename(description)} (#{asteroidId})"
         path2 = "#{NxAsteroid::asteroidExportFolder()}/#{name2}"
@@ -180,9 +154,9 @@ class NxAsteroid
 
         LucilleCore::copyFileSystemLocation(location, path2)
 
-        NxAsteroid::setAsteroidRecord(uuid, primaryId, instanceId, path2, Time.new.to_i)
+        NxAsteroid::setAsteroidRecord(uuid, path2, Time.new.to_i)
 
-        NxAsteroid::getAsteroidByUUIDOrNull(primaryId)
+        NxAsteroid::getAsteroidByUUIDOrNull(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -193,10 +167,8 @@ class NxAsteroid
         description = 
             if File.exists?(location) then
                 File.basename(location)
-                    .gsub("(#{nx45["asteroidId"]})", "")
-                    .gsub("#{nx45["asteroidId"]}", "")
             else
-                "file not found for asteroid #{nx45["primaryId"]}"
+                "file not found for asteroid #{nx45["uuid"]}"
             end
         "[asteroid] #{description}"
     end
@@ -241,7 +213,7 @@ class NxAsteroid
                 if File.exists?(nx45["location"]) then
                     system("open '#{nx45["location"]}'")
                 else
-                    puts "Could not find location for asteroid: #{nx45["asteroidId"]}"
+                    puts "Could not find location for asteroid: Ax16-#{nx45["uuid"]}"
                     puts "The latest known location (#{nx45["location"]}) does not exist"
                     LucilleCore::pressEnterToContinue()
                 end
